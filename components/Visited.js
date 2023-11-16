@@ -1,10 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import AddButton from './AddButton'
 
-const Visited = () => {
+const Visited = ({navigation}) => {
   return (
     <View>
-      <Text>Visited</Text>
+      <AddButton onPress={() => navigation.navigate('AddVisitedNote')}/>
     </View>
   )
 }

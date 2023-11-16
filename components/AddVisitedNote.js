@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const Map = () => {
+const AddVisitedNote = () => {
   return (
     <View>
-      <Text>Map</Text>
+      <Text>AddVisitedNote</Text>
     </View>
   )
 }
 
-export default Map
+export default AddVisitedNote
 
 const styles = StyleSheet.create({})
