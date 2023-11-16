@@ -8,13 +8,14 @@ import Visited from "../components/Visited";
 import Wishlist from "../components/Wishlist";
 import AddVisitedNote from "../components/AddVisitedNote";
 import { getContainerStyles } from "../components/SafeArea";
+import { commonStyles } from "../styles/CommonStyles";
 
 const TopTab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();
 
 const HomeScreen = () => {
   return (
-    <TopTab.Navigator screenOptions={{ tabBarStyle: styles.tabBar }}>
+    <TopTab.Navigator screenOptions={{ tabBarStyle: styles.tabBar}}>
       <TopTab.Screen name="Visited" component={Visited} />
       <TopTab.Screen name="Wishlist" component={Wishlist} />
     </TopTab.Navigator>
@@ -27,7 +28,7 @@ const Home = () => {
 
   return (
     <Stack.Navigator
-      screenOptions={{ headerShown: false, cardStyle: container }}
+      screenOptions={{ headerShown: false, cardStyle: [container, commonStyles.container] }}
     >
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
       <Stack.Screen name="AddVisitedNote" component={AddVisitedNote} />

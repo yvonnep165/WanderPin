@@ -1,9 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { commonStyles } from '../styles/CommonStyles'
 
 const Wishlist = () => {
   return (
-    <View>
+    <View style={commonStyles.container}>
       <Text>Wishlist</Text>
     </View>
   )
