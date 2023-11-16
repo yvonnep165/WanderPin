@@ -9,16 +9,21 @@ import Profile from "./screens/Profile";
 import {
   SafeAreaProvider
 } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import { colors } from "./styles/Colors";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const MainStack = () => (
-  <Tab.Navigator screenOptions={{headerShown: false}} >
-    <Tab.Screen name="Home" component={Home} />
-    <Tab.Screen name="Explore" component={Explore} />
-    <Tab.Screen name="Map" component={Map} />
-    <Tab.Screen name="Profile" component={Profile} />
+  <Tab.Navigator screenOptions={{headerShown: false, tabBarInactiveBackgroundColor: colors.backgroundGreen, tabBarActiveBackgroundColor: colors.backgroundGreen, tabBarActiveTintColor: colors.deepGreen, }} >
+    <Tab.Screen name="Home" component={Home} options={{tabBarIcon: ({color}) => (<MaterialCommunityIcons name="home" size={26} color={color} />)}}/>
+    <Tab.Screen name="Explore" component={Explore} options={{tabBarIcon: ({color}) => (<MaterialIcons name="explore" size={24} color={color} />)}}/>
+    <Tab.Screen name="Map" component={Map} options={{tabBarIcon: ({color}) => (<FontAwesome name="map" size={22} color={color} />)}}/>
+    <Tab.Screen name="Profile" component={Profile} options={{tabBarIcon: ({color}) => (<Ionicons name="person" size={24} color={color} />)}}/>
   </Tab.Navigator>
 );
 
