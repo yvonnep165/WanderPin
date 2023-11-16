@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../styles/Colors";
 import Visited from "../components/Visited";
 import Wishlist from "../components/Wishlist";
-import AddVisitedNote from "../components/AddVisitedNote";
+import VisitedNote from "../components/VisitedNote";
 import { getContainerStyles } from "../components/SafeArea";
 import { commonStyles } from "../styles/CommonStyles";
 
@@ -31,7 +31,7 @@ const Home = () => {
       screenOptions={{ headerShown: false, cardStyle: [container, commonStyles.container] }}
     >
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
-      <Stack.Screen name="AddVisitedNote" component={AddVisitedNote} />
+      <Stack.Screen name="AddVisitedNote" component={VisitedNote} />
     </Stack.Navigator>
   );
 };
