@@ -1,11 +1,18 @@
 import { StyleSheet, Text, View, TextInput, ScrollView } from "react-native";
-import React, { useState } from "react";
+import React, { useRef, useState, useMemo, useCallback } from "react";
 import PressableButton from "./PressableButton";
 import { colors } from "../styles/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
+import BottomSheet from "@gorhom/bottom-sheet";
+import { getContainerStyles } from "../components/SafeArea";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const AddVisitedNote = ({ navigation }) => {
+const VisitedNote = ({ navigation }) => {
+  // safe area
+  const insets = useSafeAreaInsets();
+  const container = getContainerStyles(insets);
+
   // initialize
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
@@ -13,8 +20,25 @@ const AddVisitedNote = ({ navigation }) => {
   const [visibility, setVisibility] = useState(1);
   const [visitDate, setVisitData] = useState(null);
 
+  // visibility for options
+  const [visibilityModal, setVisibilityModal] = useState(false);
+
+  // bottom sheet
+  // Ref
+  const bottomSheetRef = useRef(null);
+
+  // Variables
+  const snapPoints = useMemo(() => ["25%", "50%"], []);
+
+  // Callbacks
+  const handleSheetChanges = useCallback((index) => {
+    console.log("handleSheetChanges", index);
+  }, []);
+
   // change visible
-  const changeVisible = () => {};
+  const changeVisible = () => {
+    setVisibilityModal(true);
+  };
 
   const handleCancel = () => {
     navigation.goBack();
@@ -25,7 +49,7 @@ const AddVisitedNote = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, container]}>
       {/* the input area */}
       <View style={styles.formContainer}>
         {/* the title and content */}
@@ -53,28 +77,38 @@ const AddVisitedNote = ({ navigation }) => {
           <PressableButton>
             <View style={styles.option}>
               <View>
-              <View style={styles.optionLabel}>
-                <View style={styles.icon}>
-                  <Ionicons name="location" size={15} color="black" />
+                <View style={styles.optionLabel}>
+                  <View style={styles.icon}>
+                    <Ionicons
+                      name="location"
+                      size={15}
+                      color={colors.darkYellow}
+                    />
+                  </View>
+                  <Text>Location</Text>
                 </View>
-                <Text>Location</Text>
+                <Text style={styles.locationText}>
+                  {location}8068 WestMinster Hwy, Richmond, BC, Canada
+                </Text>
               </View>
-              <Text style={styles.locationText}>{location}8068 WestMinster Hwy, Richmond, BC, Canada</Text>
-              </View>
-              <AntDesign name="right" size={14} color="black" />
+              <AntDesign name="right" size={14} color={colors.black} />
             </View>
           </PressableButton>
           <PressableButton onPressFunction={changeVisible}>
             <View style={styles.option}>
               <View style={styles.optionLabel}>
                 <View style={styles.icon}>
-                  <Ionicons name="lock-open" size={15} color="black" />
+                  <Ionicons
+                    name="lock-open"
+                    size={15}
+                    color={colors.darkYellow}
+                  />
                 </View>
                 <Text>Visibility</Text>
               </View>
               <View style={styles.optionLabel}>
                 <Text>{visibility ? "Public" : "Private"}</Text>
-                <AntDesign name="right" size={14} color="black" />
+                <AntDesign name="right" size={14} color={colors.black} />
               </View>
             </View>
           </PressableButton>
@@ -82,13 +116,17 @@ const AddVisitedNote = ({ navigation }) => {
             <View style={styles.option}>
               <View style={styles.optionLabel}>
                 <View style={styles.icon}>
-                  <Ionicons name="calendar" size={15} color="black" />
+                  <Ionicons
+                    name="calendar"
+                    size={15}
+                    color={colors.darkYellow}
+                  />
                 </View>
                 <Text>Visit Date</Text>
               </View>
               <View style={styles.optionLabel}>
                 <Text>{visitDate}2023-10-21</Text>
-                <AntDesign name="right" size={14} color="black" />
+                <AntDesign name="right" size={14} color={colors.black} />
               </View>
             </View>
           </PressableButton>
@@ -111,18 +149,36 @@ const AddVisitedNote = ({ navigation }) => {
           <Text style={styles.submitText}>Mark As Visited</Text>
         </PressableButton>
       </View>
+
+
+      {visibilityModal && <BottomSheet
+        ref={bottomSheetRef}
+        index={1}
+        snapPoints={snapPoints}
+        onChange={handleSheetChanges}
+      >
+        <View style={styles.contentContainer}>
+          <PressableButton>
+            <Text>Public</Text>
+          </PressableButton>
+          <PressableButton>
+            <Text>Private</Text>
+          </PressableButton>
+        </View>
+      </BottomSheet>}
+
     </View>
   );
 };
 
-export default AddVisitedNote;
+export default VisitedNote;
 
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
     flex: 1,
     justifyContent: "space-between",
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttons: {
     flexDirection: "row",
@@ -148,7 +204,8 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.7,
-  },optionLocation: {
+  },
+  optionLocation: {
     paddingVertical: 5,
   },
   option: {
@@ -179,8 +236,9 @@ const styles = StyleSheet.create({
   },
   inputBox: {
     height: 280,
-  },locationText: {
+  },
+  locationText: {
     paddingHorizontal: 25,
-    flexWrap: 'wrap',
-  }
+    flexWrap: "wrap",
+  },
 });
