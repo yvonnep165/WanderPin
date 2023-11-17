@@ -3,11 +3,10 @@ import React from "react";
 import AddButton from "./AddButton";
 import { colors } from "../styles/Colors";
 import { commonStyles } from "../styles/CommonStyles";
-import { useNavigation } from "@react-navigation/native";
 
-const Visited = () => {
 
-  const navigation = useNavigation();
+const Visited = ({navigation}) => {
+
   return (
     <View style={commonStyles.container}>
       <View style={styles.adding}>

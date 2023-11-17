@@ -7,11 +7,13 @@ import { AntDesign } from "@expo/vector-icons";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { commonStyles } from "../styles/CommonStyles";
+import { FontAwesome } from "@expo/vector-icons";
 
 const VisitedNote = ({ navigation }) => {
   // safe area
   const insets = useSafeAreaInsets();
-  const container = getContainerStyles(insets);
+  const safeAreaContainer = getContainerStyles(insets);
 
   // initialize
   const [title, setTitle] = useState("");
@@ -26,20 +28,25 @@ const VisitedNote = ({ navigation }) => {
   // bottom sheet
   // Ref
   const bottomSheetRef = useRef(null);
-
   // Variables
   const snapPoints = useMemo(() => ["25%", "50%"], []);
-
-  // Callbacks
-  const handleSheetChanges = useCallback((index) => {
-    console.log("handleSheetChanges", index);
-  }, []);
 
   // change visible
   const changeVisible = () => {
     setVisibilityModal(true);
   };
 
+  const onPressPublic = () => {
+    setVisibility(1);
+    setVisibilityModal(false);
+  }
+
+  const onPressPrivate = () => {
+    setVisibility(0);
+    setVisibilityModal(false);
+  }
+
+  // cancel and submit
   const handleCancel = () => {
     navigation.goBack();
   };
@@ -49,9 +56,9 @@ const VisitedNote = ({ navigation }) => {
   };
 
   return (
-    <View style={[styles.container, container]}>
+    <View style={[safeAreaContainer, styles.noteContainer]}>
       {/* the input area */}
-      <View style={styles.formContainer}>
+      <View>
         {/* the title and content */}
         <View>
           <Text style={styles.label}>Title</Text>
@@ -150,23 +157,24 @@ const VisitedNote = ({ navigation }) => {
         </PressableButton>
       </View>
 
-
-      {visibilityModal && <BottomSheet
-        ref={bottomSheetRef}
-        index={1}
-        snapPoints={snapPoints}
-        onChange={handleSheetChanges}
-      >
-        <View style={styles.contentContainer}>
-          <PressableButton>
-            <Text>Public</Text>
-          </PressableButton>
-          <PressableButton>
-            <Text>Private</Text>
-          </PressableButton>
-        </View>
-      </BottomSheet>}
-
+      {visibilityModal && (
+        <BottomSheet
+          ref={bottomSheetRef}
+          index={1}
+          snapPoints={snapPoints}
+        >
+          <View style={styles.visibilityContainer}>
+            <PressableButton defaultStyle={styles.visibleOption} onPressFunction={onPressPublic}>
+              {visibility ? <FontAwesome name="check-circle" size={20} color={colors.darkYellow} /> : <FontAwesome name="circle-o" size={20} color={colors.darkYellow} />}
+              <Text>Public</Text>
+            </PressableButton>
+            <PressableButton defaultStyle={styles.visibleOption} onPressFunction={onPressPrivate}>
+            {!visibility ? <FontAwesome name="check-circle" size={20} color={colors.darkYellow} /> : <FontAwesome name="circle-o" size={20} color={colors.darkYellow} />}
+              <Text>Private</Text>
+            </PressableButton>
+          </View>
+        </BottomSheet>
+      )}
     </View>
   );
 };
@@ -174,7 +182,7 @@ const VisitedNote = ({ navigation }) => {
 export default VisitedNote;
 
 const styles = StyleSheet.create({
-  container: {
+  noteContainer: {
     paddingHorizontal: 20,
     flex: 1,
     justifyContent: "space-between",
@@ -240,5 +248,17 @@ const styles = StyleSheet.create({
   locationText: {
     paddingHorizontal: 25,
     flexWrap: "wrap",
+  },
+
+  // visibility modal
+  visibilityContainer: {
+    flex: 1,
+    padding: 20,
+    gap: 40,
+  },
+  visibleOption: {
+    flexDirection: "row",
+    alignItems: 'center',
+    gap: 10,
   },
 });
