@@ -13,6 +13,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "./styles/Colors";
 import VisitedNote from "./components/VisitedNote";
+import { commonStyles } from "./styles/CommonStyles";
 import WishNote from "./components/WishNote";
 
 const Stack = createStackNavigator();
@@ -70,7 +71,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions={{cardStyle:  commonStyles.container}}>
           <Stack.Screen
             name="Main"
             component={MainStack}

@@ -4,11 +4,10 @@ import AddButton from "./AddButton";
 import { colors } from "../styles/Colors";
 import { commonStyles } from "../styles/CommonStyles";
 import { useNavigation } from "@react-navigation/native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const Visited = () => {
+const Visited = ({navigation}) => {
 
-  const navigation = useNavigation();
   return (
     <View style={commonStyles.container}>
       <View style={styles.adding}>
