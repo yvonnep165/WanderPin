@@ -13,6 +13,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "./styles/Colors";
 import VisitedNote from "./components/VisitedNote";
+import WishNote from "./components/WishNote";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -76,6 +77,7 @@ export default function App() {
             options={{ headerShown: false }}
           />
           <Stack.Screen name="VisitedNote" component={VisitedNote} options={{ headerShown: false }}/>
+          <Stack.Screen name="WishNote" component={WishNote} options={{ headerShown: false }}/>
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
