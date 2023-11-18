@@ -16,7 +16,7 @@ export default function WishNote() {
     <View style={[styles.container, container]}>
       <View style={styles.info}>
         <Text style={styles.title}>Title</Text>
-        <InputField />
+        <InputField placeholder="Write the title"/>
       </View>
       <View style={styles.info}>
         <Ionicons
@@ -27,7 +27,7 @@ export default function WishNote() {
       </View>
       <View style={styles.info}>
         <Text style={styles.title}>Note</Text>
-        <InputField />
+        <InputField placeholder="Write your important note (optional)" height={200}/>
       </View>
       <View style={styles.info}>
         <Ionicons

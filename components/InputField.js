@@ -2,7 +2,7 @@ import { View, TextInput, StyleSheet } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { colors } from "../styles/Colors";
 
-export default function InputField({changedHandler, value}) {
+export default function InputField({changedHandler, value, placeholder, height}) {
     const [text, setText] = useState("");
 
     useEffect(() => {
@@ -15,20 +15,20 @@ export default function InputField({changedHandler, value}) {
     }
 
     return (
-    <View style={styles.container}>
+    <View>
       <TextInput
-        style={styles.input}
+        style={[styles.input, height && { height }]}
         onChangeText={changeTextHandler}
         value={text}
+        placeholder={placeholder}
+        placeholderTextColor={colors.placeholder}
+        multiline={true}
       />
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-    container: {
-        alignContent: "center",
-    },
     input: {
         padding: 8,
         marginTop: 5,
