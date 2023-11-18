@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TextInput, ScrollView } from "react-native";
-import React, { useRef, useState, useMemo, useCallback } from "react";
+import React, { useRef, useState, useMemo, useCallback, useEffect } from "react";
 import PressableButton from "./PressableButton";
 import { colors } from "../styles/Colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { commonStyles } from "../styles/CommonStyles";
 import { FontAwesome } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { writeJournalToDB } from "../firebase/firestoreHelper";
 
 const VisitedNote = ({ navigation }) => {
   // safe area
@@ -21,7 +22,7 @@ const VisitedNote = ({ navigation }) => {
   const [note, setNote] = useState("");
   const [location, setLocation] = useState("");
   const [visibility, setVisibility] = useState(1);
-  const [visitDate, setVisitDate] = useState(null);
+  const [visitDate, setVisitDate] = useState(new Date());
 
   // visibility for options
   const [visibilityModal, setVisibilityModal] = useState(false);
@@ -59,9 +60,11 @@ const VisitedNote = ({ navigation }) => {
 
   const changeDate = () => {
     setShow(true);
-    const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-    setVisitDate(formattedDate);
   };
+
+  useEffect(()=> {
+    setVisitDate(date);
+  }, [date])
 
   // cancel and submit
   const handleCancel = () => {
@@ -70,12 +73,14 @@ const VisitedNote = ({ navigation }) => {
 
   const handleSubmit = () => {
     navigation.goBack();
+    const newJournal = {title: title, note: note, location: location, visibility: visibility, date: visitDate, editTime: new Date()};
+    writeJournalToDB(newJournal);
   };
 
   return (
     <View style={[safeAreaContainer, styles.noteContainer]}>
       {/* the input area */}
-      <View>
+      <View style={styles.formContainer}>
         {/* the title and content */}
         <View>
           <Text style={styles.label}>Title</Text>
@@ -112,7 +117,7 @@ const VisitedNote = ({ navigation }) => {
                   <Text>Location</Text>
                 </View>
                 <Text style={styles.locationText}>
-                  {location}8068 WestMinster Hwy, Richmond, BC, Canada
+                  {location}
                 </Text>
               </View>
               <AntDesign name="right" size={14} color={colors.black} />
@@ -149,7 +154,7 @@ const VisitedNote = ({ navigation }) => {
                 <Text>Visit Date</Text>
               </View>
               <View style={styles.optionLabel}>
-                <Text>{visitDate}</Text>
+                <Text>{visitDate.getFullYear()}-{visitDate.getMonth() + 1}-{visitDate.getDate()}</Text>
                 <AntDesign name="right" size={14} color={colors.black} />
               </View>
             </View>
@@ -242,6 +247,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
+  },formContainer: {
+    width: '90%',
   },
   buttons: {
     flexDirection: "row",
