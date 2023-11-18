@@ -1,15 +1,14 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import PressableButton from "./PressableButton";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors } from "../styles/Colors";
 
-const AddButton = ({onPress}) => {
+const AddButton = ({onPress, iconComponent}) => {
 
   return (
     <View>
       <PressableButton defaultStyle={styles.addButton} pressedStyle={styles.pressedButton} onPressFunction={onPress}>
-        <MaterialCommunityIcons name="shoe-print" size={24} color="white" />
+        {iconComponent}
       </PressableButton>
     </View>
   );
