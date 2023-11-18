@@ -27,6 +27,11 @@ export default function WishNote( { navigation } ) {
     navigation.goBack();
   };
 
+  // navigate to CustomList
+  const handleAddToList = () => {
+    navigation.navigate('CustomList'); // Adjust the screen name based on your navigation setup
+  };
+
   return (
     <View style={[styles.container, container]}>
       <View style={styles.info}>
@@ -46,12 +51,17 @@ export default function WishNote( { navigation } ) {
         <Text style={styles.title}>Note</Text>
         <InputField placeholder="Write your important note (optional)" height={200}/>
       </View>
-      <View style={[styles.info, styles.label]}>
-        <MaterialIcons name="add-location-alt" size={20} color={colors.deepYellow} />
-        <Text>Add To List</Text>
-        <Text>  ? favorite</Text>
-        <AntDesign name="right" size={14} color={colors.black} />
-      </View>
+      {/* navigate to select the list to add the location*/}
+      <PressableButton 
+          pressedStyle={styles.pressed}
+          onPressFunction={handleAddToList}>
+        <View style={[styles.info, styles.label]}>
+          <MaterialIcons name="add-location-alt" size={20} color={colors.deepYellow} />
+          <Text>Add To List</Text>
+          <Text>  ? favorite</Text>
+          <AntDesign name="right" size={14} color={colors.black} />
+        </View>
+      </PressableButton>
       <View style={[styles.info, styles.label]}>
         <Ionicons
           name="calendar"
