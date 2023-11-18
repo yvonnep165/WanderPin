@@ -7,6 +7,7 @@ export const colors = {
     deepGreen: "#9ab667",
     black: "#29292a",
     backgroundGreen: "#f8f9f5",
-    white: "#fff",
+    white: "#FAFAFA",
     placeholder: "gray",
+    lightWhite: "#FFFFFF",
 }
