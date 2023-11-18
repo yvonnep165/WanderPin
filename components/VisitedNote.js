@@ -9,6 +9,7 @@ import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { commonStyles } from "../styles/CommonStyles";
 import { FontAwesome } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const VisitedNote = ({ navigation }) => {
   // safe area
@@ -20,7 +21,7 @@ const VisitedNote = ({ navigation }) => {
   const [note, setNote] = useState("");
   const [location, setLocation] = useState("");
   const [visibility, setVisibility] = useState(1);
-  const [visitDate, setVisitData] = useState(null);
+  const [visitDate, setVisitDate] = useState(null);
 
   // visibility for options
   const [visibilityModal, setVisibilityModal] = useState(false);
@@ -31,7 +32,7 @@ const VisitedNote = ({ navigation }) => {
   // Variables
   const snapPoints = useMemo(() => ["25%", "50%"], []);
 
-  // change visible
+  // change visibility
   const changeVisible = () => {
     setVisibilityModal(true);
   };
@@ -39,12 +40,28 @@ const VisitedNote = ({ navigation }) => {
   const onPressPublic = () => {
     setVisibility(1);
     setVisibilityModal(false);
-  }
+  };
 
   const onPressPrivate = () => {
     setVisibility(0);
     setVisibilityModal(false);
-  }
+  };
+
+  // change date
+  const [date, setDate] = useState(new Date());
+  const [show, setShow] = useState(false);
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate;
+    setShow(false);
+    setDate(currentDate);
+  };
+
+  const changeDate = () => {
+    setShow(true);
+    const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    setVisitDate(formattedDate);
+  };
 
   // cancel and submit
   const handleCancel = () => {
@@ -119,7 +136,7 @@ const VisitedNote = ({ navigation }) => {
               </View>
             </View>
           </PressableButton>
-          <PressableButton>
+          <PressableButton onPressFunction={changeDate}>
             <View style={styles.option}>
               <View style={styles.optionLabel}>
                 <View style={styles.icon}>
@@ -132,13 +149,23 @@ const VisitedNote = ({ navigation }) => {
                 <Text>Visit Date</Text>
               </View>
               <View style={styles.optionLabel}>
-                <Text>{visitDate}2023-10-21</Text>
+                <Text>{visitDate}</Text>
                 <AntDesign name="right" size={14} color={colors.black} />
               </View>
             </View>
           </PressableButton>
         </View>
       </View>
+
+      {show && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={date}
+          mode="date"
+          is24Hour={true}
+          onChange={onChange}
+        />
+      )}
 
       {/* cancel and save */}
       <View style={styles.buttons}>
@@ -158,23 +185,51 @@ const VisitedNote = ({ navigation }) => {
       </View>
 
       {visibilityModal && (
-        <BottomSheet
-          ref={bottomSheetRef}
-          index={1}
-          snapPoints={snapPoints}
-        >
+        <BottomSheet ref={bottomSheetRef} index={1} snapPoints={snapPoints}>
           <View style={styles.visibilityContainer}>
-            <PressableButton defaultStyle={styles.visibleOption} onPressFunction={onPressPublic}>
-              {visibility ? <FontAwesome name="check-circle" size={20} color={colors.darkYellow} /> : <FontAwesome name="circle-o" size={20} color={colors.darkYellow} />}
+            <PressableButton
+              defaultStyle={styles.visibleOption}
+              onPressFunction={onPressPublic}
+            >
+              {visibility ? (
+                <FontAwesome
+                  name="check-circle"
+                  size={20}
+                  color={colors.darkYellow}
+                />
+              ) : (
+                <FontAwesome
+                  name="circle-o"
+                  size={20}
+                  color={colors.darkYellow}
+                />
+              )}
               <Text>Public</Text>
             </PressableButton>
-            <PressableButton defaultStyle={styles.visibleOption} onPressFunction={onPressPrivate}>
-            {!visibility ? <FontAwesome name="check-circle" size={20} color={colors.darkYellow} /> : <FontAwesome name="circle-o" size={20} color={colors.darkYellow} />}
+            <PressableButton
+              defaultStyle={styles.visibleOption}
+              onPressFunction={onPressPrivate}
+            >
+              {!visibility ? (
+                <FontAwesome
+                  name="check-circle"
+                  size={20}
+                  color={colors.darkYellow}
+                />
+              ) : (
+                <FontAwesome
+                  name="circle-o"
+                  size={20}
+                  color={colors.darkYellow}
+                />
+              )}
               <Text>Private</Text>
             </PressableButton>
           </View>
         </BottomSheet>
       )}
+
+
     </View>
   );
 };
@@ -258,7 +313,7 @@ const styles = StyleSheet.create({
   },
   visibleOption: {
     flexDirection: "row",
-    alignItems: 'center',
+    alignItems: "center",
     gap: 10,
   },
 });
