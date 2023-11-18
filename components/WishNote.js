@@ -2,6 +2,7 @@ import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import React from 'react';
 import PressableButton from "./PressableButton";
 import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from '@expo/vector-icons'; 
 import { colors } from "../styles/Colors";
 import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -28,6 +29,9 @@ export default function WishNote() {
       <View style={styles.info}>
         <Text style={styles.title}>Note</Text>
         <InputField placeholder="Write your important note (optional)" height={200}/>
+      </View>
+      <View style={styles.info}>
+        <MaterialIcons name="add-location-alt" size={15} color={colors.darkYellow} />
       </View>
       <View style={styles.info}>
         <Ionicons
