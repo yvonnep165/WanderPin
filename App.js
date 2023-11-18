@@ -15,6 +15,7 @@ import { colors } from "./styles/Colors";
 import VisitedNote from "./components/VisitedNote";
 import { commonStyles } from "./styles/CommonStyles";
 import WishNote from "./components/WishNote";
+import AddToList from "./components/AddToList";
 import CustomList from "./components/CustomList"
 
 const Stack = createStackNavigator();
@@ -80,6 +81,7 @@ export default function App() {
           />
           <Stack.Screen name="VisitedNote" component={VisitedNote} options={{ headerShown: false }}/>
           <Stack.Screen name="WishNote" component={WishNote} options={{ headerShown: false }}/>
+          <Stack.Screen name="AddToList" component={AddToList} options={{ headerShown: false }}/>
           <Stack.Screen name="CustomList" component={CustomList} options={{ headerShown: false }}/>
         </Stack.Navigator>
       </NavigationContainer>

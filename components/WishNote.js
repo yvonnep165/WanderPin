@@ -27,9 +27,9 @@ export default function WishNote( { navigation } ) {
     navigation.goBack();
   };
 
-  // navigate to CustomList
+  // navigate to AddToList
   const handleAddToList = () => {
-    navigation.navigate('CustomList'); // Adjust the screen name based on your navigation setup
+    navigation.navigate('AddToList'); 
   };
 
   return (
