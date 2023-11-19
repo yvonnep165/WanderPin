@@ -12,7 +12,7 @@ import { Switch } from '@rneui/themed';
 import InputField from './InputField';
 import { useRoute } from '@react-navigation/native';
 import { icons } from '../styles/Icons';
-import { updateNote, writeNoteToDB } from '../firebase/firestoreHelper';
+import { deleteNoteFromDB, updateNote, writeNoteToDB } from '../firebase/firestoreHelper';
 
 export default function WishNote( { navigation } ) {
   const route = useRoute();
@@ -82,8 +82,24 @@ export default function WishNote( { navigation } ) {
     setNote(noteContent);
   }
 
+  // delete the note from the collection
+  const handleDelete = () => {
+      deleteNoteFromDB(noteId);
+      navigation.navigate("Wishlist");
+  };
+
   return (
     <View style={[styles.container, container]}>
+      {/* show a delete button when it's in edit mode */}
+      {noteId && (
+        <PressableButton
+          defaultStyle={styles.delete}
+          pressedStyle={styles.pressed}
+          onPressFunction={handleDelete}
+        >
+          <Text style={styles.submitText}>Delete</Text>
+        </PressableButton>
+      )}
       <View style={styles.info}>
         <Text style={styles.title}>Title</Text>
         <InputField placeholder="Write the title" changedHandler={changeTitle} value={title}/>
@@ -243,5 +259,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginLeft: 10,
     marginRight: 10,
-  }
+  },
+  delete: {
+    backgroundColor: colors.deepYellow,
+    width: "25%",
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
