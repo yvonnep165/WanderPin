@@ -1,20 +1,73 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { StyleSheet, Text, View, Image } from "react-native";
+import React, { useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getContainerStyles } from "../components/SafeArea";
 import { commonStyles } from "../styles/CommonStyles";
+import { colors } from "../styles/Colors";
+import { getJournalNumbersByUser } from "../firebase/firestoreHelper";
 
 const Profile = () => {
   const insets = useSafeAreaInsets();
   const container = getContainerStyles(insets);
 
   return (
-    <View style={[container, commonStyles.container]}>
-      <Text>Profile</Text>
+    <View style={[container, commonStyles.container,styles.container]}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Profile</Text>
+        <Image
+          style={styles.img}
+          resizeMode="cover"
+          source={{
+            uri: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
+          }}
+        />
+      </View>
+      <View>
+        <Text style={styles.title}>Username</Text>
+        <View style={styles.option}>
+          <Text style={styles.subtitle}>Locations</Text>
+          <Text style={styles.subtitle}>12(temp)</Text>
+        </View>
+        <View style={styles.option}>
+          <Text style={styles.subtitle}>Posts</Text>
+          <Text style={styles.subtitle}>8(temp)</Text>
+        </View>
+        <View style={styles.option}>
+          <Text style={styles.subtitle}>Wishlist</Text>
+          <Text style={styles.subtitle}>8(temp)</Text>
+        </View>
+      </View>
     </View>
   );
 };
 
 export default Profile;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {paddingHorizontal: 10},
+  header: {
+    height: "30%",
+    backgroundColor: colors.lightYellow,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+  },
+  title: {
+    fontSize: 25,
+    fontWeight: "600",
+    alignSelf: 'center',
+    paddingTop: 10,
+  },
+  img: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },option: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },subtitle: {
+    fontSize: 20,
+  }
+});

@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View, Image } from "react-native";
 import React from "react";
-import { colors } from "../styles/Colors";
 import PressableButton from "./PressableButton";
+import { colors } from "../styles/Colors";
 
-const HomeJournalCard = ({ journal, pressCardHandler }) => {
+const ExploreCard = ({ journal, pressCardHandler }) => {
   const firebaseUpdateTime = new Date(
     journal.editTime.seconds * 1000 + journal.editTime.nanoseconds / 1e6
   );
@@ -11,11 +11,11 @@ const HomeJournalCard = ({ journal, pressCardHandler }) => {
 
   const pressHandler = () => {
     pressCardHandler(journal);
-  }
- 
+  };
+
   return (
-    <PressableButton onPressFunction={pressHandler}>
-      <View style={styles.cardContainer}>
+    <View style={styles.cardContainer}>
+      <PressableButton onPressFunction={pressHandler}>
         <Image
           style={styles.img}
           resizeMode="cover"
@@ -26,36 +26,28 @@ const HomeJournalCard = ({ journal, pressCardHandler }) => {
         <View style={styles.info}>
           <Text style={styles.title}>{journal.title}</Text>
           <View style={styles.subtitle}>
-            <Text>{journal.location}</Text>
-            <Text>{updateTime}</Text>
+            <Text>username</Text>
           </View>
         </View>
-      </View>
-    </PressableButton>
+      </PressableButton>
+    </View>
   );
 };
 
-export default HomeJournalCard;
+export default ExploreCard;
 
 const styles = StyleSheet.create({
   cardContainer: {
-    borderWidth: 0.3,
+    borderWidth: 0.5,
     color: colors.lightWhite,
     borderRadius: 15,
+    width: "45%",
+    margin: 10,
   },
   img: {
     width: "100%",
     height: 100,
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
-  },
-  info: { padding: 10, color: colors.white },
-  title: {
-    fontWeight: "900",
-  },
-  subtitle: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingTop: 5,
-  },
+  },info: { padding: 10, color: colors.white },
 });

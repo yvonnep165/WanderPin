@@ -15,7 +15,7 @@ const Home = () => {
   const container = getContainerStyles(insets);
 
   return (
-    <View style={[container, commonStyles.container]}>
+    <View style={[container, commonStyles.container, styles.home]}>
       <TopTab.Navigator screenOptions={{ tabBarStyle: styles.tabBar }}>
         <TopTab.Screen name="Visited" component={Visited} />
         <TopTab.Screen name="Wishlist" component={Wishlist} />
@@ -27,6 +27,7 @@ const Home = () => {
 export default Home;
 
 const styles = StyleSheet.create({
+  home: {paddingBottom: 0},
   tabBar: {
     backgroundColor: colors.lightGreen,
     height: 60,
