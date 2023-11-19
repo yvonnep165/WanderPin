@@ -68,7 +68,7 @@ const JournalDetail = ({ route, navigation }) => {
         style={styles.img}
         resizeMode="cover"
         source={{
-          uri: "https://img.youtube.com/vi/28oJJJFkV4g/0.jpg",
+          uri: "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
         }}
       />
       <Text>{journal.title}</Text>
