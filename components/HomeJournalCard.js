@@ -1,27 +1,37 @@
 import { StyleSheet, Text, View, Image } from "react-native";
 import React from "react";
 import { colors } from "../styles/Colors";
+import PressableButton from "./PressableButton";
 
-const HomeJournalCard = ({ journal }) => {
+const HomeJournalCard = ({ journal, pressCardHandler }) => {
   const firebaseUpdateTime = new Date(
     journal.editTime.seconds * 1000 + journal.editTime.nanoseconds / 1e6
   );
   const updateTime = firebaseUpdateTime.toLocaleDateString();
 
+  const pressHandler = () => {
+    pressCardHandler(journal);
+  }
+ 
   return (
-    <View style={styles.cardContainer}>
-      <Image
-        style={styles.img}
-        resizeMode="contain"
-        source={{
-          uri: "https://img.youtube.com/vi/28oJJJFkV4g/0.jpg",
-        }}
-      />
-      <Text>{journal.title}</Text>
-      <Text>{journal.location}</Text>
-      <Text>11 Cloudy</Text>
-      <Text>{updateTime}</Text>
-    </View>
+    <PressableButton onPressFunction={pressHandler}>
+      <View style={styles.cardContainer}>
+        <Image
+          style={styles.img}
+          resizeMode="cover"
+          source={{
+            uri: "https://img.youtube.com/vi/28oJJJFkV4g/0.jpg",
+          }}
+        />
+        <View style={styles.info}>
+          <Text style={styles.title}>{journal.title}</Text>
+          <View style={styles.subtitle}>
+            <Text>{journal.location}</Text>
+            <Text>{updateTime}</Text>
+          </View>
+        </View>
+      </View>
+    </PressableButton>
   );
 };
 
@@ -29,12 +39,23 @@ export default HomeJournalCard;
 
 const styles = StyleSheet.create({
   cardContainer: {
-    maxWidth: "90%",
-    width: "90%",
     borderWidth: 0.3,
     color: colors.lightWhite,
+    borderRadius: 15,
   },
   img: {
-    height: 300,
+    width: "100%",
+    height: 100,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
+  },
+  info: { padding: 10, color: colors.white },
+  title: {
+    fontWeight: "900",
+  },
+  subtitle: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingTop: 5,
   },
 });

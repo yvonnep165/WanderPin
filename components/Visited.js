@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Image } from "react-native";
 import React, { useState, useEffect } from "react";
 import { database } from "../firebase/firebaseSetup";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
@@ -32,15 +32,21 @@ const Visited = ({ navigation }) => {
     );
   }, []);
 
+  const pressCardHandler = (pressedCard) => {
+    navigation.navigate("JournalDetail", {pressedCard})
+  }
+
   return (
     <View style={[commonStyles.container, styles.container]}>
-      <FlatList
+      <View style={styles.cardList}>
+        <FlatList
         contentContainerStyle={styles.cards}
         data={journals}
         renderItem={({ item }) => {
-          return <HomeJournalCard journal={item} />;
+          return <HomeJournalCard journal={item} pressCardHandler={pressCardHandler}/>;
         }}
       />
+      </View>
       <View style={styles.adding}>
         <AddButton
           onPress={() => navigation.navigate("VisitedNote")}
@@ -56,8 +62,9 @@ const Visited = ({ navigation }) => {
 export default Visited;
 
 const styles = StyleSheet.create({
-  container: { alignItems: "center"},
-  cards: {width: "90%"},
+  container: { flex: 1, alignItems: "center"},
+  cardList: { width: "90%" ,},
+  cards: {gap: 10, paddingTop: 10},
   adding: {
     position: "absolute",
     bottom: 5,
