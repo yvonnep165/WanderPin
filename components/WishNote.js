@@ -16,9 +16,11 @@ import { updateNote, writeNoteToDB } from '../firebase/firestoreHelper';
 
 export default function WishNote( { navigation } ) {
   const route = useRoute();
-  const [list, setList] = useState(route.params?.selectedList || route.params?.pressedWishlist || null)
+  const [list, setList] = useState(route.params?.selectedList || route.params?.pressedWishlist?.list || null)
   const [title, setTitle] = useState(route.params?.pressedWishlist?.title || "")
   const [note, setNote] = useState(route.params?.pressedWishlist?.note || "")
+  const [noteId, setNoteId] = useState(route.params?.pressedWishlist?.id || null)
+
   // update location later
   const [location, setLocation] = useState("Location")
   // update reminder setting later
@@ -27,8 +29,8 @@ export default function WishNote( { navigation } ) {
   // Update the state with the selected list
   useFocusEffect(
     React.useCallback(() => {
-      setList(route.params?.selectedList || null);
-    }, [route.params?.selectedList])
+      setList(route.params?.selectedList || route.params?.pressedWishlist?.list || null);
+    }, [route.params?.selectedList || route.params?.pressedWishlist?.list])
   );
 
   // safe area
@@ -50,9 +52,8 @@ export default function WishNote( { navigation } ) {
       Alert.alert('invalid field');
     } else {
       // update the value
-      if (route.params.pressedWishlist) {
-        const pressedWishlist = route.params.pressedWishlist;
-        updateNote(pressedWishlist.id, title, location, note, list, reminder)
+      if (noteId) {
+        updateNote(noteId, title, location, note, list, reminder)
       } else {
         // write value to database
         const newWishlist = { title, location, note, list, reminder};
@@ -152,7 +153,7 @@ export default function WishNote( { navigation } ) {
           pressedStyle={styles.pressed}
           onPressFunction={handleSubmit}
         >
-          <Text style={styles.submitText}>Add to Wishlist</Text>
+          <Text style={styles.submitText}>{noteId ? 'Update Wishlist' : 'Add to Wishlist'}</Text>
         </PressableButton>
       </View>
     </View>
