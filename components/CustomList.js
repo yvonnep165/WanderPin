@@ -40,10 +40,12 @@ export default function CustomList({ navigation }) {
     if (hasError) {
       Alert.alert('Please name the list and select icon');
     } else {
+      // update the value
       if (route.params) {
         const pressedList = route.params.pressedList;
         updateList(pressedList.id, title, iconColor, icon)
       } else {
+        // write value to database
         const newList = { title: title, color: iconColor, icon: icon };
         writeListToDB(newList);
       }
@@ -223,8 +225,8 @@ const styles = StyleSheet.create({
   },
   icon: {
     alignSelf: 'center',
-    width: 60,
-    height: 60,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 9999,

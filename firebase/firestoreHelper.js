@@ -64,14 +64,14 @@ export async function writeNoteToDB(note) {
 }
 
 // update a note's information
-export async function updateNote(id, title, location, note, listID, reminder) {
+export async function updateNote(id, title, location, note, list, reminder) {
   try {
       const updateNote = doc(database, "notes", id);
       await updateDoc(updateNote,  {
           title: title, 
           location: location,
           note: note,
-          listId: listID,
+          list: list,
           reminder: reminder,
       });
   } catch(err) {
@@ -86,6 +86,8 @@ export async function deleteNoteFromDB(id) {
   }
   catch(err) {
       console.log(err)
+  }
+}
 
 export async function updateJournalToDB(journal, updateField) {
   try {

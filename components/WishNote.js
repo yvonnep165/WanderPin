@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import PressableButton from "./PressableButton";
@@ -12,11 +12,17 @@ import { Switch } from '@rneui/themed';
 import InputField from './InputField';
 import { useRoute } from '@react-navigation/native';
 import { icons } from '../styles/Icons';
+import { updateNote, writeNoteToDB } from '../firebase/firestoreHelper';
 
 export default function WishNote( { navigation } ) {
   const route = useRoute();
+  const [list, setList] = useState(route.params?.selectedList || route.params?.pressedWishlist || null)
+  const [title, setTitle] = useState(route.params?.pressedWishlist?.title || "")
+  const [note, setNote] = useState(route.params?.pressedWishlist?.note || "")
+  // update location later
+  const [location, setLocation] = useState("Location")
+  // update reminder setting later
   const [reminder, setReminder] = useState(false);
-  const [list, setList] = useState(route.params?.selectedList || null)
 
   // Update the state with the selected list
   useFocusEffect(
@@ -36,7 +42,24 @@ export default function WishNote( { navigation } ) {
 
   // save the data to notes collection
   const handleSubmit = () => {
-    navigation.goBack();
+    let hasError = false;
+    if (!title || !location || !list) {
+      hasError = true;
+    }
+    if (hasError) {
+      Alert.alert('invalid field');
+    } else {
+      // update the value
+      if (route.params.pressedWishlist) {
+        const pressedWishlist = route.params.pressedWishlist;
+        updateNote(pressedWishlist.id, title, location, note, list, reminder)
+      } else {
+        // write value to database
+        const newWishlist = { title, location, note, list, reminder};
+        writeNoteToDB(newWishlist);
+      }
+      navigation.navigate("Wishlist");
+    }
   };
 
   // navigate to AddToList
@@ -50,11 +73,19 @@ export default function WishNote( { navigation } ) {
 
   const foundIcon = findIconLabel(list?.icon, icons.iconOption);
 
+  function changeTitle(noteTitle) {
+    setTitle(noteTitle);
+  }
+
+  function changeNote(noteContent) {
+    setNote(noteContent);
+  }
+
   return (
     <View style={[styles.container, container]}>
       <View style={styles.info}>
         <Text style={styles.title}>Title</Text>
-        <InputField placeholder="Write the title"/>
+        <InputField placeholder="Write the title" changedHandler={changeTitle} value={title}/>
       </View>
       <View style={[styles.info, styles.label]}>
         <Ionicons
@@ -67,7 +98,7 @@ export default function WishNote( { navigation } ) {
       </View>
       <View style={styles.info}>
         <Text style={styles.title}>Note</Text>
-        <InputField placeholder="Write your important note (optional)" height={200}/>
+        <InputField placeholder="Write your important note (optional)" height={200} changedHandler={changeNote} value={note}/>
       </View>
       {/* navigate to select the list to add the location*/}
       <PressableButton 
