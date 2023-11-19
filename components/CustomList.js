@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import PressableButton from './PressableButton';
 import IconSelect from './IconSelect';
@@ -7,16 +7,19 @@ import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../styles/Colors";
 import { icons } from '../styles/Icons';
+import { deleteListFromDB, writeListToDB, updateList } from "../firebase/firestoreHelper";
+import { useRoute } from '@react-navigation/native';
 
 const colorChoice = colors.colorOption;
-
 const CIRCLE_SIZE = 30;
 const CIRCLE_RING_SIZE = 1;
 
-export default function CustomList({ navigation, iconChoice }) {
+export default function CustomList({ navigation }) {
+  const route = useRoute();
   const [iconColor, setIconColor] = useState(0);
   const [icon, setIcon] = useState("");
   const [showIcon, setShowIcon] = useState(null);
+  const [title, setTitle] = useState("");
 
   // safe area
   const insets = useSafeAreaInsets();
@@ -29,7 +32,17 @@ export default function CustomList({ navigation, iconChoice }) {
 
   // save the data to lists collection
   const handleSubmit = () => {
-    navigation.goBack();
+    let hasError = false;
+    if (!title || !icon) {
+      hasError = true;
+    }
+    if (hasError) {
+      Alert.alert('Please name the list and select icon');
+    } else {
+      const newList = { title: title, color: iconColor, icon: icon };
+      writeListToDB(newList);
+      navigation.navigate("AddToList");
+    }
   };
 
   // update the icon value selected
@@ -50,16 +63,20 @@ export default function CustomList({ navigation, iconChoice }) {
     setIcon(selectedIcon);
   }
 
+  function changeTitle(title) {
+    setTitle(title);
+  }
+
   return (
     <View style={[styles.container, container]}>
       <View style={styles.info}>
         <Text style={styles.title}>Title</Text>
-        <InputField placeholder="Write List Title"/>
+        <InputField placeholder="Write List Title" changedHandler={changeTitle} value={title}/>
       </View>
       {/* icon options for selection */}
       <View style={styles.iconSelect}>
         <Text style={styles.title}>Select the Icon</Text>
-        <IconSelect onValueChange={changeIcon} updateValue={null} iconChoice={iconChoice}/>
+        <IconSelect onValueChange={changeIcon} updateValue={null}/>
       </View>
       {/* color options for selection */}
       <Text style={styles.title}>Select Icon Color</Text>

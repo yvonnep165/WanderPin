@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, FlatList } from 'react-native';
 import React from 'react';
 import AddButton from "./AddButton";
 import { commonStyles } from '../styles/CommonStyles';
@@ -26,6 +26,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 5,
     right: 25,
-    zIndex: 1,
+    zIndex: 9999,
   },
 });
