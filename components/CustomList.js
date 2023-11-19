@@ -1,11 +1,22 @@
-import { View, Text, StyleSheet } from 'react-native';
-import React from 'react';
+import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import PressableButton from './PressableButton';
+import IconSelect from './IconSelect';
 import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../styles/Colors";
+import { icons } from '../styles/Icons';
 
-export default function CustomList({ navigation }) {
+const colorChoice = colors.colorOption;
+
+const CIRCLE_SIZE = 30;
+const CIRCLE_RING_SIZE = 1;
+
+export default function CustomList({ navigation, iconChoice }) {
+  const [iconColor, setIconColor] = useState(0);
+  const [icon, setIcon] = useState("");
+  const [showIcon, setShowIcon] = useState(null);
+
   // safe area
   const insets = useSafeAreaInsets();
   const container = getContainerStyles(insets);
@@ -20,8 +31,58 @@ export default function CustomList({ navigation }) {
     navigation.goBack();
   };
 
+  // update the icon value selected
+  useEffect(() => {
+    console.log(icon);
+    if (icon) {
+      const foundIcon = findIconLabel(icon, icons.iconOption);
+      setShowIcon(foundIcon.label);
+    }
+  }, [icon]);
+
+  // find the label based on the value
+  const findIconLabel = (value, iconOptions) => {
+    return iconOptions.find((item) => item.value === value) || null;
+  };
+
+  function changeIcon(selectedIcon) {
+    setIcon(selectedIcon);
+  }
+
   return (
     <View style={[styles.container, container]}>
+      {/* icon options for selection */}
+      <Text>Select the Icon</Text>
+      <IconSelect onValueChange={changeIcon} updateValue={null} iconChoice={iconChoice}/>
+      {/* color options for selection */}
+      <Text>Select Icon Color</Text>
+      <View style={styles.colorGroup}>
+        {colorChoice.map((item, index) => {
+          const isActive = iconColor === index;
+          return (
+            <View key={item}>
+              <TouchableWithoutFeedback
+                onPress={() => {
+                  setIconColor(index);
+                }}>
+                <View
+                  style={[
+                    styles.circle,
+                    isActive && { borderColor: item },
+                  ]}>
+                  <View
+                    style={[styles.circleInside, { backgroundColor: item }]}
+                  />
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          );
+        })}
+      </View>
+      {/* show the final icon with the select shape and color */}
+      <View style={[styles.icon, { backgroundColor: colorChoice[iconColor] }]}>
+        {showIcon}
+      </View>
       {/* cancel and save button */}
       <View style={styles.buttons}>
         <PressableButton
@@ -73,5 +134,46 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
+  },
+  colorGroup: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginBottom: 12,
+  },
+  circle: {
+    width: CIRCLE_SIZE + CIRCLE_RING_SIZE * 4,
+    height: CIRCLE_SIZE + CIRCLE_RING_SIZE * 4,
+    borderRadius: 9999,
+    backgroundColor: 'white',
+    borderWidth: CIRCLE_RING_SIZE,
+    borderColor: 'transparent',
+    marginRight: 8,
+    marginBottom: 12,
+  },
+  circleInside: {
+    width: CIRCLE_SIZE,
+    height: CIRCLE_SIZE,
+    borderRadius: 9999,
+    position: 'absolute',
+    top: CIRCLE_RING_SIZE,
+    left: CIRCLE_RING_SIZE,
+  },
+  icon: {
+    alignSelf: 'center',
+    width: 60,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 9999,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.29,
+    shadowRadius: 4.65,
+    elevation: 7,
   },
 });
