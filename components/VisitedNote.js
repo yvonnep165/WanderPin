@@ -23,12 +23,17 @@ const VisitedNote = ({ navigation, route }) => {
   const [location, setLocation] = useState("");
   const [visibility, setVisibility] = useState(1);
   const [visitDate, setVisitDate] = useState(new Date());
+  const [journal, setJournal] = useState(null);
 
-  const journal = route.params.journal;
+  if (route.params) {
+    setJournal(route.params.journal);
+  }
 
   // edit page
   useEffect(() => {
-    if (journal) {
+    if (!journal) {
+      return;
+    }
       const date = new Date(
         journal.date.seconds * 1000 + journal.date.nanoseconds / 1e6
       );
@@ -37,8 +42,8 @@ const VisitedNote = ({ navigation, route }) => {
       setLocation(journal.location);
       setVisibility(journal.visibility);
       setVisitDate(date);
-    }
-  }, [journal])
+
+  }, [])
 
   // visibility for options
   const [visibilityModal, setVisibilityModal] = useState(false);
