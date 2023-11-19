@@ -73,8 +73,27 @@ export default function CustomList({ navigation }) {
     setTitle(title);
   }
 
+  // delete the list from the collection
+  const handleDelete = () => {
+    if (route.params) {
+      const pressedList = route.params.pressedList;
+      deleteListFromDB(pressedList.id);
+      navigation.navigate("AddToList");
+    }
+  };
+
   return (
     <View style={[styles.container, container]}>
+      {/* show a delete button when it's in edit mode */}
+      {route.params && (
+        <PressableButton
+          defaultStyle={styles.delete}
+          pressedStyle={styles.pressed}
+          onPressFunction={handleDelete}
+        >
+          <Text style={styles.submitText}>Delete</Text>
+        </PressableButton>
+      )}
       <View style={styles.info}>
         <Text style={styles.title}>Title</Text>
         <InputField placeholder="Write List Title" changedHandler={changeTitle} value={title}/>
@@ -222,5 +241,13 @@ const styles = StyleSheet.create({
   iconSelect: {
     height: 90,
     zIndex: 9999,
-  }
+  },
+  delete: {
+    backgroundColor: colors.deepYellow,
+    width: "25%",
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
