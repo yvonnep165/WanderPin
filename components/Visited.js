@@ -9,6 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { FlatList } from "react-native-gesture-handler";
 import HomeJournalCard from "./HomeJournalCard";
+import { getAllJournals } from "../firebase/firestoreHelper";
 
 const Visited = ({ navigation }) => {
   const [journals, setJournals] = useState([]);

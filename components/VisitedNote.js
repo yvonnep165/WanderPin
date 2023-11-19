@@ -10,9 +10,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { commonStyles } from "../styles/CommonStyles";
 import { FontAwesome } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { writeJournalToDB } from "../firebase/firestoreHelper";
+import { writeJournalToDB, updateJournalToDB } from "../firebase/firestoreHelper";
 
-const VisitedNote = ({ navigation }) => {
+const VisitedNote = ({ navigation, route }) => {
   // safe area
   const insets = useSafeAreaInsets();
   const safeAreaContainer = getContainerStyles(insets);
@@ -23,6 +23,22 @@ const VisitedNote = ({ navigation }) => {
   const [location, setLocation] = useState("");
   const [visibility, setVisibility] = useState(1);
   const [visitDate, setVisitDate] = useState(new Date());
+
+  const journal = route.params.journal;
+
+  // edit page
+  useEffect(() => {
+    if (journal) {
+      const date = new Date(
+        journal.date.seconds * 1000 + journal.date.nanoseconds / 1e6
+      );
+      setTitle(journal.title);
+      setNote(journal.note);
+      setLocation(journal.location);
+      setVisibility(journal.visibility);
+      setVisitDate(date);
+    }
+  }, [journal])
 
   // visibility for options
   const [visibilityModal, setVisibilityModal] = useState(false);
@@ -72,9 +88,25 @@ const VisitedNote = ({ navigation }) => {
   };
 
   const handleSubmit = () => {
+    if (!journal) {
+      const newJournal = {title: title, note: note, location: location, visibility: visibility, date: visitDate, editTime: new Date()};
+      writeJournalToDB(newJournal);
+    } else {
+      if (title != journal.title) {
+        updateJournalToDB(journal.id, { title: title });
+      }
+      // if (parseInt(unitPrice) != expense.unit_price) {
+      //   updateToDB(expense.id, { unit_price: parseInt(unitPrice) });
+      // }
+      // if (parseInt(quantity) != expense.quantity) {
+      //   updateToDB(expense.id, { quantity: parseInt(quantity) });
+      // }
+      // if (isChecked || parseInt(unitPrice) * parseInt(quantity) < limit) {
+      //   updateToDB(expense.id, {isOverbudget: false})
+      // }
+    }
+
     navigation.goBack();
-    const newJournal = {title: title, note: note, location: location, visibility: visibility, date: visitDate, editTime: new Date()};
-    writeJournalToDB(newJournal);
   };
 
   return (
