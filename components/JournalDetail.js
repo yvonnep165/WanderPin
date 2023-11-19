@@ -6,6 +6,7 @@ import { commonStyles } from "../styles/CommonStyles";
 import PressableButton from "./PressableButton";
 import {onSnapshot, collection} from "firebase/firestore";
 import { database } from "../firebase/firebaseSetup";
+import { deleteJournalFromDB } from "../firebase/firestoreHelper";
 
 const JournalDetail = ({ route, navigation }) => {
   // safe area
@@ -15,7 +16,7 @@ const JournalDetail = ({ route, navigation }) => {
 
   useEffect(() => {
     // const q = query(collection(database, "goals"), where("user", "==", auth.currentUser.uid));
-    onSnapshot(
+    const unsubscribe = onSnapshot(
       collection(database, "journals"),
       (querySnapshot) => {
         const foundJournal = querySnapshot.docs.find((doc) => doc.id === route.params.pressedCard.id);
@@ -26,7 +27,9 @@ const JournalDetail = ({ route, navigation }) => {
       (err) => {
         console.log(err);
       }
-    );
+    );return () => {
+        unsubscribe();
+    }
   }, []);
 
   const firebaseUpdateTime = new Date(
@@ -42,6 +45,11 @@ const JournalDetail = ({ route, navigation }) => {
     navigation.navigate('VisitedNote', {journal});
   }
 
+  const onPressDelete = () => {
+    deleteJournalFromDB(journal.id);
+    navigation.navigate('Visited');
+  }
+
   //   https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png
   return (
     <View style={[safeAreaContainer, commonStyles.container]}>
@@ -51,6 +59,9 @@ const JournalDetail = ({ route, navigation }) => {
         </PressableButton>
         <PressableButton onPressFunction={onPressEdit}>
           <Text>Edit</Text>
+        </PressableButton>
+        <PressableButton onPressFunction={onPressDelete}>
+          <Text>Delete</Text>
         </PressableButton>
       </View>
       <Image

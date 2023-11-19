@@ -95,17 +95,19 @@ const VisitedNote = ({ navigation, route }) => {
       if (title != journal.title) {
         updateJournalToDB(journal.id, { title: title });
       }
-      // if (parseInt(unitPrice) != expense.unit_price) {
-      //   updateToDB(expense.id, { unit_price: parseInt(unitPrice) });
-      // }
-      // if (parseInt(quantity) != expense.quantity) {
-      //   updateToDB(expense.id, { quantity: parseInt(quantity) });
-      // }
-      // if (isChecked || parseInt(unitPrice) * parseInt(quantity) < limit) {
-      //   updateToDB(expense.id, {isOverbudget: false})
-      // }
+      if (note != journal.content) {
+        updateJournalToDB(journal.id, { note: note });
+      }
+      if (location != journal.location) {
+        updateJournalToDB(journal.id, { location: location });
+      }
+      if (visibility != journal.visibility) {
+        updateJournalToDB(journal.id, { visibility: visibility });
+      }
+      if (visitDate != journal.date) {
+        updateJournalToDB(journal.id, { date: visitDate });
+      }
     }
-
     navigation.goBack();
   };
 

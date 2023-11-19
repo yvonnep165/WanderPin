@@ -9,14 +9,14 @@ import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { FlatList } from "react-native-gesture-handler";
 import HomeJournalCard from "./HomeJournalCard";
-import { getAllJournals } from "../firebase/firestoreHelper";
+import { deleteJournalFromDB, getAllJournals } from "../firebase/firestoreHelper";
 
 const Visited = ({ navigation }) => {
   const [journals, setJournals] = useState([]);
 
   useEffect(() => {
     // const q = query(collection(database, "goals"), where("user", "==", auth.currentUser.uid));
-    onSnapshot(
+    const unsubscribe = onSnapshot(
       collection(database, "journals"),
       (querySnapshot) => {
         let newArray = [];
@@ -31,11 +31,16 @@ const Visited = ({ navigation }) => {
         console.log(err);
       }
     );
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const pressCardHandler = (pressedCard) => {
     navigation.navigate("JournalDetail", {pressedCard})
   }
+
+
 
   return (
     <View style={[commonStyles.container, styles.container]}>
@@ -44,7 +49,7 @@ const Visited = ({ navigation }) => {
         contentContainerStyle={styles.cards}
         data={journals}
         renderItem={({ item }) => {
-          return <HomeJournalCard journal={item} pressCardHandler={pressCardHandler}/>;
+          return <HomeJournalCard journal={item} pressCardHandler={pressCardHandler} />;
         }}
       />
       </View>

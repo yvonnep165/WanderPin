@@ -1,4 +1,4 @@
-import { collection, addDoc, updateDoc, doc, onSnapshot } from "firebase/firestore";
+import { collection, addDoc, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { database } from "./firebaseSetup";
 
 export async function writeJournalToDB(journal) {
@@ -15,6 +15,14 @@ export async function writeJournalToDB(journal) {
 export async function updateJournalToDB(journal, updateField) {
     try {
       await updateDoc(doc(database, "journals", journal), updateField);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  export async function deleteJournalFromDB(id) {
+    try {
+      await deleteDoc(doc(database, "journals", id));
     } catch (err) {
       console.log(err);
     }
