@@ -7,6 +7,7 @@ import PressableButton from "./PressableButton";
 import {onSnapshot, collection} from "firebase/firestore";
 import { database } from "../firebase/firebaseSetup";
 import { deleteJournalFromDB } from "../firebase/firestoreHelper";
+import { colors } from "../styles/Colors";
 
 const JournalDetail = ({ route, navigation }) => {
   // safe area
@@ -52,7 +53,8 @@ const JournalDetail = ({ route, navigation }) => {
 
   //   https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png
   return (
-    <View style={[safeAreaContainer, commonStyles.container]}>
+    <View style={[safeAreaContainer, commonStyles.container,]}>
+      <View style={ styles.containter}>
       <View style={styles.header}>
         <PressableButton onPressFunction={onPressBack}>
           <Text>Back</Text>
@@ -71,10 +73,13 @@ const JournalDetail = ({ route, navigation }) => {
           uri: "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
         }}
       />
-      <Text>{journal.title}</Text>
+      <View style={styles.info}>
+      <Text style={styles.title}>{journal.title}</Text>
       <Text>{journal.note}</Text>
-      <Text>{updateTime}</Text>
+      <Text style={styles.extraInfo}>{updateTime}</Text>
+      </View>
       <Text>{journal.location}</Text>
+    </View>
     </View>
   );
 };
@@ -87,10 +92,21 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    alignContent: "space-between",
+    justifyContent: "space-between",
+    paddingBottom: 10,
   },
   img: {
     width: "100%",
     height: 100,
-  },
+  },info: {
+    paddingTop: 10,
+  },title:{
+    fontSize: 25,
+    fontWeight: '600',
+    paddingVertical: 10,
+  }, extraInfo: {
+    color: colors.lightGray,
+    fontSize: 12,
+    paddingVertical: 10,
+  }
 });

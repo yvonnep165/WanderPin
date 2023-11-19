@@ -10,6 +10,7 @@ export const colors = {
     white: "#FAFAFA",
     placeholder: "gray",
     lightWhite: "#FFFFFF",
+    lightGray: "#BDBDBD",
     colorOption:[
         '#b8304f',
         '#fa3741',

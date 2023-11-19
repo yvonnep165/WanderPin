@@ -1,5 +1,11 @@
 import { StyleSheet, Text, View, TextInput, ScrollView } from "react-native";
-import React, { useRef, useState, useMemo, useCallback, useEffect } from "react";
+import React, {
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+} from "react";
 import PressableButton from "./PressableButton";
 import { colors } from "../styles/Colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,7 +16,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { commonStyles } from "../styles/CommonStyles";
 import { FontAwesome } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { writeJournalToDB, updateJournalToDB } from "../firebase/firestoreHelper";
+import {
+  writeJournalToDB,
+  updateJournalToDB,
+} from "../firebase/firestoreHelper";
 
 const VisitedNote = ({ navigation, route }) => {
   // safe area
@@ -25,15 +34,18 @@ const VisitedNote = ({ navigation, route }) => {
   const [visitDate, setVisitDate] = useState(new Date());
   const [journal, setJournal] = useState(null);
 
-  if (route.params) {
-    setJournal(route.params.journal);
-  }
+  useEffect(() => {
+    if (route.params && route.params.journal) {
+      setJournal(route.params.journal);
+    }
+  }, []);
 
   // edit page
   useEffect(() => {
-    if (!journal) {
-      return;
+    if (route.params && route.params.journal) {
+      setJournal(route.params.journal);
     }
+    if (journal) {
       const date = new Date(
         journal.date.seconds * 1000 + journal.date.nanoseconds / 1e6
       );
@@ -42,8 +54,8 @@ const VisitedNote = ({ navigation, route }) => {
       setLocation(journal.location);
       setVisibility(journal.visibility);
       setVisitDate(date);
-
-  }, [])
+    }
+  }, [journal]);
 
   // visibility for options
   const [visibilityModal, setVisibilityModal] = useState(false);
@@ -83,9 +95,9 @@ const VisitedNote = ({ navigation, route }) => {
     setShow(true);
   };
 
-  useEffect(()=> {
+  useEffect(() => {
     setVisitDate(date);
-  }, [date])
+  }, [date]);
 
   // cancel and submit
   const handleCancel = () => {
@@ -94,7 +106,14 @@ const VisitedNote = ({ navigation, route }) => {
 
   const handleSubmit = () => {
     if (!journal) {
-      const newJournal = {title: title, note: note, location: location, visibility: visibility, date: visitDate, editTime: new Date()};
+      const newJournal = {
+        title: title,
+        note: note,
+        location: location,
+        visibility: visibility,
+        date: visitDate,
+        editTime: new Date(),
+      };
       writeJournalToDB(newJournal);
     } else {
       if (title != journal.title) {
@@ -155,9 +174,7 @@ const VisitedNote = ({ navigation, route }) => {
                   </View>
                   <Text>Location</Text>
                 </View>
-                <Text style={styles.locationText}>
-                  {location}
-                </Text>
+                <Text style={styles.locationText}>{location}</Text>
               </View>
               <AntDesign name="right" size={14} color={colors.black} />
             </View>
@@ -193,7 +210,10 @@ const VisitedNote = ({ navigation, route }) => {
                 <Text>Visit Date</Text>
               </View>
               <View style={styles.optionLabel}>
-                <Text>{visitDate.getFullYear()}-{visitDate.getMonth() + 1}-{visitDate.getDate()}</Text>
+                <Text>
+                  {visitDate.getFullYear()}-{visitDate.getMonth() + 1}-
+                  {visitDate.getDate()}
+                </Text>
                 <AntDesign name="right" size={14} color={colors.black} />
               </View>
             </View>
@@ -272,8 +292,6 @@ const VisitedNote = ({ navigation, route }) => {
           </View>
         </BottomSheet>
       )}
-
-
     </View>
   );
 };
@@ -286,8 +304,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
-  },formContainer: {
-    width: '90%',
+  },
+  formContainer: {
+    width: "90%",
   },
   buttons: {
     flexDirection: "row",
