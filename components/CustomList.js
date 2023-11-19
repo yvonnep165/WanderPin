@@ -1,10 +1,203 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import PressableButton from './PressableButton';
+import IconSelect from './IconSelect';
+import InputField from './InputField';
+import { getContainerStyles } from "../components/SafeArea";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { colors } from "../styles/Colors";
+import { icons } from '../styles/Icons';
 
-export default function CustomList() {
+const colorChoice = colors.colorOption;
+
+const CIRCLE_SIZE = 30;
+const CIRCLE_RING_SIZE = 1;
+
+export default function CustomList({ navigation, iconChoice }) {
+  const [iconColor, setIconColor] = useState(0);
+  const [icon, setIcon] = useState("");
+  const [showIcon, setShowIcon] = useState(null);
+
+  // safe area
+  const insets = useSafeAreaInsets();
+  const container = getContainerStyles(insets);
+
+  // go back to the AddToList screen
+  const handleCancel = () => {
+    navigation.goBack();
+  };
+
+  // save the data to lists collection
+  const handleSubmit = () => {
+    navigation.goBack();
+  };
+
+  // update the icon value selected
+  useEffect(() => {
+    console.log(icon);
+    if (icon) {
+      const foundIcon = findIconLabel(icon, icons.iconOption);
+      setShowIcon(foundIcon.label);
+    }
+  }, [icon]);
+
+  // find the label based on the value
+  const findIconLabel = (value, iconOptions) => {
+    return iconOptions.find((item) => item.value === value) || null;
+  };
+
+  function changeIcon(selectedIcon) {
+    setIcon(selectedIcon);
+  }
+
   return (
-    <View>
-      <Text>CustomList</Text>
+    <View style={[styles.container, container]}>
+      <View style={styles.info}>
+        <Text style={styles.title}>Title</Text>
+        <InputField placeholder="Write List Title"/>
+      </View>
+      {/* icon options for selection */}
+      <View style={styles.iconSelect}>
+        <Text style={styles.title}>Select the Icon</Text>
+        <IconSelect onValueChange={changeIcon} updateValue={null} iconChoice={iconChoice}/>
+      </View>
+      {/* color options for selection */}
+      <Text style={styles.title}>Select Icon Color</Text>
+      <View style={styles.colorGroup}>
+        {colorChoice.map((item, index) => {
+          const isActive = iconColor === index;
+          return (
+            <View key={item}>
+              <TouchableWithoutFeedback
+                onPress={() => {
+                  setIconColor(index);
+                }}>
+                <View
+                  style={[
+                    styles.circle,
+                    isActive && { borderColor: item },
+                  ]}>
+                  <View
+                    style={[styles.circleInside, { backgroundColor: item }]}
+                  />
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          );
+        })}
+      </View>
+      {/* show the final icon with the select shape and color */}
+      <View style={[styles.icon, { backgroundColor: colorChoice[iconColor] }]}>
+        {showIcon}
+      </View>
+      {/* cancel and save button */}
+      <View style={styles.buttons}>
+        <PressableButton
+          pressedStyle={styles.pressed}
+          onPressFunction={handleCancel}
+        >
+          <Text style={styles.cancelText}>Cancel</Text>
+        </PressableButton>
+        <PressableButton
+          defaultStyle={styles.submit}
+          pressedStyle={styles.pressed}
+          onPressFunction={handleSubmit}
+        >
+          <Text style={styles.submitText}>Save The List</Text>
+        </PressableButton>
+      </View>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 25,
+    padding: 30,
+    marginTop: 30,
+  },
+  title: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginBottom: 8,
+    color: colors.black,
+  },
+  info: {
+    marginBottom: 10, 
+    marginTop: 5,
+    marginLeft: 20,
+    marginRight: 20,
+  },
+  buttons: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    justifyContent: "center",
+  },
+  pressed: {
+    opacity: 0.7,
+  },
+  cancelText: {
+    color: colors.deepYellow,
+    fontWeight: "bold",
+  },
+  submitText: {
+    color: colors.white,
+    fontWeight: "bold",
+  },
+  submit: {
+    backgroundColor: colors.deepYellow,
+    width: "75%",
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  colorGroup: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginBottom: 12,
+    marginTop: 10,
+  },
+  circle: {
+    width: CIRCLE_SIZE + CIRCLE_RING_SIZE * 4,
+    height: CIRCLE_SIZE + CIRCLE_RING_SIZE * 4,
+    borderRadius: 9999,
+    backgroundColor: 'white',
+    borderWidth: CIRCLE_RING_SIZE,
+    borderColor: 'transparent',
+    marginRight: 8,
+    marginBottom: 12,
+  },
+  circleInside: {
+    width: CIRCLE_SIZE,
+    height: CIRCLE_SIZE,
+    borderRadius: 9999,
+    position: 'absolute',
+    top: CIRCLE_RING_SIZE,
+    left: CIRCLE_RING_SIZE,
+  },
+  icon: {
+    alignSelf: 'center',
+    width: 60,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 9999,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.29,
+    shadowRadius: 4.65,
+    elevation: 7,
+  },
+  iconSelect: {
+    height: 90,
+    zIndex: 9999,
+  }
+});
