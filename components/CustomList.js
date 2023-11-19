@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import PressableButton from './PressableButton';
 import IconSelect from './IconSelect';
+import InputField from './InputField';
 import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../styles/Colors";
@@ -51,11 +52,17 @@ export default function CustomList({ navigation, iconChoice }) {
 
   return (
     <View style={[styles.container, container]}>
+      <View style={styles.info}>
+        <Text style={styles.title}>Title</Text>
+        <InputField placeholder="Write List Title"/>
+      </View>
       {/* icon options for selection */}
-      <Text>Select the Icon</Text>
-      <IconSelect onValueChange={changeIcon} updateValue={null} iconChoice={iconChoice}/>
+      <View style={styles.iconSelect}>
+        <Text style={styles.title}>Select the Icon</Text>
+        <IconSelect onValueChange={changeIcon} updateValue={null} iconChoice={iconChoice}/>
+      </View>
       {/* color options for selection */}
-      <Text>Select Icon Color</Text>
+      <Text style={styles.title}>Select Icon Color</Text>
       <View style={styles.colorGroup}>
         {colorChoice.map((item, index) => {
           const isActive = iconColor === index;
@@ -110,6 +117,18 @@ const styles = StyleSheet.create({
     padding: 30,
     marginTop: 30,
   },
+  title: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginBottom: 8,
+    color: colors.black,
+  },
+  info: {
+    marginBottom: 10, 
+    marginTop: 5,
+    marginLeft: 20,
+    marginRight: 20,
+  },
   buttons: {
     flexDirection: "row",
     alignItems: "center",
@@ -140,6 +159,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexWrap: 'wrap',
     marginBottom: 12,
+    marginTop: 10,
   },
   circle: {
     width: CIRCLE_SIZE + CIRCLE_RING_SIZE * 4,
@@ -176,4 +196,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
     elevation: 7,
   },
+  iconSelect: {
+    height: 90,
+    zIndex: 9999,
+  }
 });
