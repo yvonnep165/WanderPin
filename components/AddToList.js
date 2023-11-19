@@ -11,6 +11,7 @@ import List from './List';
 
 export default function AddToList({ navigation }) {
   const [lists, setLists] = useState([]);
+  const [selectedList, setSelectedList] = useState(null)
 
     // safe area
     const insets = useSafeAreaInsets();
@@ -23,7 +24,10 @@ export default function AddToList({ navigation }) {
 
     // send the list selection to the wishNote
     const handleSubmit = () => {
-      navigation.goBack();
+      if (selectedList) {
+        console.log("Selected List Id:", selectedList);
+      }
+      navigation.navigate('WishNote');
     };
 
     // navigate to CustomList to create a new list
@@ -51,6 +55,10 @@ export default function AddToList({ navigation }) {
       navigation.navigate("CustomList", {pressedList});
     }
 
+    function listSelectHandler(selectList) {
+      setSelectedList(selectList.id)
+    }
+
   return (
     <View style={[styles.container, container]}>
       <View>
@@ -61,6 +69,12 @@ export default function AddToList({ navigation }) {
           return (
             <View style={styles.entryContainer}>
               <List list={item} pressHandler={listPressHandler}/>
+              {/* add a radio button to track the list selection */}
+              <PressableButton
+                defaultStyle={[styles.radioButton, { backgroundColor: selectedList === item.id ? colors.deepGreen : colors.white }]}
+                pressedStyle={styles.pressed}
+                onPressFunction={() => listSelectHandler(item)}
+              />
             </View>
           );
         }}
@@ -146,5 +160,15 @@ const styles = StyleSheet.create({
     entryContainer: {
       flexDirection: 'row',
       padding:3, 
+      alignItems: "center",
+  },
+  radioButton: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: colors.darkGreen,
+    marginRight: 10,
+    marginLeft: 10,
   },
   });
