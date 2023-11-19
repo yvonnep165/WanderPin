@@ -16,10 +16,11 @@ const CIRCLE_RING_SIZE = 1;
 
 export default function CustomList({ navigation }) {
   const route = useRoute();
-  const [iconColor, setIconColor] = useState(0);
-  const [icon, setIcon] = useState("");
+
+  const [iconColor, setIconColor] = useState(route.params?.pressedList?.color || 0);
+  const [icon, setIcon] = useState(route.params?.pressedList?.icon || "");
   const [showIcon, setShowIcon] = useState(null);
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(route.params?.pressedList?.title || "");
 
   // safe area
   const insets = useSafeAreaInsets();
@@ -39,8 +40,13 @@ export default function CustomList({ navigation }) {
     if (hasError) {
       Alert.alert('Please name the list and select icon');
     } else {
-      const newList = { title: title, color: iconColor, icon: icon };
-      writeListToDB(newList);
+      if (route.params) {
+        const pressedList = route.params.pressedList;
+        updateList(pressedList.id, title, iconColor, icon)
+      } else {
+        const newList = { title: title, color: iconColor, icon: icon };
+        writeListToDB(newList);
+      }
       navigation.navigate("AddToList");
     }
   };
@@ -76,7 +82,7 @@ export default function CustomList({ navigation }) {
       {/* icon options for selection */}
       <View style={styles.iconSelect}>
         <Text style={styles.title}>Select the Icon</Text>
-        <IconSelect onValueChange={changeIcon} updateValue={null}/>
+        <IconSelect onValueChange={changeIcon} updateValue={route.params? route.params.pressedList.icon : null}/>
       </View>
       {/* color options for selection */}
       <Text style={styles.title}>Select Icon Color</Text>

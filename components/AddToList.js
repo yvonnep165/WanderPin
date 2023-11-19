@@ -1,12 +1,17 @@
-import { View, Text, StyleSheet } from 'react-native';
-import React from 'react';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
+import React, {useEffect, useState} from 'react';
 import PressableButton from './PressableButton';
 import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../styles/Colors";
 import { AntDesign } from "@expo/vector-icons";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { database } from "../firebase/firebaseSetup";
+import List from './List';
 
 export default function AddToList({ navigation }) {
+  const [lists, setLists] = useState([]);
+
     // safe area
     const insets = useSafeAreaInsets();
     const container = getContainerStyles(insets);
@@ -26,8 +31,41 @@ export default function AddToList({ navigation }) {
       navigation.navigate('CustomList'); 
     };
 
+    // read all the lists from database
+    useEffect(()=>{
+      let q = collection(database, "lists");
+        onSnapshot(q, (querySnapshot) => {
+          if (!querySnapshot.empty) {
+            let newArray = []
+            querySnapshot.forEach((docSnap) => {
+              newArray.push({...docSnap.data(), id: docSnap.id});
+            });
+            setLists(newArray);
+          } else {
+            setLists([]);
+          }
+      })
+    }, []);
+
+    function listPressHandler(pressedList) {
+      navigation.navigate("CustomList", {pressedList});
+    }
+
   return (
     <View style={[styles.container, container]}>
+      <View>
+      <FlatList 
+        contentContainerStyle={{alignItems: 'center'}}
+        data={lists}
+        renderItem={({ item }) => {
+          return (
+            <View style={styles.entryContainer}>
+              <List list={item} pressHandler={listPressHandler}/>
+            </View>
+          );
+        }}
+        />
+    </View>
       {/* button to add new lists */}
       <PressableButton 
           pressedStyle={styles.pressed}
@@ -105,4 +143,8 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       alignItems: "center",
     },
+    entryContainer: {
+      flexDirection: 'row',
+      padding:3, 
+  },
   });
