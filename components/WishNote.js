@@ -1,5 +1,6 @@
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import PressableButton from "./PressableButton";
 import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
@@ -9,9 +10,20 @@ import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Switch } from '@rneui/themed';
 import InputField from './InputField';
+import { useRoute } from '@react-navigation/native';
+import { icons } from '../styles/Icons';
 
 export default function WishNote( { navigation } ) {
+  const route = useRoute();
   const [reminder, setReminder] = useState(false);
+  const [list, setList] = useState(route.params?.selectedList || null)
+
+  // Update the state with the selected list
+  useFocusEffect(
+    React.useCallback(() => {
+      setList(route.params?.selectedList || null);
+    }, [route.params?.selectedList])
+  );
 
   // safe area
   const insets = useSafeAreaInsets();
@@ -31,6 +43,12 @@ export default function WishNote( { navigation } ) {
   const handleAddToList = () => {
     navigation.navigate('AddToList'); 
   };
+
+  const findIconLabel = (value, iconOptions) => {
+    return iconOptions.find((item) => item.value === value) || null;
+  };
+
+  const foundIcon = findIconLabel(list?.icon, icons.iconOption);
 
   return (
     <View style={[styles.container, container]}>
@@ -58,7 +76,13 @@ export default function WishNote( { navigation } ) {
         <View style={[styles.info, styles.label]}>
           <MaterialIcons name="add-location-alt" size={20} color={colors.deepYellow} />
           <Text>Add To List</Text>
-          <Text>  ? favorite</Text>
+          {/* show the selected list title and icon */}
+          { list && <View style={styles.listContent}>
+            <View style={[styles.icon, { backgroundColor: colors.colorOption[list.color] }]}>
+              {foundIcon?.label}
+            </View>
+            <Text style={styles.title}>{list.title}</Text>
+          </View>}
           <AntDesign name="right" size={14} color={colors.black} />
         </View>
       </PressableButton>
@@ -166,4 +190,26 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontWeight: "bold",
   },
+  icon: {
+    alignSelf: 'center',
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 9999,
+    marginBottom: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.29,
+    shadowRadius: 4.65,
+    elevation: 7,
+  },
+  listContent: {
+    flexDirection: "row",
+    marginLeft: 10,
+    marginRight: 10,
+  }
 });

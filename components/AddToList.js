@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Alert } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import PressableButton from './PressableButton';
 import { getContainerStyles } from "../components/SafeArea";
@@ -25,9 +25,11 @@ export default function AddToList({ navigation }) {
     // send the list selection to the wishNote
     const handleSubmit = () => {
       if (selectedList) {
-        console.log("Selected List Id:", selectedList);
+        console.log("Selected List:", selectedList);
+        navigation.navigate('WishNote', {selectedList});
+      } else {
+        Alert.alert("Please select a list")
       }
-      navigation.navigate('WishNote');
     };
 
     // navigate to CustomList to create a new list
@@ -56,7 +58,7 @@ export default function AddToList({ navigation }) {
     }
 
     function listSelectHandler(selectList) {
-      setSelectedList(selectList.id)
+      setSelectedList(selectList)
     }
 
   return (
@@ -71,7 +73,7 @@ export default function AddToList({ navigation }) {
               <List list={item} pressHandler={listPressHandler}/>
               {/* add a radio button to track the list selection */}
               <PressableButton
-                defaultStyle={[styles.radioButton, { backgroundColor: selectedList === item.id ? colors.deepGreen : colors.white }]}
+                defaultStyle={[styles.radioButton, { backgroundColor: selectedList === item ? colors.deepGreen : colors.white }]}
                 pressedStyle={styles.pressed}
                 onPressFunction={() => listSelectHandler(item)}
               />

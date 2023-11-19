@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
+import React from 'react';
 import PressableButton from './PressableButton';
 import { colors } from "../styles/Colors";
 import { icons } from '../styles/Icons';
