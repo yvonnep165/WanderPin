@@ -1,5 +1,11 @@
 import { StyleSheet, Text, View, TextInput, ScrollView } from "react-native";
-import React, { useRef, useState, useMemo, useCallback, useEffect } from "react";
+import React, {
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+} from "react";
 import PressableButton from "./PressableButton";
 import { colors } from "../styles/Colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,9 +16,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { commonStyles } from "../styles/CommonStyles";
 import { FontAwesome } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { writeJournalToDB } from "../firebase/firestoreHelper";
+import {
+  writeJournalToDB,
+  updateJournalToDB,
+} from "../firebase/firestoreHelper";
 
-const VisitedNote = ({ navigation }) => {
+const VisitedNote = ({ navigation, route }) => {
   // safe area
   const insets = useSafeAreaInsets();
   const safeAreaContainer = getContainerStyles(insets);
@@ -23,6 +32,30 @@ const VisitedNote = ({ navigation }) => {
   const [location, setLocation] = useState("");
   const [visibility, setVisibility] = useState(1);
   const [visitDate, setVisitDate] = useState(new Date());
+  const [journal, setJournal] = useState(null);
+
+  useEffect(() => {
+    if (route.params && route.params.journal) {
+      setJournal(route.params.journal);
+    }
+  }, []);
+
+  // edit page
+  useEffect(() => {
+    if (route.params && route.params.journal) {
+      setJournal(route.params.journal);
+    }
+    if (journal) {
+      const date = new Date(
+        journal.date.seconds * 1000 + journal.date.nanoseconds / 1e6
+      );
+      setTitle(journal.title);
+      setNote(journal.note);
+      setLocation(journal.location);
+      setVisibility(journal.visibility);
+      setVisitDate(date);
+    }
+  }, [journal]);
 
   // visibility for options
   const [visibilityModal, setVisibilityModal] = useState(false);
@@ -62,9 +95,9 @@ const VisitedNote = ({ navigation }) => {
     setShow(true);
   };
 
-  useEffect(()=> {
+  useEffect(() => {
     setVisitDate(date);
-  }, [date])
+  }, [date]);
 
   // cancel and submit
   const handleCancel = () => {
@@ -72,9 +105,34 @@ const VisitedNote = ({ navigation }) => {
   };
 
   const handleSubmit = () => {
+    if (!journal) {
+      const newJournal = {
+        title: title,
+        note: note,
+        location: location,
+        visibility: visibility,
+        date: visitDate,
+        editTime: new Date(),
+      };
+      writeJournalToDB(newJournal);
+    } else {
+      if (title != journal.title) {
+        updateJournalToDB(journal.id, { title: title });
+      }
+      if (note != journal.content) {
+        updateJournalToDB(journal.id, { note: note });
+      }
+      if (location != journal.location) {
+        updateJournalToDB(journal.id, { location: location });
+      }
+      if (visibility != journal.visibility) {
+        updateJournalToDB(journal.id, { visibility: visibility });
+      }
+      if (visitDate != journal.date) {
+        updateJournalToDB(journal.id, { date: visitDate });
+      }
+    }
     navigation.goBack();
-    const newJournal = {title: title, note: note, location: location, visibility: visibility, date: visitDate, editTime: new Date()};
-    writeJournalToDB(newJournal);
   };
 
   return (
@@ -116,9 +174,7 @@ const VisitedNote = ({ navigation }) => {
                   </View>
                   <Text>Location</Text>
                 </View>
-                <Text style={styles.locationText}>
-                  {location}
-                </Text>
+                <Text style={styles.locationText}>{location}</Text>
               </View>
               <AntDesign name="right" size={14} color={colors.black} />
             </View>
@@ -154,7 +210,10 @@ const VisitedNote = ({ navigation }) => {
                 <Text>Visit Date</Text>
               </View>
               <View style={styles.optionLabel}>
-                <Text>{visitDate.getFullYear()}-{visitDate.getMonth() + 1}-{visitDate.getDate()}</Text>
+                <Text>
+                  {visitDate.getFullYear()}-{visitDate.getMonth() + 1}-
+                  {visitDate.getDate()}
+                </Text>
                 <AntDesign name="right" size={14} color={colors.black} />
               </View>
             </View>
@@ -233,8 +292,6 @@ const VisitedNote = ({ navigation }) => {
           </View>
         </BottomSheet>
       )}
-
-
     </View>
   );
 };
@@ -247,8 +304,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
-  },formContainer: {
-    width: '90%',
+  },
+  formContainer: {
+    width: "90%",
   },
   buttons: {
     flexDirection: "row",
