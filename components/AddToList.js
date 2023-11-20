@@ -25,7 +25,6 @@ export default function AddToList({ navigation }) {
     // send the list selection to the wishNote
     const handleSubmit = () => {
       if (selectedList) {
-        console.log("Selected List:", selectedList);
         navigation.navigate('WishNote', {selectedList});
       } else {
         Alert.alert("Please select a list")

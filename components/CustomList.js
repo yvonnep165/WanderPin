@@ -7,7 +7,9 @@ import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../styles/Colors";
 import { icons } from '../styles/Icons';
-import { deleteListFromDB, writeListToDB, updateList } from "../firebase/firestoreHelper";
+import { deleteListFromDB, writeListToDB, updateList, deleteNoteFromDB } from "../firebase/firestoreHelper";
+import { database } from "../firebase/firebaseSetup";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { useRoute } from '@react-navigation/native';
 
 const colorChoice = colors.colorOption;
@@ -55,7 +57,6 @@ export default function CustomList({ navigation }) {
 
   // update the icon value selected
   useEffect(() => {
-    console.log(icon);
     if (icon) {
       const foundIcon = findIconLabel(icon, icons.iconOption);
       setShowIcon(foundIcon.label);
@@ -75,12 +76,22 @@ export default function CustomList({ navigation }) {
     setTitle(title);
   }
 
-  // delete the list from the collection
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (route.params) {
-      const pressedList = route.params.pressedList;
-      deleteListFromDB(pressedList.id);
-      navigation.navigate("AddToList");
+      try {
+        const pressedList = route.params.pressedList;
+        // need to delete all notes with the list
+        const notesQuery = query(collection(database, "notes"), where("list", "==", pressedList));
+        const notesSnapshot = await getDocs(notesQuery);
+        notesSnapshot.forEach(async (doc) => {
+          await deleteNoteFromDB(doc.id);
+        });
+        // delete the list from the collection
+        await deleteListFromDB(pressedList.id);
+        navigation.navigate("Wishlist");
+      } catch (err) {
+        console.log(err);
+      }
     }
   };
 
