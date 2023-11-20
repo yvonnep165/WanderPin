@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import PressableButton from './PressableButton';
 import IconSelect from './IconSelect';
@@ -7,16 +7,22 @@ import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../styles/Colors";
 import { icons } from '../styles/Icons';
+import { deleteListFromDB, writeListToDB, updateList, deleteNoteFromDB } from "../firebase/firestoreHelper";
+import { database } from "../firebase/firebaseSetup";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { useRoute } from '@react-navigation/native';
 
 const colorChoice = colors.colorOption;
-
 const CIRCLE_SIZE = 30;
 const CIRCLE_RING_SIZE = 1;
 
-export default function CustomList({ navigation, iconChoice }) {
-  const [iconColor, setIconColor] = useState(0);
-  const [icon, setIcon] = useState("");
+export default function CustomList({ navigation }) {
+  const route = useRoute();
+
+  const [iconColor, setIconColor] = useState(route.params?.pressedList?.color || 0);
+  const [icon, setIcon] = useState(route.params?.pressedList?.icon || "");
   const [showIcon, setShowIcon] = useState(null);
+  const [title, setTitle] = useState(route.params?.pressedList?.title || "");
 
   // safe area
   const insets = useSafeAreaInsets();
@@ -29,12 +35,28 @@ export default function CustomList({ navigation, iconChoice }) {
 
   // save the data to lists collection
   const handleSubmit = () => {
-    navigation.goBack();
+    let hasError = false;
+    if (!title || !icon) {
+      hasError = true;
+    }
+    if (hasError) {
+      Alert.alert('Please name the list and select icon');
+    } else {
+      // update the value
+      if (route.params) {
+        const pressedList = route.params.pressedList;
+        updateList(pressedList.id, title, iconColor, icon)
+      } else {
+        // write value to database
+        const newList = { title: title, color: iconColor, icon: icon };
+        writeListToDB(newList);
+      }
+      navigation.navigate("AddToList");
+    }
   };
 
   // update the icon value selected
   useEffect(() => {
-    console.log(icon);
     if (icon) {
       const foundIcon = findIconLabel(icon, icons.iconOption);
       setShowIcon(foundIcon.label);
@@ -50,16 +72,49 @@ export default function CustomList({ navigation, iconChoice }) {
     setIcon(selectedIcon);
   }
 
+  function changeTitle(title) {
+    setTitle(title);
+  }
+
+  const handleDelete = async () => {
+    if (route.params) {
+      try {
+        const pressedList = route.params.pressedList;
+        // need to delete all notes with the list
+        const notesQuery = query(collection(database, "notes"), where("list", "==", pressedList));
+        const notesSnapshot = await getDocs(notesQuery);
+        notesSnapshot.forEach(async (doc) => {
+          await deleteNoteFromDB(doc.id);
+        });
+        // delete the list from the collection
+        await deleteListFromDB(pressedList.id);
+        navigation.navigate("Wishlist");
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
+
   return (
     <View style={[styles.container, container]}>
+      {/* show a delete button when it's in edit mode */}
+      {route.params && (
+        <PressableButton
+          defaultStyle={styles.delete}
+          pressedStyle={styles.pressed}
+          onPressFunction={handleDelete}
+        >
+          <Text style={styles.submitText}>Delete</Text>
+        </PressableButton>
+      )}
       <View style={styles.info}>
         <Text style={styles.title}>Title</Text>
-        <InputField placeholder="Write List Title"/>
+        <InputField placeholder="Write List Title" changedHandler={changeTitle} value={title}/>
       </View>
       {/* icon options for selection */}
       <View style={styles.iconSelect}>
         <Text style={styles.title}>Select the Icon</Text>
-        <IconSelect onValueChange={changeIcon} updateValue={null} iconChoice={iconChoice}/>
+        <IconSelect onValueChange={changeIcon} updateValue={route.params? route.params.pressedList.icon : null}/>
       </View>
       {/* color options for selection */}
       <Text style={styles.title}>Select Icon Color</Text>
@@ -181,8 +236,8 @@ const styles = StyleSheet.create({
   },
   icon: {
     alignSelf: 'center',
-    width: 60,
-    height: 60,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 9999,
@@ -199,5 +254,13 @@ const styles = StyleSheet.create({
   iconSelect: {
     height: 90,
     zIndex: 9999,
-  }
+  },
+  delete: {
+    backgroundColor: colors.deepYellow,
+    width: "25%",
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });

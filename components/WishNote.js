@@ -1,5 +1,6 @@
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, FlatList, StyleSheet, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import PressableButton from "./PressableButton";
 import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
@@ -9,9 +10,28 @@ import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Switch } from '@rneui/themed';
 import InputField from './InputField';
+import { useRoute } from '@react-navigation/native';
+import { icons } from '../styles/Icons';
+import { deleteNoteFromDB, updateNote, writeNoteToDB } from '../firebase/firestoreHelper';
 
 export default function WishNote( { navigation } ) {
+  const route = useRoute();
+  const [list, setList] = useState(route.params?.selectedList || route.params?.pressedWishlist?.list || null)
+  const [title, setTitle] = useState(route.params?.pressedWishlist?.title || "")
+  const [note, setNote] = useState(route.params?.pressedWishlist?.note || "")
+  const [noteId, setNoteId] = useState(route.params?.pressedWishlist?.id || null)
+
+  // update location later
+  const [location, setLocation] = useState("Location")
+  // update reminder setting later
   const [reminder, setReminder] = useState(false);
+
+  // Update the state with the selected list
+  useFocusEffect(
+    React.useCallback(() => {
+      setList(route.params?.selectedList || route.params?.pressedWishlist?.list || null);
+    }, [route.params?.selectedList || route.params?.pressedWishlist?.list])
+  );
 
   // safe area
   const insets = useSafeAreaInsets();
@@ -24,7 +44,23 @@ export default function WishNote( { navigation } ) {
 
   // save the data to notes collection
   const handleSubmit = () => {
-    navigation.goBack();
+    let hasError = false;
+    if (!title || !location || !list) {
+      hasError = true;
+    }
+    if (hasError) {
+      Alert.alert('invalid field');
+    } else {
+      // update the value
+      if (noteId) {
+        updateNote(noteId, title, location, note, list, reminder)
+      } else {
+        // write value to database
+        const newWishlist = { title, location, note, list, reminder};
+        writeNoteToDB(newWishlist);
+      }
+      navigation.navigate("Wishlist");
+    }
   };
 
   // navigate to AddToList
@@ -32,11 +68,41 @@ export default function WishNote( { navigation } ) {
     navigation.navigate('AddToList'); 
   };
 
+  const findIconLabel = (value, iconOptions) => {
+    return iconOptions.find((item) => item.value === value) || null;
+  };
+
+  const foundIcon = findIconLabel(list?.icon, icons.iconOption);
+
+  function changeTitle(noteTitle) {
+    setTitle(noteTitle);
+  }
+
+  function changeNote(noteContent) {
+    setNote(noteContent);
+  }
+
+  // delete the note from the collection
+  const handleDelete = () => {
+      deleteNoteFromDB(noteId);
+      navigation.navigate("Wishlist");
+  };
+
   return (
     <View style={[styles.container, container]}>
+      {/* show a delete button when it's in edit mode */}
+      {noteId && (
+        <PressableButton
+          defaultStyle={styles.delete}
+          pressedStyle={styles.pressed}
+          onPressFunction={handleDelete}
+        >
+          <Text style={styles.submitText}>Delete</Text>
+        </PressableButton>
+      )}
       <View style={styles.info}>
         <Text style={styles.title}>Title</Text>
-        <InputField placeholder="Write the title"/>
+        <InputField placeholder="Write the title" changedHandler={changeTitle} value={title}/>
       </View>
       <View style={[styles.info, styles.label]}>
         <Ionicons
@@ -49,7 +115,7 @@ export default function WishNote( { navigation } ) {
       </View>
       <View style={styles.info}>
         <Text style={styles.title}>Note</Text>
-        <InputField placeholder="Write your important note (optional)" height={200}/>
+        <InputField placeholder="Write your important note (optional)" height={200} changedHandler={changeNote} value={note}/>
       </View>
       {/* navigate to select the list to add the location*/}
       <PressableButton 
@@ -58,7 +124,13 @@ export default function WishNote( { navigation } ) {
         <View style={[styles.info, styles.label]}>
           <MaterialIcons name="add-location-alt" size={20} color={colors.deepYellow} />
           <Text>Add To List</Text>
-          <Text>  ? favorite</Text>
+          {/* show the selected list title and icon */}
+          { list && <View style={styles.listContent}>
+            <View style={[styles.icon, { backgroundColor: colors.colorOption[list.color] }]}>
+              {foundIcon?.label}
+            </View>
+            <Text style={styles.title}>{list.title}</Text>
+          </View>}
           <AntDesign name="right" size={14} color={colors.black} />
         </View>
       </PressableButton>
@@ -97,7 +169,7 @@ export default function WishNote( { navigation } ) {
           pressedStyle={styles.pressed}
           onPressFunction={handleSubmit}
         >
-          <Text style={styles.submitText}>Add to Wishlist</Text>
+          <Text style={styles.submitText}>{noteId ? 'Update Wishlist' : 'Add to Wishlist'}</Text>
         </PressableButton>
       </View>
     </View>
@@ -165,5 +237,35 @@ const styles = StyleSheet.create({
   dateReminderText: {
     color: colors.white,
     fontWeight: "bold",
+  },
+  icon: {
+    alignSelf: 'center',
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 9999,
+    marginBottom: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.29,
+    shadowRadius: 4.65,
+    elevation: 7,
+  },
+  listContent: {
+    flexDirection: "row",
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  delete: {
+    backgroundColor: colors.deepYellow,
+    width: "25%",
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
