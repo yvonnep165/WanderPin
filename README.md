@@ -9,7 +9,8 @@ collection 3: Lists
 collection 4: Users  
 
 # Current State of the application
-![screenshot](https://ibb.co/M5LSD8H)
+screenshot:
+https://ibb.co/M5LSD8H
 
 # Individual Contribution
 Shiqing Pan:  
