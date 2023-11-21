@@ -6,10 +6,12 @@ const PressableButton = ({
   onPressFunction,
   defaultStyle,
   pressedStyle,
+  disabled
 }) => {
   return (
     <Pressable
         onPress={onPressFunction}
+        disabled={disabled}
         style={({pressed})=>{
           return [defaultStyle, pressed && pressedStyle]
         }}
