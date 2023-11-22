@@ -30,6 +30,21 @@ const Map = ( {navigation} ) => {
     getUserLocation();
   }, []);
 
+  // update the selected location if navigate from other screens with location data
+  useEffect(() => {
+    const locationDataFromParams = route.params?.locationData;
+    if (
+      locationDataFromParams &&
+      (locationDataFromParams.latitude !== selectedLocation?.latitude ||
+        locationDataFromParams.longitude !== selectedLocation?.longitude)
+    ) {
+      setSelectedLocation({
+        latitude: locationDataFromParams.latitude,
+        longitude: locationDataFromParams.longitude,
+      });
+    }
+  }, [route.params]);
+
   useEffect(() => {
     if (selectedLocation) {
       (async () => {
