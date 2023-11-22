@@ -9,6 +9,7 @@ import * as Location from "expo-location";
 import { MAPS_API_KEY } from "@env";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { colors } from "../styles/Colors";
+import Geocoder from "react-native-geocoding";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -19,10 +20,30 @@ const Map = ( {navigation} ) => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [status, requestPermission] = Location.useForegroundPermissions();
   const [userLocation, setUserLocation] = useState(null);
+  const [address, setAddress] = useState(null);
+  Geocoder.init(MAPS_API_KEY)
 
   useEffect(() => {
     getUserLocation();
   }, []);
+
+  useEffect(() => {
+    if (selectedLocation) {
+      (async () => {
+        try {
+          const data = await Geocoder.from(
+            selectedLocation.latitude,
+            selectedLocation.longitude
+          );
+          const selectedAddress = data.results[0]?.formatted_address;
+          setAddress(selectedAddress);
+          console.log(selectedAddress);
+        } catch (error) {
+          console.error("Geocoding error:", error);
+        }
+      })();
+    }
+  }, [selectedLocation]);
 
   // send the selected location to other screens to perform other actions
   function confirmLocationHandler() {
@@ -77,7 +98,6 @@ const Map = ( {navigation} ) => {
 				}}
 				query={{
 					key: MAPS_API_KEY,
-					language: 'en',
 					location: `${selectedLocation?.latitude ?? ''}, ${selectedLocation?.longitude ?? ''}`
 				}}
 				styles={{
@@ -96,6 +116,7 @@ const Map = ( {navigation} ) => {
         region={{
           latitude: selectedLocation?.latitude || userLocation?.latitude || 49.2827,
           longitude: selectedLocation?.longitude || userLocation?.longitude || -123.1207,
+          latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
         onPress={(e) => {
@@ -118,9 +139,9 @@ const Map = ( {navigation} ) => {
           </Marker>)
         }
         {/* select a location by clicking on map */}
-        <Marker coordinate={selectedLocation} >
+        <Marker coordinate={selectedLocation}>
           <Callout>
-            <Text>selected</Text>
+            <Text>{address}</Text>
           </Callout>
         </Marker>
       </MapView>
