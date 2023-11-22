@@ -10,17 +10,20 @@ import { MAPS_API_KEY } from "@env";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { colors } from "../styles/Colors";
 import Geocoder from "react-native-geocoding";
+import { useRoute } from '@react-navigation/native';
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 const Map = ( {navigation} ) => {
+  const route = useRoute();
   const insets = useSafeAreaInsets();
   const container = getContainerStyles(insets);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [status, requestPermission] = Location.useForegroundPermissions();
   const [userLocation, setUserLocation] = useState(null);
   const [address, setAddress] = useState(null);
+  const [changeLocation, setChangeLocation] = useState(false);
   Geocoder.init(MAPS_API_KEY)
 
   useEffect(() => {
@@ -44,12 +47,6 @@ const Map = ( {navigation} ) => {
       })();
     }
   }, [selectedLocation]);
-
-  // send the selected location to other screens to perform other actions
-  function confirmLocationHandler() {
-    console.log(selectedLocation);
-    // navigation.navigate("Profile", { selectedCoord: selectedLocation });
-  }
 
   // verify user's permission to locate the user
   const verifyPermission = async () => {
@@ -80,6 +77,28 @@ const Map = ( {navigation} ) => {
     }
   }
 
+  // send the selected location to visitNode
+  function passToVisitNote() {
+    const locationData = {
+      latitude: selectedLocation.latitude,
+      longitude: selectedLocation.longitude,
+      address: address,
+    };
+    console.log(locationData);
+    navigation.navigate("VisitedNote", { locationData });
+  }
+
+  // send the selected location to wishNote
+  function passToWishNote() {
+    const locationData = {
+      latitude: selectedLocation.latitude,
+      longitude: selectedLocation.longitude,
+      address: address,
+    };
+    console.log(locationData);
+    navigation.navigate("WishNote", { locationData });
+  }
+
   return (
     <View style={[container, commonStyles.container]}>
       {/* use the search bar to search for the address of a location */}
@@ -94,7 +113,10 @@ const Map = ( {navigation} ) => {
 					setSelectedLocation({
 						latitude: details.geometry.location.lat,
 						longitude: details.geometry.location.lng,
-					})}
+					})
+          // use the state variable to trigger rerender when the location changed via search
+          setChangeLocation((prev) => !prev);
+        }
 				}}
 				query={{
 					key: MAPS_API_KEY,
@@ -112,6 +134,7 @@ const Map = ( {navigation} ) => {
 				}}
 			/>
       <MapView
+        key={changeLocation}
         style={styles.map}
         region={{
           latitude: selectedLocation?.latitude || userLocation?.latitude || 49.2827,
@@ -147,11 +170,27 @@ const Map = ( {navigation} ) => {
       </MapView>
         <View style={styles.buttonContainer}>
           <PressableButton
-            defaultStyle={styles.submit}
+            defaultStyle={[
+              styles.submit,
+              selectedLocation ? {} : styles.submitDisabled,
+            ]}
             pressedStyle={styles.pressed}
             disabled={!selectedLocation}
-            onPressFunction={confirmLocationHandler}
-          />
+            onPressFunction={passToVisitNote}
+          >
+            <Text style={styles.text}>Mark As Visited</Text>
+          </PressableButton>
+          <PressableButton
+            defaultStyle={[
+              styles.submit,
+              selectedLocation ? {} : styles.submitDisabled,
+            ]}
+            pressedStyle={styles.pressed}
+            disabled={!selectedLocation}
+            onPressFunction={passToWishNote}
+          >
+            <Text style={styles.text}>Add To Wishlist</Text>
+          </PressableButton>
         </View>
     </View>
   );
@@ -174,13 +213,20 @@ const styles = StyleSheet.create({
   },
   submit: {
     backgroundColor: colors.deepYellow,
-    width: "45%",
+    width: "40%",
     height: 40,
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
   },
+  submitDisabled: {
+    backgroundColor: colors.lightGray,
+  },
   pressed: {
     opacity: 0.7,
+  },
+  text: {
+    color: colors.white,
+    fontWeight: "bold",
   },
 });
