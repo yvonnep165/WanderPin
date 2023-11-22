@@ -21,11 +21,7 @@ const Map = ( {navigation} ) => {
   const [userLocation, setUserLocation] = useState(null);
 
   useEffect(() => {
-    const updateLocationInterval = setInterval(() => {
-      getUserLocation();
-    }, 5000); // Update every 5 seconds, adjust as needed
-  
-    return () => clearInterval(updateLocationInterval);
+    getUserLocation();
   }, []);
 
   // send the selected location to other screens to perform other actions
@@ -40,7 +36,6 @@ const Map = ( {navigation} ) => {
       return true;
     }
     const response = await requestPermission();
-    console.log(response)
     return response && response.granted;
   };
 
@@ -66,14 +61,14 @@ const Map = ( {navigation} ) => {
 
   return (
     <View style={[container, commonStyles.container]}>
-      {/* <GooglePlacesAutocomplete
+      {/* use the search bar to search for the address of a location */}
+      <GooglePlacesAutocomplete
 				placeholder="Search"
-				// fetchDetails={true}
-				// GooglePlacesSearchQuery={{
-				// 	rankby: "distance"
-				// }}
+				fetchDetails={true}
+				GooglePlacesSearchQuery={{
+					rankby: "distance"
+				}}
 				onPress={(data, details = null) => {
-					console.log(data, details)
           if (details) {
 					setSelectedLocation({
 						latitude: details.geometry.location.lat,
@@ -86,18 +81,21 @@ const Map = ( {navigation} ) => {
 					location: `${selectedLocation?.latitude ?? ''}, ${selectedLocation?.longitude ?? ''}`
 				}}
 				styles={{
-					container: { flex: 0, position: "absolute", width: "100%", zIndex: 1 },
-					listView: { backgroundColor: "white" }
+					container: { 
+            top: 40,
+            position: "absolute", 
+            width: "90%",
+            marginLeft: "5%",
+            zIndex: 9999,
+          },
+					listView: { backgroundColor: colors.lightGreen }
 				}}
-			/> */}
-      {/* show the user's current location and the location in the selected lists*/}
-      {/* select a location by clicking on map */}
+			/>
       <MapView
         style={styles.map}
         region={{
-          latitude: userLocation? userLocation.latitude : 49.2827,
-          longitude: userLocation? userLocation.longitude : -123.1207,
-          latitudeDelta: 0.0922,
+          latitude: selectedLocation?.latitude || userLocation?.latitude || 49.2827,
+          longitude: selectedLocation?.longitude || userLocation?.longitude || -123.1207,
           longitudeDelta: 0.0421,
         }}
         onPress={(e) => {
@@ -108,6 +106,7 @@ const Map = ( {navigation} ) => {
         }}
         provider="google"
       >
+        {/* show the user's current location and the location in the selected lists*/}
         { (userLocation && !selectedLocation) && 
           (<Marker 
             coordinate={userLocation}
@@ -118,6 +117,7 @@ const Map = ( {navigation} ) => {
             </Callout>
           </Marker>)
         }
+        {/* select a location by clicking on map */}
         <Marker coordinate={selectedLocation} >
           <Callout>
             <Text>selected</Text>
