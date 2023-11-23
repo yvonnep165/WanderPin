@@ -2,7 +2,6 @@ import { View, StyleSheet } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker';
 import React, {useState} from 'react';
 import { colors } from "../styles/Colors";
-import { AntDesign, Ionicons, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import { icons } from '../styles/Icons';
 
 export default function IconSelect({onValueChange, updateValue}) {
