@@ -10,17 +10,21 @@ export default function ShowMapList( {lists} ) {
     const [items, setItems] = useState([]);
 
     useEffect(() => {
-        console.log("ShowMapList - Lists:", lists);
         setItems(
           lists.map((list) => ({
-            label: `${findIconLabel(list.icon, icons.iconOption)} ${list.title}`,
+            label: customItemLabel(list),
             value: list.id,
           }))
         );
       }, [lists]);
 
-    const findIconLabel = (value, iconOptions) => {
-        return iconOptions.find((item) => item.value === value) || '';
+    const customItemLabel = (list) => {
+        return (<View style={styles.listContent}>
+            <View style={[styles.icon, { backgroundColor: colors.colorOption[list.color] }]}>
+                {icons.iconOption.find((item) => item.value === list.icon).label}
+            </View>
+            <Text style={styles.title}>{list.title}</Text>
+        </View>)
     };
 
   return (
@@ -35,7 +39,9 @@ export default function ShowMapList( {lists} ) {
   
           multiple={true}
           mode="BADGE"
-          placeholder="Select lists to display"
+          showBadgeDot={false}
+          placeholder="Select Lists to Display"
+          style={styles.dropdown}
         />
       </View>
   )

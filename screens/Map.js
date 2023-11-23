@@ -164,7 +164,7 @@ const Map = ( {navigation} ) => {
             position: "absolute", 
             width: "90%",
             marginLeft: "5%",
-            zIndex: 9999,
+            zIndex: 9998,
           },
 					listView: { backgroundColor: colors.lightGreen }
 				}}
@@ -268,4 +268,7 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontWeight: "bold",
   },
+  listSelector: {
+    zIndex: 9999,
+  }
 });
