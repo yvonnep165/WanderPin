@@ -58,6 +58,11 @@ const VisitedNote = ({ navigation, route }) => {
     }
   }, [journal]);
 
+  // set images
+  const setTakenImages = () => {
+    
+  }
+
   // visibility for options
   const [visibilityModal, setVisibilityModal] = useState(false);
 
@@ -158,7 +163,7 @@ const VisitedNote = ({ navigation, route }) => {
         </View>
 
         {/* the image area */}
-        <ImageSection />
+        <ImageSection passImageUri={setTakenImages}/>
 
         {/* the info area */}
         <View>
