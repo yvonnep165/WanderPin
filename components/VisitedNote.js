@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, ScrollView } from "react-native";
+import { StyleSheet, Text, View, TextInput, ScrollView, Keyboard } from "react-native";
 import React, {
   useRef,
   useState,
@@ -21,6 +21,8 @@ import {
   updateJournalToDB,
 } from "../firebase/firestoreHelper";
 import ImageSection from "./ImageSection";
+import { ref, uploadBytesResumable } from "firebase/storage";
+import { storage } from "../firebase/firebaseSetup";
 
 const VisitedNote = ({ navigation, route }) => {
   // safe area
@@ -34,6 +36,8 @@ const VisitedNote = ({ navigation, route }) => {
   const [visibility, setVisibility] = useState(1);
   const [visitDate, setVisitDate] = useState(new Date());
   const [journal, setJournal] = useState(null);
+  const [images, setImages] = useState([]);
+  // const [imagesStorage, setImagesStorage] = useState([]);
 
   useEffect(() => {
     if (route.params && route.params.journal) {
@@ -59,8 +63,32 @@ const VisitedNote = ({ navigation, route }) => {
   }, [journal]);
 
   // set images
-  const setTakenImages = () => {
-    
+  const setTakenImages = (uri) => {
+    setImages([...images, uri]);
+  }
+
+  async function uploadImageToStorage(uri) {
+    try {
+      const response = await fetch(uri);
+      const imageBlob = await response.blob();
+      const imageName = uri.substring(uri.lastIndexOf("/") + 1);
+      const imageRef = await ref(storage, `images/${imageName}`);
+      const uploadResult = await uploadBytesResumable(imageRef, imageBlob);
+      return uploadResult.metadata.fullPath;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function getImagesUri(images) {
+    const imagesStorage = [];
+
+    for (const image of images) {
+      const imageRef = await uploadImageToStorage(image);
+      imagesStorage.push(imageRef);
+    }
+
+    return imagesStorage;
   }
 
   // visibility for options
@@ -110,34 +138,44 @@ const VisitedNote = ({ navigation, route }) => {
     navigation.goBack();
   };
 
+  const writeToDB = async () => {
+    try {
+      const imagesStorage = await getImagesUri(images);
+      if (!journal) {
+        const newJournal = {
+          title: title,
+          note: note,
+          location: location,
+          visibility: visibility,
+          date: visitDate,
+          editTime: new Date(),
+          images: imagesStorage,
+        };
+        writeJournalToDB(newJournal);
+      } else {
+        if (title != journal.title) {
+          updateJournalToDB(journal.id, { title: title });
+        }
+        if (note != journal.content) {
+          updateJournalToDB(journal.id, { note: note });
+        }
+        if (location != journal.location) {
+          updateJournalToDB(journal.id, { location: location });
+        }
+        if (visibility != journal.visibility) {
+          updateJournalToDB(journal.id, { visibility: visibility });
+        }
+        if (visitDate != journal.date) {
+          updateJournalToDB(journal.id, { date: visitDate });
+        } 
+      }
+    } catch(err){
+      console.log(err);
+    } 
+  }
+
   const handleSubmit = () => {
-    if (!journal) {
-      const newJournal = {
-        title: title,
-        note: note,
-        location: location,
-        visibility: visibility,
-        date: visitDate,
-        editTime: new Date(),
-      };
-      writeJournalToDB(newJournal);
-    } else {
-      if (title != journal.title) {
-        updateJournalToDB(journal.id, { title: title });
-      }
-      if (note != journal.content) {
-        updateJournalToDB(journal.id, { note: note });
-      }
-      if (location != journal.location) {
-        updateJournalToDB(journal.id, { location: location });
-      }
-      if (visibility != journal.visibility) {
-        updateJournalToDB(journal.id, { visibility: visibility });
-      }
-      if (visitDate != journal.date) {
-        updateJournalToDB(journal.id, { date: visitDate });
-      }
-    }
+    writeToDB();
     navigation.goBack();
   };
 
@@ -152,6 +190,7 @@ const VisitedNote = ({ navigation, route }) => {
             style={styles.input}
             value={title}
             onChangeText={setTitle}
+            onBlur={Keyboard.dismiss}
           />
           <Text style={styles.label}>Note</Text>
           <TextInput
@@ -159,6 +198,7 @@ const VisitedNote = ({ navigation, route }) => {
             value={note}
             onChangeText={setNote}
             multiline={true}
+            onBlur={Keyboard.dismiss}
           />
         </View>
 
