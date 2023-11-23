@@ -20,6 +20,7 @@ import {
   writeJournalToDB,
   updateJournalToDB,
 } from "../firebase/firestoreHelper";
+import ImageSection from "./ImageSection";
 
 const VisitedNote = ({ navigation, route }) => {
   // safe area
@@ -157,7 +158,7 @@ const VisitedNote = ({ navigation, route }) => {
         </View>
 
         {/* the image area */}
-        <View></View>
+        <ImageSection />
 
         {/* the info area */}
         <View>
