@@ -7,6 +7,8 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { database } from "./firebaseSetup";
+import { getDownloadURL, ref } from "firebase/storage";
+import { storage } from "../firebase/firebaseSetup";
 
 export async function writeJournalToDB(journal) {
   // Add a new document with a generated id.
@@ -20,6 +22,21 @@ export async function writeJournalToDB(journal) {
     console.log(err);
   }
 }
+
+export async function downloadURL(images){
+    try {
+      const displayImages = []
+      for (const image of images) {
+        const imageUriRef = ref(storage, image);
+        const url = await getDownloadURL(imageUriRef);
+        displayImages.push(url);
+      }
+      return displayImages;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
 
 // add a new list to the lists collection
 export async function writeListToDB(list) {

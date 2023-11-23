@@ -8,8 +8,8 @@ import { onSnapshot, collection } from "firebase/firestore";
 import { database } from "../firebase/firebaseSetup";
 import { deleteJournalFromDB } from "../firebase/firestoreHelper";
 import { colors } from "../styles/Colors";
-import { getDownloadURL, ref } from "firebase/storage";
-import { storage } from "../firebase/firebaseSetup";
+import { downloadURL } from "../firebase/firestoreHelper";
+
 
 const JournalDetail = ({ route, navigation }) => {
   // safe area
@@ -42,22 +42,17 @@ const JournalDetail = ({ route, navigation }) => {
 
 
   useEffect(() => {
-    async function getURL() {
-      try {
-        const displayImages = []
-        for (const image of journal.images) {
-          const imageUriRef = ref(storage, image);
-          const url = await getDownloadURL(imageUriRef);
-          displayImages.push(url);
+    const fetchDownloadURLs = async () => {
+      if (journal.images) {
+        try {
+          const downloadImages = await downloadURL(journal.images);
+          setJournalImages(downloadImages);
+        } catch (err) {
+          console.log(err);
         }
-        setJournalImages(displayImages);
-      } catch (err) {
-        console.log(err);
       }
-    }
-    if (journal.images) {
-      getURL();
-    }
+    };
+    fetchDownloadURLs();
   }, [journal.images]);
 
 

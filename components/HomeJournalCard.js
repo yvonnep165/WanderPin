@@ -1,9 +1,12 @@
 import { StyleSheet, Text, View, Image } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { colors } from "../styles/Colors";
 import PressableButton from "./PressableButton";
+import { downloadURL } from "../firebase/firestoreHelper";
 
 const HomeJournalCard = ({ journal, pressCardHandler }) => {
+  const [journalImage, setJournalImage] = useState([]);
+
   const firebaseUpdateTime = new Date(
     journal.editTime.seconds * 1000 + journal.editTime.nanoseconds / 1e6
   );
@@ -12,6 +15,20 @@ const HomeJournalCard = ({ journal, pressCardHandler }) => {
   const pressHandler = () => {
     pressCardHandler(journal);
   }
+
+  useEffect(() => {
+    const fetchDownloadURLs = async () => {
+      if (journal.images) {
+        try {
+          const downloadImages = await downloadURL(journal.images);
+          setJournalImage(downloadImages);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    };
+    fetchDownloadURLs();
+  }, [journal.images]);
  
   return (
     <PressableButton onPressFunction={pressHandler}>
@@ -20,7 +37,7 @@ const HomeJournalCard = ({ journal, pressCardHandler }) => {
           style={styles.img}
           resizeMode="cover"
           source={{
-            uri: "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
+            uri: journalImage[0],
           }}
         />
         <View style={styles.info}>
