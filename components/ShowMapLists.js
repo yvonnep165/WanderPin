@@ -41,7 +41,6 @@ export default function ShowMapList( {lists} ) {
           mode="BADGE"
           showBadgeDot={false}
           placeholder="Select Lists to Display"
-          style={styles.dropdown}
         />
       </View>
   )
