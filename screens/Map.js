@@ -11,6 +11,9 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 import { colors } from "../styles/Colors";
 import Geocoder from "react-native-geocoding";
 import { useRoute } from '@react-navigation/native';
+import { collection, onSnapshot } from "firebase/firestore";
+import { database } from "../firebase/firebaseSetup";
+import ShowMapList from "../components/ShowMapLists";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -24,6 +27,7 @@ const Map = ( {navigation} ) => {
   const [userLocation, setUserLocation] = useState(null);
   const [address, setAddress] = useState(null);
   const [changeLocation, setChangeLocation] = useState(false);
+  const [lists, setLists] = useState([]);
   Geocoder.init(MAPS_API_KEY)
 
   useEffect(() => {
@@ -62,6 +66,23 @@ const Map = ( {navigation} ) => {
       })();
     }
   }, [selectedLocation]);
+
+  // read all the lists from database for selected list display
+  useEffect(()=>{
+    let q = collection(database, "lists");
+      onSnapshot(q, (querySnapshot) => {
+        if (!querySnapshot.empty) {
+          let newArray = []
+          querySnapshot.forEach((docSnap) => {
+            newArray.push({...docSnap.data(), id: docSnap.id});
+          });
+          setLists(newArray);
+          console.log("Lists updated:", newArray);
+        } else {
+          setLists([]);
+        }
+    })
+  }, []);
 
   // verify user's permission to locate the user
   const verifyPermission = async () => {
@@ -139,7 +160,7 @@ const Map = ( {navigation} ) => {
 				}}
 				styles={{
 					container: { 
-            top: 40,
+            top: 80,
             position: "absolute", 
             width: "90%",
             marginLeft: "5%",
@@ -148,6 +169,9 @@ const Map = ( {navigation} ) => {
 					listView: { backgroundColor: colors.lightGreen }
 				}}
 			/>
+      <View style={styles.listSelector}>
+        <ShowMapList lists={lists}/>
+      </View>
       <MapView
         key={changeLocation}
         style={styles.map}
