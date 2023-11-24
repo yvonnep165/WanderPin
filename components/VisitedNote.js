@@ -1,4 +1,11 @@
-import { StyleSheet, Text, View, TextInput, ScrollView, Keyboard } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  ScrollView,
+  Keyboard,
+} from "react-native";
 import React, {
   useRef,
   useState,
@@ -36,8 +43,7 @@ const VisitedNote = ({ navigation, route }) => {
   const [visibility, setVisibility] = useState(1);
   const [visitDate, setVisitDate] = useState(new Date());
   const [journal, setJournal] = useState(null);
-  const [images, setImages] = useState([]);
-  // const [imagesStorage, setImagesStorage] = useState([]);
+  const [journalImages, setJournalImages] = useState([]);
 
   useEffect(() => {
     if (route.params && route.params.journal) {
@@ -45,27 +51,33 @@ const VisitedNote = ({ navigation, route }) => {
     }
   }, []);
 
-  // edit page
+  // edit pages
   useEffect(() => {
     if (route.params && route.params.journal) {
-      setJournal(route.params.journal);
-    }
-    if (journal) {
+      const fetchedJournal = route.params.journal;
+      const fetchedImages = route.params.journalImages;
+
+      setJournal(fetchedJournal);
+
       const date = new Date(
-        journal.date.seconds * 1000 + journal.date.nanoseconds / 1e6
+        fetchedJournal.date.seconds * 1000 + fetchedJournal.date.nanoseconds / 1e6
       );
-      setTitle(journal.title);
-      setNote(journal.note);
-      setLocation(journal.location);
-      setVisibility(journal.visibility);
+
+      setTitle(fetchedJournal.title);
+      setNote(fetchedJournal.note);
+      setLocation(fetchedJournal.location);
+      setVisibility(fetchedJournal.visibility);
       setVisitDate(date);
+      setJournalImages(fetchedImages);
     }
-  }, [journal]);
+  }, [route.params]);
+
+
 
   // set images
   const setTakenImages = (uri) => {
-    setImages([...images, uri]);
-  }
+    setJournalImages([...journalImages, uri]);
+  };
 
   async function uploadImageToStorage(uri) {
     try {
@@ -140,7 +152,7 @@ const VisitedNote = ({ navigation, route }) => {
 
   const writeToDB = async () => {
     try {
-      const imagesStorage = await getImagesUri(images);
+      const imagesStorage = await getImagesUri(journalImages);
       if (!journal) {
         const newJournal = {
           title: title,
@@ -167,12 +179,12 @@ const VisitedNote = ({ navigation, route }) => {
         }
         if (visitDate != journal.date) {
           updateJournalToDB(journal.id, { date: visitDate });
-        } 
+        }
       }
-    } catch(err){
+    } catch (err) {
       console.log(err);
-    } 
-  }
+    }
+  };
 
   const handleSubmit = () => {
     writeToDB();
@@ -203,7 +215,7 @@ const VisitedNote = ({ navigation, route }) => {
         </View>
 
         {/* the image area */}
-        <ImageSection passImageUri={setTakenImages}/>
+        <ImageSection passImageUri={setTakenImages} images={journalImages}/>
 
         {/* the info area */}
         <View>

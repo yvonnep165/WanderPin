@@ -66,7 +66,7 @@ const JournalDetail = ({ route, navigation }) => {
   };
 
   const onPressEdit = () => {
-    navigation.navigate("VisitedNote", { journal });
+    navigation.navigate("VisitedNote", { journal, journalImages });
   };
 
   const onPressDelete = () => {

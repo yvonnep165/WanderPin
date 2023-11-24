@@ -14,7 +14,7 @@ const HomeJournalCard = ({ journal, pressCardHandler }) => {
 
   const pressHandler = () => {
     pressCardHandler(journal);
-  }
+  };
 
   useEffect(() => {
     const fetchDownloadURLs = async () => {
@@ -29,17 +29,19 @@ const HomeJournalCard = ({ journal, pressCardHandler }) => {
     };
     fetchDownloadURLs();
   }, [journal.images]);
- 
+
   return (
     <PressableButton onPressFunction={pressHandler}>
       <View style={styles.cardContainer}>
-        <Image
-          style={styles.img}
-          resizeMode="cover"
-          source={{
-            uri: journalImage[0],
-          }}
-        />
+        {journalImage.length != 0 && (
+          <Image
+            style={styles.img}
+            resizeMode="cover"
+            source={{
+              uri: journalImage[0],
+            }}
+          />
+        )}
         <View style={styles.info}>
           <Text style={styles.title}>{journal.title}</Text>
           <View style={styles.subtitle}>
@@ -76,3 +78,5 @@ const styles = StyleSheet.create({
     paddingTop: 5,
   },
 });
+
+

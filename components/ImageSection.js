@@ -1,19 +1,25 @@
 import { StyleSheet, Text, View, Image } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PressableButton from "./PressableButton";
 import { MaterialIcons } from "@expo/vector-icons";
 import { FlatList } from "react-native-gesture-handler";
 import { colors } from "../styles/Colors";
 import * as ImagePicker from "expo-image-picker";
 
-const ImageSection = ({passImageUri}) => {
-  const tempPhotos = [
+const ImageSection = ({passImageUri, images}) => {
+  const buttons = [
     { type: "button", id: "photo" },
     { type: "button", id: "camera" },
   ];
 
-  const [photos, setPhotos] = useState(tempPhotos);
+  const tempPhotos = [...buttons, ...images];
+
+  const [photos, setPhotos] = useState([]);
   const [status, requestPermission] = ImagePicker.useCameraPermissions();
+
+  useEffect(() => {
+    setPhotos(tempPhotos);
+  }, [images])
 
   const verifyPermission = async () => {
     if (status.granted) {
