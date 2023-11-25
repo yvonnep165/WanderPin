@@ -3,14 +3,12 @@ import {
   Text,
   View,
   TextInput,
-  ScrollView,
   Keyboard,
 } from "react-native";
 import React, {
   useRef,
   useState,
   useMemo,
-  useCallback,
   useEffect,
 } from "react";
 import PressableButton from "./PressableButton";
@@ -20,7 +18,6 @@ import { AntDesign } from "@expo/vector-icons";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { commonStyles } from "../styles/CommonStyles";
 import { FontAwesome } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import {
@@ -44,6 +41,10 @@ const VisitedNote = ({ navigation, route }) => {
   const [visitDate, setVisitDate] = useState(new Date());
   const [journal, setJournal] = useState(null);
   const [journalImages, setJournalImages] = useState([]);
+  const [journalImagesStorage, setJournalImagesStorage] = useState([]);
+
+  console.log(journalImages);
+  console.log(journalImagesStorage);
 
   useEffect(() => {
     if (route.params && route.params.journal) {
@@ -68,7 +69,7 @@ const VisitedNote = ({ navigation, route }) => {
       setLocation(fetchedJournal.location);
       setVisibility(fetchedJournal.visibility);
       setVisitDate(date);
-      setJournalImages(fetchedImages);
+      setJournalImagesStorage(fetchedImages);
     }
   }, [route.params]);
 
@@ -175,11 +176,12 @@ const VisitedNote = ({ navigation, route }) => {
           updateJournalToDB(journal.id, { location: location });
         }
         if (visibility != journal.visibility) {
-          updateJournalToDB(journal.id, { visibility: visibility });
+          updateJournalToDB(journal.id, { visibility: visibility }); 
         }
         if (visitDate != journal.date) {
           updateJournalToDB(journal.id, { date: visitDate });
-        }
+        } 
+        updateJournalToDB(journal.id, {images: [...journalImagesStorage, ...imagesStorage]});
       }
     } catch (err) {
       console.log(err);
@@ -215,7 +217,7 @@ const VisitedNote = ({ navigation, route }) => {
         </View>
 
         {/* the image area */}
-        <ImageSection passImageUri={setTakenImages} images={journalImages}/>
+        <ImageSection passImageUri={setTakenImages} images={journalImagesStorage}/>
 
         {/* the info area */}
         <View>
