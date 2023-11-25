@@ -43,9 +43,6 @@ const VisitedNote = ({ navigation, route }) => {
   const [journalImages, setJournalImages] = useState([]);
   const [journalImagesStorage, setJournalImagesStorage] = useState([]);
 
-  console.log(journalImages);
-  console.log(journalImagesStorage);
-
   useEffect(() => {
     if (route.params && route.params.journal) {
       setJournal(route.params.journal);
