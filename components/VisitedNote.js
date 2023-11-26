@@ -4,6 +4,7 @@ import {
   View,
   TextInput,
   Keyboard,
+  Alert,
 } from "react-native";
 import React, {
   useRef,
@@ -186,6 +187,10 @@ const VisitedNote = ({ navigation, route }) => {
   };
 
   const handleSubmit = () => {
+    if (!title || !location || !visitDate || !journalImages ) {
+      Alert.alert("Please fill out the title, location, visit date and add at least one photo");
+      return;
+    }
     writeToDB();
     navigation.goBack();
   };

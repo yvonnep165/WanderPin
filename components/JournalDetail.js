@@ -31,6 +31,7 @@ const JournalDetail = ({ route, navigation }) => {
   const [journalImages, setJournalImages] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
   const [kudos, setKudos] = useState(originalKudos);
+  const [canEdit, setCanEdit] = useState(true);
   const width = Dimensions.get("window").width * 0.95;
 
   useEffect(() => {
@@ -80,7 +81,7 @@ const JournalDetail = ({ route, navigation }) => {
 
   // header button handlers
   const onPressBack = () => {
-    navigation.navigate("Visited");
+    navigation.goBack();
   };
 
   const onPressHeart = () => {
@@ -122,25 +123,24 @@ const JournalDetail = ({ route, navigation }) => {
             />
             <Text>Username</Text>
           </View>
-          <View style={styles.rightHeader}>
+          { canEdit && <View style={styles.rightHeader}>
             <PressableButton onPressFunction={onPressEdit}>
               <Text style={styles.headerButton}>Edit</Text>
             </PressableButton>
             <PressableButton onPressFunction={onPressDelete}>
               <Text style={styles.headerButton}>Delete</Text>
             </PressableButton>
-          </View>
+          </View>}
         </View>
 
         <ScrollView>
-          <Carousel
-            loop
+          { journalImages && <Carousel
             width={width}
             height="300"
-            autoPlay={false}
             data={journalImages}
+            mode="parallax"
+            pagingEnabled={true}
             scrollAnimationDuration={1000}
-            onSnapToItem={(index) => console.log("current index:", index)}
             renderItem={({ index, item }) => (
               <View style={styles.imageContainer}>
                 <Image
@@ -153,7 +153,7 @@ const JournalDetail = ({ route, navigation }) => {
                 />
               </View>
             )}
-          />
+          /> }
 
           <View style={styles.info}>
             <Text style={styles.title}>{journal.title}</Text>
