@@ -1,9 +1,15 @@
-import { StyleSheet, Text, View, TextInput, ScrollView } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Keyboard,
+  Alert,
+} from "react-native";
 import React, {
   useRef,
   useState,
   useMemo,
-  useCallback,
   useEffect,
 } from "react";
 import PressableButton from "./PressableButton";
@@ -13,13 +19,15 @@ import { AntDesign } from "@expo/vector-icons";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { commonStyles } from "../styles/CommonStyles";
 import { FontAwesome } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import {
   writeJournalToDB,
   updateJournalToDB,
 } from "../firebase/firestoreHelper";
+import ImageSection from "./ImageSection";
+import { ref, uploadBytesResumable } from "firebase/storage";
+import { storage } from "../firebase/firebaseSetup";
 
 const VisitedNote = ({ navigation, route }) => {
   // safe area
@@ -33,6 +41,8 @@ const VisitedNote = ({ navigation, route }) => {
   const [visibility, setVisibility] = useState(1);
   const [visitDate, setVisitDate] = useState(new Date());
   const [journal, setJournal] = useState(null);
+  const [journalImages, setJournalImages] = useState([]);
+  const [journalImagesStorage, setJournalImagesStorage] = useState([]);
 
   useEffect(() => {
     if (route.params && route.params.journal) {
@@ -40,22 +50,57 @@ const VisitedNote = ({ navigation, route }) => {
     }
   }, []);
 
-  // edit page
+  // edit pages
   useEffect(() => {
     if (route.params && route.params.journal) {
-      setJournal(route.params.journal);
-    }
-    if (journal) {
+      const fetchedJournal = route.params.journal;
+      const fetchedImages = route.params.journalImages;
+
+      setJournal(fetchedJournal);
+
       const date = new Date(
-        journal.date.seconds * 1000 + journal.date.nanoseconds / 1e6
+        fetchedJournal.date.seconds * 1000 + fetchedJournal.date.nanoseconds / 1e6
       );
-      setTitle(journal.title);
-      setNote(journal.note);
-      setLocation(journal.location);
-      setVisibility(journal.visibility);
+
+      setTitle(fetchedJournal.title);
+      setNote(fetchedJournal.note);
+      setLocation(fetchedJournal.location);
+      setVisibility(fetchedJournal.visibility);
       setVisitDate(date);
+      setJournalImagesStorage(fetchedImages);
     }
-  }, [journal]);
+  }, [route.params]);
+
+
+
+  // set images
+  const setTakenImages = (uri) => {
+    setJournalImages([...journalImages, uri]);
+  };
+
+  async function uploadImageToStorage(uri) {
+    try {
+      const response = await fetch(uri);
+      const imageBlob = await response.blob();
+      const imageName = uri.substring(uri.lastIndexOf("/") + 1);
+      const imageRef = await ref(storage, `images/${imageName}`);
+      const uploadResult = await uploadBytesResumable(imageRef, imageBlob);
+      return uploadResult.metadata.fullPath;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function getImagesUri(images) {
+    const imagesStorage = [];
+
+    for (const image of images) {
+      const imageRef = await uploadImageToStorage(image);
+      imagesStorage.push(imageRef);
+    }
+
+    return imagesStorage;
+  }
 
   // visibility for options
   const [visibilityModal, setVisibilityModal] = useState(false);
@@ -104,34 +149,49 @@ const VisitedNote = ({ navigation, route }) => {
     navigation.goBack();
   };
 
-  const handleSubmit = () => {
-    if (!journal) {
-      const newJournal = {
-        title: title,
-        note: note,
-        location: location,
-        visibility: visibility,
-        date: visitDate,
-        editTime: new Date(),
-      };
-      writeJournalToDB(newJournal);
-    } else {
-      if (title != journal.title) {
-        updateJournalToDB(journal.id, { title: title });
+  const writeToDB = async () => {
+    try {
+      const imagesStorage = await getImagesUri(journalImages);
+      if (!journal) {
+        const newJournal = {
+          title: title,
+          note: note,
+          location: location,
+          visibility: visibility,
+          date: visitDate,
+          editTime: new Date(),
+          images: imagesStorage,
+        };
+        writeJournalToDB(newJournal);
+      } else {
+        if (title != journal.title) {
+          updateJournalToDB(journal.id, { title: title });
+        }
+        if (note != journal.content) {
+          updateJournalToDB(journal.id, { note: note });
+        }
+        if (location != journal.location) {
+          updateJournalToDB(journal.id, { location: location });
+        }
+        if (visibility != journal.visibility) {
+          updateJournalToDB(journal.id, { visibility: visibility }); 
+        }
+        if (visitDate != journal.date) {
+          updateJournalToDB(journal.id, { date: visitDate });
+        } 
+        updateJournalToDB(journal.id, {images: [...journalImagesStorage, ...imagesStorage]});
       }
-      if (note != journal.content) {
-        updateJournalToDB(journal.id, { note: note });
-      }
-      if (location != journal.location) {
-        updateJournalToDB(journal.id, { location: location });
-      }
-      if (visibility != journal.visibility) {
-        updateJournalToDB(journal.id, { visibility: visibility });
-      }
-      if (visitDate != journal.date) {
-        updateJournalToDB(journal.id, { date: visitDate });
-      }
+    } catch (err) {
+      console.log(err);
     }
+  };
+
+  const handleSubmit = () => {
+    if (!title || !location || !visitDate || !journalImages ) {
+      Alert.alert("Please fill out the title, location, visit date and add at least one photo");
+      return;
+    }
+    writeToDB();
     navigation.goBack();
   };
 
@@ -146,6 +206,7 @@ const VisitedNote = ({ navigation, route }) => {
             style={styles.input}
             value={title}
             onChangeText={setTitle}
+            onBlur={Keyboard.dismiss}
           />
           <Text style={styles.label}>Note</Text>
           <TextInput
@@ -153,11 +214,12 @@ const VisitedNote = ({ navigation, route }) => {
             value={note}
             onChangeText={setNote}
             multiline={true}
+            onBlur={Keyboard.dismiss}
           />
         </View>
 
         {/* the image area */}
-        <View></View>
+        <ImageSection passImageUri={setTakenImages} images={journalImagesStorage}/>
 
         {/* the info area */}
         <View>
