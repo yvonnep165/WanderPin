@@ -10,7 +10,7 @@ collection 4: Users
 
 # Current State of the application
 screenshot:
-https://ibb.co/M5LSD8H  
+https://ibb.co/qDJtwc1  
 
 # Individual Contribution
 Iteration #1:
@@ -32,5 +32,9 @@ Completed functionalities for the Map screen to get user location and allow user
 Allowed transformation between address and coordinates
 Allowed list selection to show on the map further
 Allowed location information passed to wishnote and journalnote
+   
+Yaqi Lyu:   
+Completed functions using cameras in the visited notes  
+Allowed users to add photos or take photos using their cameras  
+Set the first photo of the note as the thumbnail of note  
 
-Yaqi Lyu:
