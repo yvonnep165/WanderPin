@@ -16,21 +16,20 @@ import { deleteNoteFromDB, updateNote, writeNoteToDB } from '../firebase/firesto
 
 export default function WishNote( { navigation } ) {
   const route = useRoute();
-  const [list, setList] = useState(route.params?.selectedList || route.params?.pressedWishlist?.list || null)
-  const [title, setTitle] = useState(route.params?.pressedWishlist?.title || "")
-  const [note, setNote] = useState(route.params?.pressedWishlist?.note || "")
-  const [noteId, setNoteId] = useState(route.params?.pressedWishlist?.id || null)
+  const [list, setList] = useState(route.params?.selectedList || route.params?.pressedWishlist?.list || route.params?.newWishNote?.list || null)
+  const [title, setTitle] = useState(route.params?.pressedWishlist?.title || route.params?.newWishNote?.title || "")
+  const [note, setNote] = useState(route.params?.pressedWishlist?.note || route.params?.newWishNote?.note || "")
+  const [noteId, setNoteId] = useState(route.params?.pressedWishlist?.id || route.params?.newWishNote?.noteId || null)
+  const [wishlistLocation, setWishlistLocation] = useState(route.params?.locationData || route.params?.pressedWishlist?.location || route.params?.newWishNote?.wishlistLocation || null)
 
-  // update location later
-  const [location, setLocation] = useState("Location")
   // update reminder setting later
   const [reminder, setReminder] = useState(false);
 
   // Update the state with the selected list
   useFocusEffect(
     React.useCallback(() => {
-      setList(route.params?.selectedList || route.params?.pressedWishlist?.list || null);
-    }, [route.params?.selectedList || route.params?.pressedWishlist?.list])
+      setList(route.params?.selectedList || route.params?.pressedWishlist?.list || route.params?.newWishNote?.list || null);
+    }, [route.params?.selectedList || route.params?.pressedWishlist?.list || route.params?.newWishNote?.list])
   );
 
   // safe area
@@ -45,7 +44,7 @@ export default function WishNote( { navigation } ) {
   // save the data to notes collection
   const handleSubmit = () => {
     let hasError = false;
-    if (!title || !location || !list) {
+    if (!title || !wishlistLocation || !list) {
       hasError = true;
     }
     if (hasError) {
@@ -53,10 +52,11 @@ export default function WishNote( { navigation } ) {
     } else {
       // update the value
       if (noteId) {
-        updateNote(noteId, title, location, note, list, reminder)
+        const updateWishNote = { id: noteId, title, location: wishlistLocation, note, list, reminder};
+        updateNote(updateWishNote)
       } else {
         // write value to database
-        const newWishlist = { title, location, note, list, reminder};
+        const newWishlist = { title, location: wishlistLocation, note, list, reminder};
         writeNoteToDB(newWishlist);
       }
       navigation.navigate("Wishlist");
@@ -88,6 +88,12 @@ export default function WishNote( { navigation } ) {
       navigation.navigate("Wishlist");
   };
 
+  // navigate to the Map with the detail information of the currentWishNote
+  const handleSelectLocation = () => {
+    const currentWishNote = { noteId, title, wishlistLocation, note, list, reminder }
+    navigation.navigate("Map", { currentWishNote });
+  }
+
   return (
     <View style={[styles.container, container]}>
       {/* show a delete button when it's in edit mode */}
@@ -104,20 +110,24 @@ export default function WishNote( { navigation } ) {
         <Text style={styles.title}>Title</Text>
         <InputField placeholder="Write the title" changedHandler={changeTitle} value={title}/>
       </View>
-      <View style={[styles.info, styles.label]}>
+      <PressableButton 
+          pressedStyle={styles.pressed}
+          onPressFunction={handleSelectLocation}>
+        <View style={[styles.info, styles.label]}>
         <Ionicons
           name="location"
           size={20}
           color={colors.deepYellow}
         />
-        <Text>Location</Text>
-        <AntDesign name="right" size={14} color={colors.black} />
-      </View>
+          <Text>{wishlistLocation? wishlistLocation.address : `Set Location`}</Text>
+          <AntDesign name="right" size={14} color={colors.black} />
+        </View>
+      </PressableButton>
       <View style={styles.info}>
         <Text style={styles.title}>Note</Text>
         <InputField placeholder="Write your important note (optional)" height={200} changedHandler={changeNote} value={note}/>
       </View>
-      {/* navigate to select the list to add the location*/}
+      {/* navigate to select the list to add */}
       <PressableButton 
           pressedStyle={styles.pressed}
           onPressFunction={handleAddToList}>
@@ -246,7 +256,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 9999,
     marginBottom: 2,
-    shadowColor: '#000',
+    shadowColor: colors.shadowColor,
     shadowOffset: {
       width: 0,
       height: 3,

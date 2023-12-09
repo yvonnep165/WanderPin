@@ -41,7 +41,7 @@ export default function Note({ note, pressHandler }) {
                         <Text style={styles.title}>{note.title}</Text>
                         <View style={styles.location}>
                             <Ionicons name="location" size={15} color={colors.darkYellow} />
-                            <Text style={styles.locationInfo}>{note.location}</Text>
+                            <Text style={styles.locationInfo}>{note.location.address}</Text>
                         </View>
                         {note.note && <Text style={styles.content}>{note.note}</Text>}
                     </View>

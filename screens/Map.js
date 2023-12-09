@@ -22,7 +22,9 @@ const Map = ({ navigation }) => {
   const route = useRoute();
   const insets = useSafeAreaInsets();
   const container = getContainerStyles(insets);
-  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(
+    route.params?.currentWishNote?.wishlistLocation || null
+  );
   const [status, requestPermission] = Location.useForegroundPermissions();
   const [userLocation, setUserLocation] = useState(null);
   const [address, setAddress] = useState(null);
@@ -36,7 +38,8 @@ const Map = ({ navigation }) => {
 
   // update the selected location if navigate from other screens with location data
   useEffect(() => {
-    const locationDataFromParams = route.params?.locationData;
+    const locationDataFromParams =
+      route.params?.currentWishNote?.wishlistLocation;
     if (
       locationDataFromParams &&
       (locationDataFromParams.latitude !== selectedLocation?.latitude ||
@@ -134,11 +137,27 @@ const Map = ({ navigation }) => {
       address: address,
     };
     console.log(locationData);
-    navigation.navigate("WishNote", { locationData });
+    const previousWishNote = route.params?.currentWishNote;
+    if (previousWishNote) {
+      const newWishNote = {
+        noteId: previousWishNote.noteId,
+        title: previousWishNote.title,
+        wishlistLocation: locationData,
+        note: previousWishNote.note,
+        list: previousWishNote.list,
+        reminder: previousWishNote.reminder,
+      };
+      navigation.navigate("WishNote", { newWishNote });
+    } else {
+      navigation.navigate("WishNote", { locationData });
+    }
   }
 
   return (
     <View style={[container, commonStyles.container]}>
+      <View style={styles.listSelector}>
+        <ShowMapList lists={lists} />
+      </View>
       {/* use the search bar to search for the address of a location */}
       <GooglePlacesAutocomplete
         placeholder="Search"
@@ -169,6 +188,7 @@ const Map = ({ navigation }) => {
             width: "90%",
             marginLeft: "5%",
             zIndex: 9998,
+            marginTop: 25,
           },
           listView: { backgroundColor: colors.lightGreen },
         }}
