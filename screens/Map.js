@@ -28,6 +28,7 @@ const Map = ( {navigation} ) => {
   const [address, setAddress] = useState(null);
   const [changeLocation, setChangeLocation] = useState(false);
   const [lists, setLists] = useState([]);
+  const [calloutVisible, setCalloutVisible] = useState(false);
   Geocoder.init(MAPS_API_KEY)
 
   useEffect(() => {
@@ -148,10 +149,19 @@ const Map = ( {navigation} ) => {
     }
   }
 
+  function getSelectedList(listIdValue){
+    console.log(listIdValue);
+  }
+
+  function getListsMarkerIcon(iconLable) {
+    console.log(iconLable);
+  }
+
   return (
     <View style={[container, commonStyles.container]}>
+      {/* show the dropdown picker and let user to choose the list they want to display */}
       <View style={styles.listSelector}>
-        <ShowMapList lists={lists}/>
+        <ShowMapList lists={lists} onValueChange={getSelectedList} onIconValuePairChange={getListsMarkerIcon} />
       </View>
       {/* use the search bar to search for the address of a location */}
       <GooglePlacesAutocomplete
@@ -215,10 +225,13 @@ const Map = ( {navigation} ) => {
           </Marker>)
         }
         {/* select a location by clicking on map */}
-        <Marker coordinate={selectedLocation}>
-          <Callout>
+        <Marker coordinate={selectedLocation} 
+          draggable={true}
+          onPress={() => setCalloutVisible(calloutVisible => !calloutVisible)}
+          >
+          {calloutVisible && <Callout>
             <Text>{address}</Text>
-          </Callout>
+          </Callout>}
         </Marker>
       </MapView>
         <View style={styles.buttonContainer}>

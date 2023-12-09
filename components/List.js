@@ -3,6 +3,7 @@ import React from 'react';
 import PressableButton from './PressableButton';
 import { colors } from "../styles/Colors";
 import { icons } from '../styles/Icons';
+import { iconStyle } from '../styles/CommonStyles';
 
 export default function List({ list, pressHandler }) {
 
@@ -57,21 +58,5 @@ const styles = StyleSheet.create({
     pressed: {
         opacity: 0.7,
     },
-    icon: {
-        alignSelf: 'center',
-        width: 30,
-        height: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 9999,
-        marginBottom: 2,
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 3,
-        },
-        shadowOpacity: 0.29,
-        shadowRadius: 4.65,
-        elevation: 7,
-      },
+    icon: iconStyle,
   });

@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { colors } from "../styles/Colors";
 import { icons } from '../styles/Icons';
+import { iconStyle } from '../styles/CommonStyles';
 
-export default function ShowMapList( {lists} ) {
+export default function ShowMapList( {lists, onValueChange, onIconValuePairChange} ) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState(null);
     const [items, setItems] = useState([]);
+    const [iconValuePair, setIconValuePair] = useState([])
 
     useEffect(() => {
         setItems(
@@ -18,10 +20,31 @@ export default function ShowMapList( {lists} ) {
         );
       }, [lists]);
 
+    // update the value selected to Map
+    useEffect(() => {
+      onValueChange(value);
+    }, [value]);
+
+    // update the iconValue in Map if the lists icon change
+    useEffect(() => {
+      onIconValuePairChange(iconValuePair);
+    }, [iconValuePair]);
+
     const customItemLabel = (list) => {
+        // match the icon with the list id for marker display on map
+        const iconValue = {
+          iconId: list.id,
+          iconLable: icons.iconOption.find((item) => item.value === list.icon).label,
+        }
+
+        setIconValuePair((prevIconValuePairs) => [
+          ...prevIconValuePairs,
+          iconValue,
+        ]);
+
         return (<View style={styles.listContent}>
             <View style={[styles.icon, { backgroundColor: colors.colorOption[list.color] }]}>
-                {icons.iconOption.find((item) => item.value === list.icon).label}
+                {iconValue.iconLable}
             </View>
             <Text style={styles.title}>{list.title}</Text>
         </View>)
@@ -59,21 +82,5 @@ const styles = StyleSheet.create({
       paddingHorizontal: 15,
       alignItems: 'center',
     },
-    icon: {
-        alignSelf: 'center',
-        width: 30,
-        height: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 9999,
-        marginBottom: 2,
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 3,
-        },
-        shadowOpacity: 0.29,
-        shadowRadius: 4.65,
-        elevation: 7,
-      },
+    icon: iconStyle,
   });
