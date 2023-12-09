@@ -72,7 +72,6 @@ const VisitedNote = ({ navigation, route }) => {
   }, [route.params]);
 
 
-
   // set images
   const setTakenImages = (uri) => {
     setJournalImages([...journalImages, uri]);
@@ -101,6 +100,13 @@ const VisitedNote = ({ navigation, route }) => {
 
     return imagesStorage;
   }
+
+  // set location
+  const changeLocation = () => {
+    console.log("hi")
+    navigation.navigate("map");
+  }
+
 
   // visibility for options
   const [visibilityModal, setVisibilityModal] = useState(false);
@@ -223,7 +229,7 @@ const VisitedNote = ({ navigation, route }) => {
 
         {/* the info area */}
         <View>
-          <PressableButton>
+          <PressableButton onPressFunction={changeLocation}>
             <View style={styles.option}>
               <View>
                 <View style={styles.optionLabel}>

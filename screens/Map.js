@@ -10,7 +10,7 @@ import { MAPS_API_KEY } from "@env";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { colors } from "../styles/Colors";
 import Geocoder from "react-native-geocoding";
-import { useRoute } from '@react-navigation/native';
+import { useRoute } from "@react-navigation/native";
 import { collection, onSnapshot } from "firebase/firestore";
 import { database } from "../firebase/firebaseSetup";
 import ShowMapList from "../components/ShowMapLists";
@@ -18,7 +18,7 @@ import ShowMapList from "../components/ShowMapLists";
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-const Map = ( {navigation} ) => {
+const Map = ({ navigation }) => {
   const route = useRoute();
   const insets = useSafeAreaInsets();
   const container = getContainerStyles(insets);
@@ -28,7 +28,7 @@ const Map = ( {navigation} ) => {
   const [address, setAddress] = useState(null);
   const [changeLocation, setChangeLocation] = useState(false);
   const [lists, setLists] = useState([]);
-  Geocoder.init(MAPS_API_KEY)
+  Geocoder.init(MAPS_API_KEY);
 
   useEffect(() => {
     getUserLocation();
@@ -68,25 +68,25 @@ const Map = ( {navigation} ) => {
   }, [selectedLocation]);
 
   // read all the lists from database for selected list display
-  useEffect(()=>{
+  useEffect(() => {
     let q = collection(database, "lists");
-      onSnapshot(q, (querySnapshot) => {
-        if (!querySnapshot.empty) {
-          let newArray = []
-          querySnapshot.forEach((docSnap) => {
-            newArray.push({...docSnap.data(), id: docSnap.id});
-          });
-          setLists(newArray);
-          console.log("Lists updated:", newArray);
-        } else {
-          setLists([]);
-        }
-    })
+    onSnapshot(q, (querySnapshot) => {
+      if (!querySnapshot.empty) {
+        let newArray = [];
+        querySnapshot.forEach((docSnap) => {
+          newArray.push({ ...docSnap.data(), id: docSnap.id });
+        });
+        setLists(newArray);
+        console.log("Lists updated:", newArray);
+      } else {
+        setLists([]);
+      }
+    });
   }, []);
 
   // verify user's permission to locate the user
   const verifyPermission = async () => {
-    if ( status && status.granted) {
+    if (status && status.granted) {
       return true;
     }
     const response = await requestPermission();
@@ -99,8 +99,10 @@ const Map = ( {navigation} ) => {
       const hasPermission = await verifyPermission();
       console.log("Has Permission:", hasPermission);
       if (!hasPermission) {
-        Alert.alert("You need to give access to the location so that your markers around you can be shown");
-        return
+        Alert.alert(
+          "You need to give access to the location so that your markers around you can be shown"
+        );
+        return;
       }
       const locationObject = await Location.getCurrentPositionAsync();
 
@@ -139,45 +141,49 @@ const Map = ( {navigation} ) => {
     <View style={[container, commonStyles.container]}>
       {/* use the search bar to search for the address of a location */}
       <GooglePlacesAutocomplete
-				placeholder="Search"
-				fetchDetails={true}
-				GooglePlacesSearchQuery={{
-					rankby: "distance"
-				}}
-				onPress={(data, details = null) => {
+        placeholder="Search"
+        fetchDetails={true}
+        GooglePlacesSearchQuery={{
+          rankby: "distance",
+        }}
+        onPress={(data, details = null) => {
           if (details) {
-					setSelectedLocation({
-						latitude: details.geometry.location.lat,
-						longitude: details.geometry.location.lng,
-					})
-          // use the state variable to trigger rerender when the location changed via search
-          setChangeLocation((prev) => !prev);
-        }
-				}}
-				query={{
-					key: MAPS_API_KEY,
-					location: `${selectedLocation?.latitude ?? ''}, ${selectedLocation?.longitude ?? ''}`
-				}}
-				styles={{
-					container: { 
+            setSelectedLocation({
+              latitude: details.geometry.location.lat,
+              longitude: details.geometry.location.lng,
+            });
+            // use the state variable to trigger rerender when the location changed via search
+            setChangeLocation((prev) => !prev);
+          }
+        }}
+        query={{
+          key: MAPS_API_KEY,
+          location: `${selectedLocation?.latitude ?? ""}, ${
+            selectedLocation?.longitude ?? ""
+          }`,
+        }}
+        styles={{
+          container: {
             top: 80,
-            position: "absolute", 
+            position: "absolute",
             width: "90%",
             marginLeft: "5%",
             zIndex: 9998,
           },
-					listView: { backgroundColor: colors.lightGreen }
-				}}
-			/>
+          listView: { backgroundColor: colors.lightGreen },
+        }}
+      />
       <View style={styles.listSelector}>
-        <ShowMapList lists={lists}/>
+        <ShowMapList lists={lists} />
       </View>
       <MapView
         key={changeLocation}
         style={styles.map}
         region={{
-          latitude: selectedLocation?.latitude || userLocation?.latitude || 49.2827,
-          longitude: selectedLocation?.longitude || userLocation?.longitude || -123.1207,
+          latitude:
+            selectedLocation?.latitude || userLocation?.latitude || 49.2827,
+          longitude:
+            selectedLocation?.longitude || userLocation?.longitude || -123.1207,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
@@ -190,16 +196,13 @@ const Map = ( {navigation} ) => {
         provider="google"
       >
         {/* show the user's current location and the location in the selected lists*/}
-        { (userLocation && !selectedLocation) && 
-          (<Marker 
-            coordinate={userLocation}
-            draggable={true}
-          >
+        {userLocation && !selectedLocation && (
+          <Marker coordinate={userLocation} draggable={true}>
             <Callout>
               <Text>Current Location</Text>
             </Callout>
-          </Marker>)
-        }
+          </Marker>
+        )}
         {/* select a location by clicking on map */}
         <Marker coordinate={selectedLocation}>
           <Callout>
@@ -207,30 +210,30 @@ const Map = ( {navigation} ) => {
           </Callout>
         </Marker>
       </MapView>
-        <View style={styles.buttonContainer}>
-          <PressableButton
-            defaultStyle={[
-              styles.submit,
-              selectedLocation ? {} : styles.submitDisabled,
-            ]}
-            pressedStyle={styles.pressed}
-            disabled={!selectedLocation}
-            onPressFunction={passToVisitNote}
-          >
-            <Text style={styles.text}>Mark As Visited</Text>
-          </PressableButton>
-          <PressableButton
-            defaultStyle={[
-              styles.submit,
-              selectedLocation ? {} : styles.submitDisabled,
-            ]}
-            pressedStyle={styles.pressed}
-            disabled={!selectedLocation}
-            onPressFunction={passToWishNote}
-          >
-            <Text style={styles.text}>Add To Wishlist</Text>
-          </PressableButton>
-        </View>
+      <View style={styles.buttonContainer}>
+        <PressableButton
+          defaultStyle={[
+            styles.submit,
+            selectedLocation ? {} : styles.submitDisabled,
+          ]}
+          pressedStyle={styles.pressed}
+          disabled={!selectedLocation}
+          onPressFunction={passToVisitNote}
+        >
+          <Text style={styles.text}>Mark As Visited</Text>
+        </PressableButton>
+        <PressableButton
+          defaultStyle={[
+            styles.submit,
+            selectedLocation ? {} : styles.submitDisabled,
+          ]}
+          pressedStyle={styles.pressed}
+          disabled={!selectedLocation}
+          onPressFunction={passToWishNote}
+        >
+          <Text style={styles.text}>Add To Wishlist</Text>
+        </PressableButton>
+      </View>
     </View>
   );
 };
@@ -244,7 +247,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    bottom: 20, 
+    bottom: 20,
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-around",
@@ -270,5 +273,5 @@ const styles = StyleSheet.create({
   },
   listSelector: {
     zIndex: 9999,
-  }
+  },
 });
