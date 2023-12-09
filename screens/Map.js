@@ -11,7 +11,7 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 import { colors } from "../styles/Colors";
 import Geocoder from "react-native-geocoding";
 import { useRoute } from '@react-navigation/native';
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { database } from "../firebase/firebaseSetup";
 import ShowMapList from "../components/ShowMapLists";
 
@@ -29,6 +29,9 @@ const Map = ( {navigation} ) => {
   const [changeLocation, setChangeLocation] = useState(false);
   const [lists, setLists] = useState([]);
   const [calloutVisible, setCalloutVisible] = useState(false);
+  const [displayList, setDisplayList] = useState([])
+  const [iconLable, setIconLable] = useState([])
+  const [displayListMarker, setDisplayListMarker] = useState([])
   Geocoder.init(MAPS_API_KEY)
 
   useEffect(() => {
@@ -84,6 +87,26 @@ const Map = ( {navigation} ) => {
         }
     })
   }, []);
+
+  // read all the wishLists of the selected lists from database based on the list id
+  useEffect(()=>{
+    console.log("Debug display list:", displayList);
+    if (displayList && displayList.length > 0) {
+    let q = query(collection(database, "notes"), where("list.id", "in", displayList));
+      onSnapshot(q, (querySnapshot) => {
+        console.log("Snapshot Callback Triggered");
+        if (!querySnapshot.empty) {
+          let newArray = []
+          querySnapshot.forEach((docSnap) => {
+            newArray.push({...docSnap.data(), id: docSnap.id});
+          });
+          setDisplayListMarker(newArray);
+          console.log("Note To Display:", newArray);
+        } else {
+          setDisplayListMarker([]);
+        }
+    })}
+  }, [displayList]);
 
   // verify user's permission to locate the user
   const verifyPermission = async () => {
@@ -150,11 +173,12 @@ const Map = ( {navigation} ) => {
   }
 
   function getSelectedList(listIdValue){
+    setDisplayList(listIdValue)
     console.log(listIdValue);
   }
 
-  function getListsMarkerIcon(iconLable) {
-    console.log(iconLable);
+  function getListsMarkerIcon(iconLable){
+    setIconLable(iconLable)
   }
 
   return (
