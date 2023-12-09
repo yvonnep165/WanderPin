@@ -81,18 +81,18 @@ export async function writeNoteToDB(note) {
 }
 
 // update a note's information
-export async function updateNote(id, title, location, note, list, reminder) {
+export async function updateNote(updateWishNote) {
   try {
-      const updateNote = doc(database, "notes", id);
-      await updateDoc(updateNote,  {
-          title: title, 
-          location: location,
-          note: note,
-          list: list,
-          reminder: reminder,
-      });
+    const updateNoteDoc = doc(database, "notes", updateWishNote.id);
+    await updateDoc(updateNoteDoc,  {
+      title: updateWishNote.title, 
+      location: updateWishNote.location,
+      note: updateWishNote.note,
+      list: updateWishNote.list,
+      reminder: updateWishNote.reminder,
+    });
   } catch(err) {
-      console.log(err);
+    console.log(err);
   }
 }
 

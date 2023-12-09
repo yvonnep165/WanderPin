@@ -12,6 +12,7 @@ export const colors = {
     lightWhite: "#FFFFFF",
     lightGray: "#BDBDBD",
     darkGary: "#696969",
+    shadowColor: '#000',
     colorOption:[
         '#b8304f',
         '#fa3741',
