@@ -6,12 +6,7 @@ import {
   Keyboard,
   Alert,
 } from "react-native";
-import React, {
-  useRef,
-  useState,
-  useMemo,
-  useEffect,
-} from "react";
+import React, { useRef, useState, useMemo, useEffect } from "react";
 import PressableButton from "./PressableButton";
 import { colors } from "../styles/Colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -44,11 +39,11 @@ const VisitedNote = ({ navigation, route }) => {
   const [journalImages, setJournalImages] = useState([]);
   const [journalImagesStorage, setJournalImagesStorage] = useState([]);
 
-  useEffect(() => {
-    if (route.params && route.params.journal) {
-      setJournal(route.params.journal);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (route.params && route.params.journal) {
+  //     setJournal(route.params.journal);
+  //   }
+  // }, []);
 
   // edit pages
   useEffect(() => {
@@ -56,21 +51,34 @@ const VisitedNote = ({ navigation, route }) => {
       const fetchedJournal = route.params.journal;
       const fetchedImages = route.params.journalImages;
 
+      console.log(fetchedJournal);
       setJournal(fetchedJournal);
 
-      const date = new Date(
-        fetchedJournal.date.seconds * 1000 + fetchedJournal.date.nanoseconds / 1e6
-      );
+      if (fetchedJournal.data) {
+        const date = new Date(
+          fetchedJournal.date.seconds * 1000 +
+            fetchedJournal.date.nanoseconds / 1e6
+        );
+      }
 
+      if (fetchedJournal.visitDate) {
+        const date = new Date(fetchedJournal.visitDate);
+      }
+
+      if (typeof fetchedJournal.location === "object") {
+        setLocation(fetchedJournal.location.address);
+      } else {
+        setLocation(fetchedJournal.location);
+      }
       setTitle(fetchedJournal.title);
       setNote(fetchedJournal.note);
-      setLocation(fetchedJournal.location);
       setVisibility(fetchedJournal.visibility);
       setVisitDate(date);
-      setJournalImagesStorage(fetchedImages);
+      if (fetchedImages) {
+        setJournalImagesStorage(fetchedImages);
+      }
     }
   }, [route.params]);
-
 
   // set images
   const setTakenImages = (uri) => {
@@ -103,10 +111,17 @@ const VisitedNote = ({ navigation, route }) => {
 
   // set location
   const changeLocation = () => {
-    console.log("hi")
-    navigation.navigate("map");
-  }
-
+    const currentJournal = {
+      title,
+      note,
+      visibility,
+      visitDate: visitDate.toISOString(),
+      journalImages,
+    };
+    navigation.navigate("Map", {
+      currentJournal,
+    });
+  };
 
   // visibility for options
   const [visibilityModal, setVisibilityModal] = useState(false);
@@ -180,12 +195,14 @@ const VisitedNote = ({ navigation, route }) => {
           updateJournalToDB(journal.id, { location: location });
         }
         if (visibility != journal.visibility) {
-          updateJournalToDB(journal.id, { visibility: visibility }); 
+          updateJournalToDB(journal.id, { visibility: visibility });
         }
         if (visitDate != journal.date) {
           updateJournalToDB(journal.id, { date: visitDate });
-        } 
-        updateJournalToDB(journal.id, {images: [...journalImagesStorage, ...imagesStorage]});
+        }
+        updateJournalToDB(journal.id, {
+          images: [...journalImagesStorage, ...imagesStorage],
+        });
       }
     } catch (err) {
       console.log(err);
@@ -193,8 +210,10 @@ const VisitedNote = ({ navigation, route }) => {
   };
 
   const handleSubmit = () => {
-    if (!title || !visitDate || !journalImages ) {
-      Alert.alert("Please fill out the title, location, visit date and add at least one photo");
+    if (!title || !visitDate || !journalImages) {
+      Alert.alert(
+        "Please fill out the title, location, visit date and add at least one photo"
+      );
       return;
     }
     writeToDB();
@@ -225,7 +244,10 @@ const VisitedNote = ({ navigation, route }) => {
         </View>
 
         {/* the image area */}
-        <ImageSection passImageUri={setTakenImages} images={journalImagesStorage}/>
+        <ImageSection
+          passImageUri={setTakenImages}
+          images={journalImagesStorage}
+        />
 
         {/* the info area */}
         <View>

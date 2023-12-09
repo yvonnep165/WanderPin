@@ -118,7 +118,7 @@ const Map = ({ navigation }) => {
     }
   }
 
-  // send the selected location to visitNode
+  // send the selected location to visitNote
   function passToVisitNote() {
     const locationData = {
       latitude: selectedLocation.latitude,
@@ -126,7 +126,17 @@ const Map = ({ navigation }) => {
       address: address,
     };
     console.log(locationData);
-    navigation.navigate("VisitedNote", { locationData });
+    const visitJournal = route.params?.currentJournal;
+    const journal = { ...visitJournal, location: locationData };
+    if (visitJournal) {
+      navigation.navigate("VisitedNote", {
+        journal,
+      });
+    } else {
+      navigation.navigate("VisitedNote", {
+        locationData,
+      });
+    }
   }
 
   // send the selected location to wishNote
