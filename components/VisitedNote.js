@@ -6,12 +6,7 @@ import {
   Keyboard,
   Alert,
 } from "react-native";
-import React, {
-  useRef,
-  useState,
-  useMemo,
-  useEffect,
-} from "react";
+import React, { useRef, useState, useMemo, useEffect } from "react";
 import PressableButton from "./PressableButton";
 import { colors } from "../styles/Colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -26,8 +21,6 @@ import {
   updateJournalToDB,
 } from "../firebase/firestoreHelper";
 import ImageSection from "./ImageSection";
-import { ref, uploadBytesResumable } from "firebase/storage";
-import { storage } from "../firebase/firebaseSetup";
 
 const VisitedNote = ({ navigation, route }) => {
   // safe area
@@ -35,6 +28,7 @@ const VisitedNote = ({ navigation, route }) => {
   const safeAreaContainer = getContainerStyles(insets);
 
   // initialize
+  const [id, setId] = useState();
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
   const [location, setLocation] = useState("");
@@ -42,65 +36,83 @@ const VisitedNote = ({ navigation, route }) => {
   const [visitDate, setVisitDate] = useState(new Date());
   const [journal, setJournal] = useState(null);
   const [journalImages, setJournalImages] = useState([]);
-  const [journalImagesStorage, setJournalImagesStorage] = useState([]);
-
-  useEffect(() => {
-    if (route.params && route.params.journal) {
-      setJournal(route.params.journal);
-    }
-  }, []);
+  const [isUploaded, setIsUploaded] = useState(false);
 
   // edit pages
   useEffect(() => {
     if (route.params && route.params.journal) {
       const fetchedJournal = route.params.journal;
-      const fetchedImages = route.params.journalImages;
-
+      console.log(fetchedJournal);
       setJournal(fetchedJournal);
+      if (fetchedJournal.data) {
+        const date = new Date(
+          fetchedJournal.date.seconds * 1000 +
+            fetchedJournal.date.nanoseconds / 1e6
+        );
+        setVisitDate(date);
+      }
 
-      const date = new Date(
-        fetchedJournal.date.seconds * 1000 + fetchedJournal.date.nanoseconds / 1e6
-      );
+      if (fetchedJournal.visitDate) {
+        const date = new Date(fetchedJournal.visitDate);
+        setVisitDate(date);
+      }
 
+      if (typeof fetchedJournal.location === "object") {
+        setLocation(fetchedJournal.location.address);
+      } else {
+        setLocation(fetchedJournal.location);
+      }
+      setId(fetchedJournal.id);
       setTitle(fetchedJournal.title);
       setNote(fetchedJournal.note);
-      setLocation(fetchedJournal.location);
       setVisibility(fetchedJournal.visibility);
-      setVisitDate(date);
-      setJournalImagesStorage(fetchedImages);
+      setJournalImages(fetchedJournal.images);
     }
   }, [route.params]);
 
-
-
   // set images
-  const setTakenImages = (uri) => {
+  const setTakenImages = (uri, image) => {
     setJournalImages([...journalImages, uri]);
   };
 
-  async function uploadImageToStorage(uri) {
-    try {
-      const response = await fetch(uri);
-      const imageBlob = await response.blob();
-      const imageName = uri.substring(uri.lastIndexOf("/") + 1);
-      const imageRef = await ref(storage, `images/${imageName}`);
-      const uploadResult = await uploadBytesResumable(imageRef, imageBlob);
-      return uploadResult.metadata.fullPath;
-    } catch (err) {
-      console.log(err);
+  // useEffect(() => {
+  //   console.log(journalImages, tempImages);
+  //   if (journalImages.length < tempImages.length) {
+  //     setIsUploaded(false);
+  //   } else {
+  //     setIsUploaded(true);
+  //   }
+  // }, [journalImages, tempImages]);
+  const checkUploading = (res) => {
+    setIsUploaded(res);
+  };
+
+  // set location
+  const changeLocation = () => {
+    console.log(isUploaded);
+    if (!isUploaded) {
+      Alert.alert(
+        "The photos are uploading, please wait some seconds and try again"
+      );
+      return;
     }
-  }
-
-  async function getImagesUri(images) {
-    const imagesStorage = [];
-
-    for (const image of images) {
-      const imageRef = await uploadImageToStorage(image);
-      imagesStorage.push(imageRef);
+    if (journal) {
+      navigation.navigate("Map", {
+        currentJournal: journal,
+      });
+    } else {
+      const currentJournal = {
+        title,
+        note,
+        visibility,
+        visitDate: visitDate.toISOString(),
+        images: journalImages,
+      };
+      navigation.navigate("Map", {
+        currentJournal,
+      });
     }
-
-    return imagesStorage;
-  }
+  };
 
   // visibility for options
   const [visibilityModal, setVisibilityModal] = useState(false);
@@ -130,7 +142,7 @@ const VisitedNote = ({ navigation, route }) => {
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
 
-  const onChange = (event, selectedDate) => {
+  const onChange = (selectedDate) => {
     const currentDate = selectedDate;
     setShow(false);
     setDate(currentDate);
@@ -146,13 +158,12 @@ const VisitedNote = ({ navigation, route }) => {
 
   // cancel and submit
   const handleCancel = () => {
-    navigation.goBack();
+    navigation.navigate("Home");
   };
 
   const writeToDB = async () => {
     try {
-      const imagesStorage = await getImagesUri(journalImages);
-      if (!journal) {
+      if (!journal || !journal.id) {
         const newJournal = {
           title: title,
           note: note,
@@ -160,7 +171,7 @@ const VisitedNote = ({ navigation, route }) => {
           visibility: visibility,
           date: visitDate,
           editTime: new Date(),
-          images: imagesStorage,
+          images: journalImages,
         };
         writeJournalToDB(newJournal);
       } else {
@@ -174,25 +185,36 @@ const VisitedNote = ({ navigation, route }) => {
           updateJournalToDB(journal.id, { location: location });
         }
         if (visibility != journal.visibility) {
-          updateJournalToDB(journal.id, { visibility: visibility }); 
+          updateJournalToDB(journal.id, { visibility: visibility });
         }
         if (visitDate != journal.date) {
           updateJournalToDB(journal.id, { date: visitDate });
-        } 
-        updateJournalToDB(journal.id, {images: [...journalImagesStorage, ...imagesStorage]});
+        }
+        updateJournalToDB(journal.id, {
+          images: journalImages,
+        });
       }
     } catch (err) {
-      console.log(err);
+      console.log("write to db error:", err);
     }
   };
 
   const handleSubmit = () => {
-    if (!title || !visitDate || !journalImages ) {
-      Alert.alert("Please fill out the title, location, visit date and add at least one photo");
+    if (!title || !visitDate || !journalImages || !location) {
+      Alert.alert(
+        "Please fill out the title, location, visit date and add at least one photo"
+      );
       return;
     }
+    if (!isUploaded) {
+      Alert.alert(
+        "The photos are uploading, please wait some seconds and try again"
+      );
+      return;
+    }
+    console.log(journal);
     writeToDB();
-    navigation.goBack();
+    navigation.navigate("Home");
   };
 
   return (
@@ -219,11 +241,15 @@ const VisitedNote = ({ navigation, route }) => {
         </View>
 
         {/* the image area */}
-        <ImageSection passImageUri={setTakenImages} images={journalImagesStorage}/>
+        <ImageSection
+          passImageUri={setTakenImages}
+          images={journalImages}
+          onCheckStorage={checkUploading}
+        />
 
         {/* the info area */}
         <View>
-          <PressableButton>
+          <PressableButton onPressFunction={changeLocation}>
             <View style={styles.option}>
               <View>
                 <View style={styles.optionLabel}>
