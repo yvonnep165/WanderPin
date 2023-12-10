@@ -28,6 +28,7 @@ const VisitedNote = ({ navigation, route }) => {
   const safeAreaContainer = getContainerStyles(insets);
 
   // initialize
+  const [id, setId] = useState();
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
   const [location, setLocation] = useState("");
@@ -61,6 +62,7 @@ const VisitedNote = ({ navigation, route }) => {
       } else {
         setLocation(fetchedJournal.location);
       }
+      setId(fetchedJournal.id);
       setTitle(fetchedJournal.title);
       setNote(fetchedJournal.note);
       setVisibility(fetchedJournal.visibility);
@@ -94,16 +96,22 @@ const VisitedNote = ({ navigation, route }) => {
       );
       return;
     }
-    const currentJournal = {
-      title,
-      note,
-      visibility,
-      visitDate: visitDate.toISOString(),
-      images: journalImages,
-    };
-    navigation.navigate("Map", {
-      currentJournal,
-    });
+    if (journal) {
+      navigation.navigate("Map", {
+        currentJournal: journal,
+      });
+    } else {
+      const currentJournal = {
+        title,
+        note,
+        visibility,
+        visitDate: visitDate.toISOString(),
+        images: journalImages,
+      };
+      navigation.navigate("Map", {
+        currentJournal,
+      });
+    }
   };
 
   // visibility for options

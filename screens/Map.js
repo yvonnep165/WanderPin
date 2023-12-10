@@ -11,7 +11,7 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 import { colors } from "../styles/Colors";
 import Geocoder from "react-native-geocoding";
 import { useRoute } from "@react-navigation/native";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { database } from "../firebase/firebaseSetup";
 import ShowMapList from "../components/ShowMapLists";
 import CustomMarker from "../components/CustomMarker";
@@ -83,7 +83,6 @@ const Map = ({ navigation }) => {
           newArray.push({ ...docSnap.data(), id: docSnap.id });
         });
         setLists(newArray);
-        console.log("Lists updated:", newArray);
       } else {
         setLists([]);
       }
