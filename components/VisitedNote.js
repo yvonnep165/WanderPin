@@ -37,6 +37,8 @@ const VisitedNote = ({ navigation, route }) => {
   const [journal, setJournal] = useState(null);
   const [journalImages, setJournalImages] = useState([]);
   const [isUploaded, setIsUploaded] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
 
   // edit pages
   useEffect(() => {
@@ -44,17 +46,16 @@ const VisitedNote = ({ navigation, route }) => {
       const fetchedJournal = route.params.journal;
       console.log(fetchedJournal);
       setJournal(fetchedJournal);
-      if (fetchedJournal.data) {
+
+      if (fetchedJournal.visitDate) {
+        const date = new Date(fetchedJournal.visitDate);
+        setDate(date);
+      } else if (fetchedJournal.date) {
         const date = new Date(
           fetchedJournal.date.seconds * 1000 +
             fetchedJournal.date.nanoseconds / 1e6
         );
-        setVisitDate(date);
-      }
-
-      if (fetchedJournal.visitDate) {
-        const date = new Date(fetchedJournal.visitDate);
-        setVisitDate(date);
+        setDate(date);
       }
 
       if (typeof fetchedJournal.location === "object") {
@@ -70,19 +71,13 @@ const VisitedNote = ({ navigation, route }) => {
     }
   }, [route.params]);
 
+  console.log(visitDate);
+
   // set images
   const setTakenImages = (uri, image) => {
     setJournalImages([...journalImages, uri]);
   };
 
-  // useEffect(() => {
-  //   console.log(journalImages, tempImages);
-  //   if (journalImages.length < tempImages.length) {
-  //     setIsUploaded(false);
-  //   } else {
-  //     setIsUploaded(true);
-  //   }
-  // }, [journalImages, tempImages]);
   const checkUploading = (res) => {
     setIsUploaded(res);
   };
@@ -96,18 +91,19 @@ const VisitedNote = ({ navigation, route }) => {
       );
       return;
     }
+    const currentJournal = {
+      title,
+      note,
+      visibility,
+      visitDate: visitDate.toISOString(),
+      images: journalImages,
+    };
     if (journal) {
+      const curJournal = { ...currentJournal, id: journal.id };
       navigation.navigate("Map", {
-        currentJournal: journal,
+        currentJournal: curJournal,
       });
     } else {
-      const currentJournal = {
-        title,
-        note,
-        visibility,
-        visitDate: visitDate.toISOString(),
-        images: journalImages,
-      };
       navigation.navigate("Map", {
         currentJournal,
       });
@@ -139,17 +135,14 @@ const VisitedNote = ({ navigation, route }) => {
   };
 
   // change date
-  const [date, setDate] = useState(new Date());
-  const [show, setShow] = useState(false);
-
-  const onChange = (selectedDate) => {
+  const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
-    setShow(false);
+    setIsDatePickerVisible(false);
     setDate(currentDate);
   };
 
   const changeDate = () => {
-    setShow(true);
+    setIsDatePickerVisible(true);
   };
 
   useEffect(() => {
@@ -298,10 +291,7 @@ const VisitedNote = ({ navigation, route }) => {
                 <Text>Visit Date</Text>
               </View>
               <View style={styles.optionLabel}>
-                <Text>
-                  {visitDate.getFullYear()}-{visitDate.getMonth() + 1}-
-                  {visitDate.getDate()}
-                </Text>
+                <Text>{visitDate && visitDate.toLocaleDateString()}</Text>
                 <AntDesign name="right" size={14} color={colors.black} />
               </View>
             </View>
@@ -309,7 +299,7 @@ const VisitedNote = ({ navigation, route }) => {
         </View>
       </View>
 
-      {show && (
+      {isDatePickerVisible && (
         <DateTimePicker
           testID="dateTimePicker"
           value={date}

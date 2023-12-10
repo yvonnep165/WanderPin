@@ -6,7 +6,6 @@ import { downloadURL } from "../firebase/firestoreHelper";
 import { Ionicons } from "@expo/vector-icons";
 
 const ExploreCard = ({ journal, pressCardHandler }) => {
-  const [journalImage, setJournalImage] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
   const [originalKudos, setOriginalKudos] = useState(0);
   const [kudos, setKudos] = useState(0);
@@ -36,7 +35,7 @@ const ExploreCard = ({ journal, pressCardHandler }) => {
           style={styles.img}
           resizeMode="cover"
           source={{
-            uri: journalImage[0],
+            uri: journal.images[0],
           }}
         />
         <View style={styles.info}>
