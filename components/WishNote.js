@@ -1,5 +1,5 @@
-import { View, Text, FlatList, StyleSheet, Alert } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Alert } from 'react-native';
+import React, { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import PressableButton from "./PressableButton";
 import { Ionicons } from "@expo/vector-icons";
