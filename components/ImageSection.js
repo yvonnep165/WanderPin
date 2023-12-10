@@ -5,6 +5,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { FlatList } from "react-native-gesture-handler";
 import { colors } from "../styles/Colors";
 import * as ImagePicker from "expo-image-picker";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { storage } from "../firebase/firebaseSetup";
 
 const ImageSection = ({ passImageUri, images }) => {
   const buttons = [
@@ -12,13 +14,12 @@ const ImageSection = ({ passImageUri, images }) => {
     { type: "button", id: "camera" },
   ];
 
-  const tempPhotos = [...buttons, ...images];
-
-  const [photos, setPhotos] = useState([]);
+  const [photos, setPhotos] = useState([...buttons, ...images]);
+  const [tempPhotos, setTempPhotos] = useState([...buttons, ...images]);
   const [status, requestPermission] = ImagePicker.useCameraPermissions();
 
   useEffect(() => {
-    setPhotos(tempPhotos);
+    setPhotos([...buttons, ...images]);
   }, [images]);
 
   const verifyPermission = async () => {
@@ -27,6 +28,43 @@ const ImageSection = ({ passImageUri, images }) => {
     }
     const response = await requestPermission();
     return response.granted;
+  };
+
+  async function uploadImageToStorage(uri) {
+    try {
+      const response = await fetch(uri);
+      const imageBlob = await response.blob();
+      const imageName = uri.substring(uri.lastIndexOf("/") + 1);
+      const imageRef = ref(storage, `images/${imageName}`);
+      const uploadResult = await uploadBytesResumable(imageRef, imageBlob);
+      return uploadResult.metadata.fullPath;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function downloadURL(image) {
+    try {
+      const imageUriRef = ref(storage, image);
+      const url = await getDownloadURL(imageUriRef);
+
+      return url;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  // process images
+  const imageHandler = async (image) => {
+    try {
+      setTempPhotos([...tempPhotos, image]);
+      const relativeUri = await uploadImageToStorage(image);
+      const imageUri = await downloadURL(relativeUri);
+      setPhotos([...photos, imageUri]);
+      passImageUri(imageUri);
+    } catch (err) {
+      console.log("imageHandler error:", err);
+    }
   };
 
   // add photos
@@ -38,10 +76,10 @@ const ImageSection = ({ passImageUri, images }) => {
         aspect: [4, 3],
         quality: 1,
       });
-      setPhotos([...photos, result.assets[0].uri]);
-      passImageUri(result.assets[0].uri);
+      const image = result.assets[0].uri;
+      imageHandler(image);
     } catch (err) {
-      console.log(err);
+      console.log("add error:", err);
     }
   };
 
@@ -56,8 +94,8 @@ const ImageSection = ({ passImageUri, images }) => {
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
       });
-      setPhotos([...photos, result.assets[0].uri]);
-      passImageUri(result.assets[0].uri);
+      const image = result.assets[0].uri;
+      imageHandler(image);
     } catch (err) {
       console.log("take image error ", err);
     }
@@ -98,7 +136,7 @@ const ImageSection = ({ passImageUri, images }) => {
   return (
     <View style={styles.imageContainter}>
       <FlatList
-        data={photos}
+        data={photos.length < tempPhotos.length ? tempPhotos : photos}
         horizontal
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}

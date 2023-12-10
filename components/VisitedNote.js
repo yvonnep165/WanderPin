@@ -39,12 +39,6 @@ const VisitedNote = ({ navigation, route }) => {
   const [journalImages, setJournalImages] = useState([]);
   const [journalImagesStorage, setJournalImagesStorage] = useState([]);
 
-  // useEffect(() => {
-  //   if (route.params && route.params.journal) {
-  //     setJournal(route.params.journal);
-  //   }
-  // }, []);
-
   // edit pages
   useEffect(() => {
     if (route.params && route.params.journal) {
@@ -59,10 +53,12 @@ const VisitedNote = ({ navigation, route }) => {
           fetchedJournal.date.seconds * 1000 +
             fetchedJournal.date.nanoseconds / 1e6
         );
+        setVisitDate(date);
       }
 
       if (fetchedJournal.visitDate) {
         const date = new Date(fetchedJournal.visitDate);
+        setVisitDate(date);
       }
 
       if (typeof fetchedJournal.location === "object") {
@@ -73,10 +69,11 @@ const VisitedNote = ({ navigation, route }) => {
       setTitle(fetchedJournal.title);
       setNote(fetchedJournal.note);
       setVisibility(fetchedJournal.visibility);
-      setVisitDate(date);
+
       if (fetchedImages) {
         setJournalImagesStorage(fetchedImages);
       }
+      setJournalImages(fetchedJournal.journalImages);
     }
   }, [route.params]);
 
@@ -85,29 +82,29 @@ const VisitedNote = ({ navigation, route }) => {
     setJournalImages([...journalImages, uri]);
   };
 
-  async function uploadImageToStorage(uri) {
-    try {
-      const response = await fetch(uri);
-      const imageBlob = await response.blob();
-      const imageName = uri.substring(uri.lastIndexOf("/") + 1);
-      const imageRef = await ref(storage, `images/${imageName}`);
-      const uploadResult = await uploadBytesResumable(imageRef, imageBlob);
-      return uploadResult.metadata.fullPath;
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  // async function uploadImageToStorage(uri) {
+  //   try {
+  //     const response = await fetch(uri);
+  //     const imageBlob = await response.blob();
+  //     const imageName = uri.substring(uri.lastIndexOf("/") + 1);
+  //     const imageRef = await ref(storage, `images/${imageName}`);
+  //     const uploadResult = await uploadBytesResumable(imageRef, imageBlob);
+  //     return uploadResult.metadata.fullPath;
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
 
-  async function getImagesUri(images) {
-    const imagesStorage = [];
+  // async function getImagesUri(images) {
+  //   const imagesStorage = [];
 
-    for (const image of images) {
-      const imageRef = await uploadImageToStorage(image);
-      imagesStorage.push(imageRef);
-    }
+  //   for (const image of images) {
+  //     const imageRef = await uploadImageToStorage(image);
+  //     imagesStorage.push(imageRef);
+  //   }
 
-    return imagesStorage;
-  }
+  //   return imagesStorage;
+  // }
 
   // set location
   const changeLocation = () => {
@@ -172,7 +169,7 @@ const VisitedNote = ({ navigation, route }) => {
 
   const writeToDB = async () => {
     try {
-      const imagesStorage = await getImagesUri(journalImages);
+      // const imagesStorage = await getImagesUri(journalImages);
       if (!journal) {
         const newJournal = {
           title: title,
@@ -181,7 +178,7 @@ const VisitedNote = ({ navigation, route }) => {
           visibility: visibility,
           date: visitDate,
           editTime: new Date(),
-          images: imagesStorage,
+          images: journalImages,
         };
         writeJournalToDB(newJournal);
       } else {
@@ -244,10 +241,7 @@ const VisitedNote = ({ navigation, route }) => {
         </View>
 
         {/* the image area */}
-        <ImageSection
-          passImageUri={setTakenImages}
-          images={journalImagesStorage}
-        />
+        <ImageSection passImageUri={setTakenImages} images={journalImages} />
 
         {/* the info area */}
         <View>
