@@ -21,8 +21,6 @@ import {
   updateJournalToDB,
 } from "../firebase/firestoreHelper";
 import ImageSection from "./ImageSection";
-import { ref, uploadBytesResumable } from "firebase/storage";
-import { storage } from "../firebase/firebaseSetup";
 
 const VisitedNote = ({ navigation, route }) => {
   // safe area
@@ -37,15 +35,12 @@ const VisitedNote = ({ navigation, route }) => {
   const [visitDate, setVisitDate] = useState(new Date());
   const [journal, setJournal] = useState(null);
   const [journalImages, setJournalImages] = useState([]);
-  const [journalImagesStorage, setJournalImagesStorage] = useState([]);
 
   // edit pages
   useEffect(() => {
     if (route.params && route.params.journal) {
       const fetchedJournal = route.params.journal;
-      const fetchedImages = route.params.journalImages;
 
-      console.log(fetchedJournal);
       setJournal(fetchedJournal);
 
       if (fetchedJournal.data) {
@@ -69,10 +64,6 @@ const VisitedNote = ({ navigation, route }) => {
       setTitle(fetchedJournal.title);
       setNote(fetchedJournal.note);
       setVisibility(fetchedJournal.visibility);
-
-      if (fetchedImages) {
-        setJournalImagesStorage(fetchedImages);
-      }
       setJournalImages(fetchedJournal.journalImages);
     }
   }, [route.params]);
@@ -81,30 +72,6 @@ const VisitedNote = ({ navigation, route }) => {
   const setTakenImages = (uri) => {
     setJournalImages([...journalImages, uri]);
   };
-
-  // async function uploadImageToStorage(uri) {
-  //   try {
-  //     const response = await fetch(uri);
-  //     const imageBlob = await response.blob();
-  //     const imageName = uri.substring(uri.lastIndexOf("/") + 1);
-  //     const imageRef = await ref(storage, `images/${imageName}`);
-  //     const uploadResult = await uploadBytesResumable(imageRef, imageBlob);
-  //     return uploadResult.metadata.fullPath;
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // }
-
-  // async function getImagesUri(images) {
-  //   const imagesStorage = [];
-
-  //   for (const image of images) {
-  //     const imageRef = await uploadImageToStorage(image);
-  //     imagesStorage.push(imageRef);
-  //   }
-
-  //   return imagesStorage;
-  // }
 
   // set location
   const changeLocation = () => {
@@ -148,7 +115,7 @@ const VisitedNote = ({ navigation, route }) => {
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
 
-  const onChange = (event, selectedDate) => {
+  const onChange = (selectedDate) => {
     const currentDate = selectedDate;
     setShow(false);
     setDate(currentDate);
@@ -169,8 +136,7 @@ const VisitedNote = ({ navigation, route }) => {
 
   const writeToDB = async () => {
     try {
-      // const imagesStorage = await getImagesUri(journalImages);
-      if (!journal) {
+      if (!journal || !journal.id) {
         const newJournal = {
           title: title,
           note: note,
@@ -198,11 +164,11 @@ const VisitedNote = ({ navigation, route }) => {
           updateJournalToDB(journal.id, { date: visitDate });
         }
         updateJournalToDB(journal.id, {
-          images: [...journalImagesStorage, ...imagesStorage],
+          images: journalImages,
         });
       }
     } catch (err) {
-      console.log(err);
+      console.log("write to db error:", err);
     }
   };
 
@@ -213,6 +179,7 @@ const VisitedNote = ({ navigation, route }) => {
       );
       return;
     }
+    console.log(journal);
     writeToDB();
     navigation.goBack();
   };

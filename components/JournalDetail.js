@@ -28,7 +28,6 @@ const JournalDetail = ({ route, navigation }) => {
   // initial constants
   const originalKudos = 0;
   const [journal, setJournal] = useState(route.params.pressedCard);
-  const [journalImages, setJournalImages] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
   const [kudos, setKudos] = useState(originalKudos);
   const [canEdit, setCanEdit] = useState(true);
@@ -55,20 +54,6 @@ const JournalDetail = ({ route, navigation }) => {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchDownloadURLs = async () => {
-      if (journal.images) {
-        try {
-          const downloadImages = await downloadURL(journal.images);
-          setJournalImages(downloadImages);
-        } catch (err) {
-          console.log(err);
-        }
-      }
-    };
-    fetchDownloadURLs();
-  }, [journal.images]);
-
   const firebaseUpdateTime = new Date(
     journal.editTime.seconds * 1000 + journal.editTime.nanoseconds / 1e6
   );
@@ -94,7 +79,10 @@ const JournalDetail = ({ route, navigation }) => {
   }, [isLiked]);
 
   const onPressEdit = () => {
-    navigation.navigate("VisitedNote", { journal, journalImages });
+    navigation.navigate("VisitedNote", {
+      journal,
+      journalImages: journal.images,
+    });
   };
 
   const onPressDelete = () => {
@@ -123,37 +111,41 @@ const JournalDetail = ({ route, navigation }) => {
             />
             <Text>Username</Text>
           </View>
-          { canEdit && <View style={styles.rightHeader}>
-            <PressableButton onPressFunction={onPressEdit}>
-              <Text style={styles.headerButton}>Edit</Text>
-            </PressableButton>
-            <PressableButton onPressFunction={onPressDelete}>
-              <Text style={styles.headerButton}>Delete</Text>
-            </PressableButton>
-          </View>}
+          {canEdit && (
+            <View style={styles.rightHeader}>
+              <PressableButton onPressFunction={onPressEdit}>
+                <Text style={styles.headerButton}>Edit</Text>
+              </PressableButton>
+              <PressableButton onPressFunction={onPressDelete}>
+                <Text style={styles.headerButton}>Delete</Text>
+              </PressableButton>
+            </View>
+          )}
         </View>
 
         <ScrollView>
-          { journalImages && <Carousel
-            width={width}
-            height="300"
-            data={journalImages}
-            mode="parallax"
-            pagingEnabled={true}
-            scrollAnimationDuration={1000}
-            renderItem={({ index, item }) => (
-              <View style={styles.imageContainer}>
-                <Image
-                  key={index}
-                  style={styles.img}
-                  resizeMode="cover"
-                  source={{
-                    uri: item,
-                  }}
-                />
-              </View>
-            )}
-          /> }
+          {journal.images && (
+            <Carousel
+              width={width}
+              height="300"
+              data={journal.images}
+              mode="parallax"
+              pagingEnabled={true}
+              scrollAnimationDuration={1000}
+              renderItem={({ index, item }) => (
+                <View style={styles.imageContainer}>
+                  <Image
+                    key={index}
+                    style={styles.img}
+                    resizeMode="cover"
+                    source={{
+                      uri: item,
+                    }}
+                  />
+                </View>
+              )}
+            />
+          )}
 
           <View style={styles.info}>
             <Text style={styles.title}>{journal.title}</Text>
@@ -247,14 +239,15 @@ const styles = StyleSheet.create({
     color: colors.lightGray,
     fontSize: 12,
     paddingVertical: 10,
-  },bottomContainer:{
-    flexDirection: 'row',
-    alignItems: 'center',
+  },
+  bottomContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     gap: 5,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
     paddingRight: 20,
     paddingTop: 10,
     borderTopWidth: 0.5,
     borderColor: colors.lightGray,
-  }
+  },
 });

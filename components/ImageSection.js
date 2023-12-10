@@ -39,7 +39,7 @@ const ImageSection = ({ passImageUri, images }) => {
       const uploadResult = await uploadBytesResumable(imageRef, imageBlob);
       return uploadResult.metadata.fullPath;
     } catch (err) {
-      console.log(err);
+      console.log("upload image error:", err);
     }
   }
 
@@ -50,7 +50,7 @@ const ImageSection = ({ passImageUri, images }) => {
 
       return url;
     } catch (err) {
-      console.log(err);
+      console.log("download url:", err);
     }
   }
 
@@ -76,8 +76,10 @@ const ImageSection = ({ passImageUri, images }) => {
         aspect: [4, 3],
         quality: 1,
       });
-      const image = result.assets[0].uri;
-      imageHandler(image);
+      if (!result.canceled) {
+        const image = result.assets[0].uri;
+        imageHandler(image);
+      }
     } catch (err) {
       console.log("add error:", err);
     }

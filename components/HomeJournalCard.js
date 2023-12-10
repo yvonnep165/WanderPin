@@ -2,11 +2,8 @@ import { StyleSheet, Text, View, Image } from "react-native";
 import React, { useState, useEffect } from "react";
 import { colors } from "../styles/Colors";
 import PressableButton from "./PressableButton";
-import { downloadURL } from "../firebase/firestoreHelper";
 
 const HomeJournalCard = ({ journal, pressCardHandler }) => {
-  const [journalImage, setJournalImage] = useState([]);
-
   const firebaseUpdateTime = new Date(
     journal.date.seconds * 1000 + journal.date.nanoseconds / 1e6
   );
@@ -16,29 +13,15 @@ const HomeJournalCard = ({ journal, pressCardHandler }) => {
     pressCardHandler(journal);
   };
 
-  useEffect(() => {
-    const fetchDownloadURLs = async () => {
-      if (journal.images) {
-        try {
-          const downloadImages = await downloadURL(journal.images);
-          setJournalImage(downloadImages);
-        } catch (err) {
-          console.log(err);
-        }
-      }
-    };
-    fetchDownloadURLs();
-  }, [journal.images]);
-
   return (
     <PressableButton onPressFunction={pressHandler}>
       <View style={styles.cardContainer}>
-        {journalImage.length != 0 && (
+        {journal.images.length != 0 && (
           <Image
             style={styles.img}
             resizeMode="cover"
             source={{
-              uri: journalImage[0],
+              uri: journal.images[0],
             }}
           />
         )}

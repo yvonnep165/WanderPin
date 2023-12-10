@@ -16,20 +16,6 @@ const ExploreCard = ({ journal, pressCardHandler }) => {
   );
   const updateTime = firebaseUpdateTime.toLocaleDateString();
 
-  useEffect(() => {
-    const fetchDownloadURLs = async () => {
-      if (journal.images) {
-        try {
-          const downloadImages = await downloadURL(journal.images);
-          setJournalImage(downloadImages);
-        } catch (err) {
-          console.log(err);
-        }
-      }
-    };
-    fetchDownloadURLs();
-  }, [journal.images]);
-
   const pressHandler = () => {
     pressCardHandler(journal);
   };
@@ -39,9 +25,9 @@ const ExploreCard = ({ journal, pressCardHandler }) => {
   };
 
   useEffect(() => {
-    let liked = isLiked ? 1: 0;
+    let liked = isLiked ? 1 : 0;
     setKudos(originalKudos + liked);
-  }, [isLiked])
+  }, [isLiked]);
 
   return (
     <View style={styles.cardContainer}>
@@ -98,7 +84,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
   },
-  info: { padding: 10, color: colors.white }, title: {fontWeight: '700'},
+  info: { padding: 10, color: colors.white },
+  title: { fontWeight: "700" },
   subtitle: {
     flexDirection: "row",
     justifyContent: "space-between",
