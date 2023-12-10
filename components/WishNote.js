@@ -12,6 +12,7 @@ import { Switch } from '@rneui/themed';
 import InputField from './InputField';
 import { useRoute } from '@react-navigation/native';
 import { icons } from '../styles/Icons';
+import { iconStyle } from '../styles/CommonStyles';
 import { deleteNoteFromDB, updateNote, writeNoteToDB } from '../firebase/firestoreHelper';
 
 export default function WishNote( { navigation } ) {
@@ -248,23 +249,7 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontWeight: "bold",
   },
-  icon: {
-    alignSelf: 'center',
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 9999,
-    marginBottom: 2,
-    shadowColor: colors.shadowColor,
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.29,
-    shadowRadius: 4.65,
-    elevation: 7,
-  },
+  icon: iconStyle,
   listContent: {
     flexDirection: "row",
     marginLeft: 10,
