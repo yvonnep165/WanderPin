@@ -7,7 +7,7 @@ import { iconStyle } from '../styles/CommonStyles';
 
 export default function ShowMapList( {lists, onValueChange, onIconValuePairChange} ) {
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState(null);
+    const [value, setValue] = useState([]);
     const [items, setItems] = useState([]);
     const [iconValuePair, setIconValuePair] = useState([])
 
@@ -34,6 +34,7 @@ export default function ShowMapList( {lists, onValueChange, onIconValuePairChang
         // match the icon with the list id for marker display on map
         const iconValue = {
           iconId: list.id,
+          iconColor: list.color,
           iconLable: icons.iconOption.find((item) => item.value === list.icon).label,
         }
 
