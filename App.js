@@ -17,7 +17,7 @@ import { commonStyles } from "./styles/CommonStyles";
 import WishNote from "./components/WishNote";
 import JournalDetail from "./components/JournalDetail";
 import AddToList from "./components/AddToList";
-import CustomList from "./components/CustomList"
+import CustomList from "./components/CustomList";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -26,8 +26,7 @@ const MainStack = () => (
   <Tab.Navigator
     screenOptions={{
       headerShown: false,
-      tabBarInactiveBackgroundColor: colors.backgroundGreen,
-      tabBarActiveBackgroundColor: colors.backgroundGreen,
+      tabBarStyle: { backgroundColor: colors.lightGreen, paddingTop: 10 },
       tabBarActiveTintColor: colors.deepGreen,
     }}
   >
@@ -74,17 +73,37 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{cardStyle:  commonStyles.container}}>
+        <Stack.Navigator screenOptions={{ cardStyle: commonStyles.container }}>
           <Stack.Screen
             name="Main"
             component={MainStack}
             options={{ headerShown: false }}
           />
-          <Stack.Screen name="VisitedNote" component={VisitedNote} options={{ headerShown: false }}/>
-          <Stack.Screen name="WishNote" component={WishNote} options={{ headerShown: false }}/>
-          <Stack.Screen name="JournalDetail" component={JournalDetail} options={{ headerShown: false }}/>
-          <Stack.Screen name="AddToList" component={AddToList} options={{ headerShown: false }}/>
-          <Stack.Screen name="CustomList" component={CustomList} options={{ headerShown: false }}/>
+          <Stack.Screen
+            name="VisitedNote"
+            component={VisitedNote}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="WishNote"
+            component={WishNote}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="JournalDetail"
+            component={JournalDetail}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="AddToList"
+            component={AddToList}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="CustomList"
+            component={CustomList}
+            options={{ headerShown: false }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
