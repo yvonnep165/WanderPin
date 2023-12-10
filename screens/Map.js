@@ -31,6 +31,9 @@ const Map = ({ navigation }) => {
   const [address, setAddress] = useState(null);
   const [changeLocation, setChangeLocation] = useState(false);
   const [lists, setLists] = useState([]);
+  const [displayList, setDisplayList] = useState([]);
+  const [iconLables, setIconLables] = useState([]);
+  const [displayListMarker, setDisplayListMarker] = useState([]);
   Geocoder.init(MAPS_API_KEY);
 
   useEffect(() => {
@@ -216,7 +219,11 @@ const Map = ({ navigation }) => {
     <View style={[container, commonStyles.container]}>
       {/* show the dropdown picker and let user to choose the list they want to display */}
       <View style={styles.listSelector}>
-        <ShowMapList lists={lists} />
+        <ShowMapList
+          lists={lists}
+          onValueChange={getSelectedList}
+          onIconValuePairChange={getListsMarkerIcon}
+        />
       </View>
       {/* use the search bar to search for the address of a location */}
       <GooglePlacesAutocomplete
@@ -253,9 +260,6 @@ const Map = ({ navigation }) => {
           listView: { backgroundColor: colors.lightGreen },
         }}
       />
-      <View style={styles.listSelector}>
-        <ShowMapList lists={lists} />
-      </View>
       <MapView
         key={changeLocation}
         style={styles.map}
@@ -285,11 +289,11 @@ const Map = ({ navigation }) => {
       >
         {/* show the user's current location and the location in the selected lists*/}
         {userLocation && !selectedLocation && (
-          <Marker coordinate={userLocation} draggable={true}>
-            <Callout>
-              <Text>Current Location</Text>
-            </Callout>
-          </Marker>
+          <CustomMarker
+            coordinate={userLocation}
+            draggable={true}
+            message={"Current Location"}
+          />
         )}
         {/* select a location by clicking on map */}
         <CustomMarker
@@ -318,13 +322,16 @@ const Map = ({ navigation }) => {
           })}
       </MapView>
       <View style={styles.buttonContainer}>
+        {/* disabled the button if it's an update location process for Withnote or there's no selected location */}
         <PressableButton
           defaultStyle={[
             styles.submit,
-            selectedLocation ? {} : styles.submitDisabled,
+            route.params?.currentWishNote || !selectedLocation
+              ? styles.submitDisabled
+              : {},
           ]}
           pressedStyle={styles.pressed}
-          disabled={!selectedLocation}
+          disabled={route.params?.currentWishNote || !selectedLocation}
           onPressFunction={passToVisitNote}
         >
           <Text style={styles.text}>Mark As Visited</Text>
