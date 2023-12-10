@@ -18,6 +18,9 @@ import WishNote from "./components/WishNote";
 import JournalDetail from "./components/JournalDetail";
 import AddToList from "./components/AddToList";
 import CustomList from "./components/CustomList"
+import Login from "./screens/Login";
+import Signup from "./screens/Signup";
+import Welcome from "./screens/Welcome";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();

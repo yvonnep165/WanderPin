@@ -176,12 +176,8 @@ const Map = ({ navigation }) => {
     const previousWishNote = route.params?.currentWishNote;
     if (previousWishNote) {
       const newWishNote = {
-        noteId: previousWishNote.noteId,
-        title: previousWishNote.title,
+        ...previousWishNote,
         wishlistLocation: locationData,
-        note: previousWishNote.note,
-        list: previousWishNote.list,
-        reminder: previousWishNote.reminder,
       };
       navigation.navigate("WishNote", { newWishNote });
     } else {
@@ -338,10 +334,10 @@ const Map = ({ navigation }) => {
         <PressableButton
           defaultStyle={[
             styles.submit,
-            selectedLocation ? {} : styles.submitDisabled,
+            route.params?.currentJournal || !selectedLocation ? styles.submitDisabled : {},
           ]}
           pressedStyle={styles.pressed}
-          disabled={!selectedLocation}
+          disabled={route.params?.currentJournal || !selectedLocation}
           onPressFunction={passToWishNote}
         >
           <Text style={styles.text}>Add To Wishlist</Text>
