@@ -35,14 +35,14 @@ const VisitedNote = ({ navigation, route }) => {
   const [visitDate, setVisitDate] = useState(new Date());
   const [journal, setJournal] = useState(null);
   const [journalImages, setJournalImages] = useState([]);
+  const [isUploaded, setIsUploaded] = useState(false);
 
   // edit pages
   useEffect(() => {
     if (route.params && route.params.journal) {
       const fetchedJournal = route.params.journal;
-
+      console.log(fetchedJournal);
       setJournal(fetchedJournal);
-
       if (fetchedJournal.data) {
         const date = new Date(
           fetchedJournal.date.seconds * 1000 +
@@ -64,23 +64,42 @@ const VisitedNote = ({ navigation, route }) => {
       setTitle(fetchedJournal.title);
       setNote(fetchedJournal.note);
       setVisibility(fetchedJournal.visibility);
-      setJournalImages(fetchedJournal.journalImages);
+      setJournalImages(fetchedJournal.images);
     }
   }, [route.params]);
 
   // set images
-  const setTakenImages = (uri) => {
+  const setTakenImages = (uri, image) => {
     setJournalImages([...journalImages, uri]);
+  };
+
+  // useEffect(() => {
+  //   console.log(journalImages, tempImages);
+  //   if (journalImages.length < tempImages.length) {
+  //     setIsUploaded(false);
+  //   } else {
+  //     setIsUploaded(true);
+  //   }
+  // }, [journalImages, tempImages]);
+  const checkUploading = (res) => {
+    setIsUploaded(res);
   };
 
   // set location
   const changeLocation = () => {
+    console.log(isUploaded);
+    if (!isUploaded) {
+      Alert.alert(
+        "The photos are uploading, please wait some seconds and try again"
+      );
+      return;
+    }
     const currentJournal = {
       title,
       note,
       visibility,
       visitDate: visitDate.toISOString(),
-      journalImages,
+      images: journalImages,
     };
     navigation.navigate("Map", {
       currentJournal,
@@ -131,7 +150,7 @@ const VisitedNote = ({ navigation, route }) => {
 
   // cancel and submit
   const handleCancel = () => {
-    navigation.goBack();
+    navigation.navigate("Home");
   };
 
   const writeToDB = async () => {
@@ -173,15 +192,21 @@ const VisitedNote = ({ navigation, route }) => {
   };
 
   const handleSubmit = () => {
-    if (!title || !visitDate || !journalImages) {
+    if (!title || !visitDate || !journalImages || !location) {
       Alert.alert(
         "Please fill out the title, location, visit date and add at least one photo"
       );
       return;
     }
+    if (!isUploaded) {
+      Alert.alert(
+        "The photos are uploading, please wait some seconds and try again"
+      );
+      return;
+    }
     console.log(journal);
     writeToDB();
-    navigation.goBack();
+    navigation.navigate("Home");
   };
 
   return (
@@ -208,7 +233,11 @@ const VisitedNote = ({ navigation, route }) => {
         </View>
 
         {/* the image area */}
-        <ImageSection passImageUri={setTakenImages} images={journalImages} />
+        <ImageSection
+          passImageUri={setTakenImages}
+          images={journalImages}
+          onCheckStorage={checkUploading}
+        />
 
         {/* the info area */}
         <View>

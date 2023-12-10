@@ -8,19 +8,28 @@ import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "../firebase/firebaseSetup";
 
-const ImageSection = ({ passImageUri, images }) => {
+const ImageSection = ({ passImageUri, images, onCheckStorage }) => {
   const buttons = [
     { type: "button", id: "photo" },
     { type: "button", id: "camera" },
   ];
 
-  const [photos, setPhotos] = useState([...buttons, ...images]);
-  const [tempPhotos, setTempPhotos] = useState([...buttons, ...images]);
+  const [photos, setPhotos] = useState([]);
+  const [tempPhotos, setTempPhotos] = useState([]);
   const [status, requestPermission] = ImagePicker.useCameraPermissions();
 
   useEffect(() => {
     setPhotos([...buttons, ...images]);
+    setTempPhotos([...buttons, ...images]);
   }, [images]);
+
+  useEffect(() => {
+    if (photos.length >= tempPhotos.length) {
+      onCheckStorage(true);
+    } else {
+      onCheckStorage(false);
+    }
+  }, [photos, tempPhotos]);
 
   const verifyPermission = async () => {
     if (status.granted) {
@@ -61,7 +70,7 @@ const ImageSection = ({ passImageUri, images }) => {
       const relativeUri = await uploadImageToStorage(image);
       const imageUri = await downloadURL(relativeUri);
       setPhotos([...photos, imageUri]);
-      passImageUri(imageUri);
+      passImageUri(imageUri, image);
     } catch (err) {
       console.log("imageHandler error:", err);
     }
