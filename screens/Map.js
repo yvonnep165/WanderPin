@@ -46,10 +46,10 @@ const Map = ( {navigation} ) => {
       (locationDataFromParams.latitude !== selectedLocation?.latitude ||
         locationDataFromParams.longitude !== selectedLocation?.longitude)
     ) {
-      setSelectedLocation({
+      setSelectedLocation(prevLocation => ({
         latitude: locationDataFromParams.latitude,
         longitude: locationDataFromParams.longitude,
-      });
+      }));
     }
   }, [route.params]);
 
@@ -248,11 +248,11 @@ const Map = ( {navigation} ) => {
           let isSelect = checkSameLocation(selectedLatitude, selectLongitude);
           console.log(selectLongitude, selectedLatitude)
           console.log(isSelect)
-          if (isSelect) {
-            setSelectedLocation({
+          if (route.params?.currentWishNote || isSelect) {
+            setSelectedLocation(prevLocation=> ({
               latitude: selectedLatitude,
               longitude: selectLongitude,
-            });
+            }));
           }
         }}
         provider="google"
@@ -282,13 +282,14 @@ const Map = ( {navigation} ) => {
                     icon={locationIcon}/>)})}
       </MapView>
         <View style={styles.buttonContainer}>
+        {/* disabled the button if it's an update location process for Withnote or there's no selected location */}
           <PressableButton
             defaultStyle={[
               styles.submit,
-              selectedLocation ? {} : styles.submitDisabled,
+              (route.params?.currentWishNote || !selectedLocation) ? styles.submitDisabled : {},
             ]}
             pressedStyle={styles.pressed}
-            disabled={!selectedLocation}
+            disabled={route.params?.currentWishNote || !selectedLocation}
             onPressFunction={passToVisitNote}
           >
             <Text style={styles.text}>Mark As Visited</Text>
