@@ -60,7 +60,7 @@ const JournalDetail = ({ route, navigation }) => {
   const updateTime = firebaseUpdateTime.toLocaleDateString();
 
   const fireabaseVisitDate = new Date(
-    journal.editTime.seconds * 1000 + journal.editTime.nanoseconds / 1e6
+    journal.date.seconds * 1000 + journal.date.nanoseconds / 1e6
   );
   const date = fireabaseVisitDate.toLocaleDateString();
 

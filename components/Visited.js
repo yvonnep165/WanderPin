@@ -1,7 +1,13 @@
 import { StyleSheet, Text, View, Image } from "react-native";
 import React, { useState, useEffect } from "react";
 import { database, auth } from "../firebase/firebaseSetup";
-import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  orderBy,
+} from "firebase/firestore";
 import AddButton from "./AddButton";
 import { colors } from "../styles/Colors";
 import { commonStyles } from "../styles/CommonStyles";
@@ -18,10 +24,13 @@ const Visited = ({ navigation }) => {
   const [journals, setJournals] = useState([]);
 
   useEffect(() => {
-    const q = query(collection(database, "journals"),  where("user", "==", auth.currentUser.uid), orderBy("date", "desc"));
-    // where("user", "==", auth.currentUser.uid)
+    const q = query(
+      collection(database, "journals"),
+      where("user", "==", auth.currentUser.uid),
+      orderBy("date", "desc")
+    );
     const unsubscribe = onSnapshot(
-      q, 
+      q,
       (querySnapshot) => {
         let newArray = [];
         if (!querySnapshot.empty) {
@@ -29,16 +38,10 @@ const Visited = ({ navigation }) => {
             newArray.push({ ...doc.data(), id: doc.id });
           });
         }
-        // const sortedJournals = [...newArray].sort((journalA, journalB) => {
-        //   const dateA = new Date(journalA.date);
-        //   const dateB = new Date(journalB.date);
-    
-        //   return dateA - dateB;
-        // });
         setJournals(newArray);
       },
       (err) => {
-        console.log(err);
+        console.log("visited notes:", err);
         if (err.code === "permission-denied") {
           Alert.alert(
             "You don't have permission or there is an error in your querys"
@@ -88,10 +91,10 @@ export default Visited;
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center" },
   cardList: { width: "90%" },
-  cards: { gap: 10, paddingTop: 10 },
+  cards: { gap: 10, paddingTop: 15 },
   adding: {
     position: "absolute",
-    bottom: 5,
+    bottom: 25,
     right: 25,
     zIndex: 1,
   },

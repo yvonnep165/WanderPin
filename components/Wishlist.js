@@ -1,11 +1,11 @@
-import { StyleSheet, Text, View, FlatList, Alert } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, FlatList, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
 import AddButton from "./AddButton";
-import { commonStyles } from '../styles/CommonStyles';
+import { commonStyles } from "../styles/CommonStyles";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import Note from './Note';
-import { collection, onSnapshot, query, where  } from "firebase/firestore";
+import Note from "./Note";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { database, auth } from "../firebase/firebaseSetup";
 
 const Wishlist = () => {
@@ -13,17 +13,22 @@ const Wishlist = () => {
   const [notes, setNotes] = useState([]);
 
   function notePressHandler(pressedWishlist) {
-    navigation.navigate("WishNote", {pressedWishlist});
+    navigation.navigate("WishNote", { pressedWishlist });
   }
 
   // read all the notes from database
-  useEffect(()=>{
-    let q = query(collection(database, "notes"), where("user", "==", auth.currentUser.uid));
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+  useEffect(() => {
+    let q = query(
+      collection(database, "notes"),
+      where("user", "==", auth.currentUser.uid)
+    );
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
         if (!querySnapshot.empty) {
-          let newArray = []
+          let newArray = [];
           querySnapshot.forEach((docSnap) => {
-            newArray.push({...docSnap.data(), id: docSnap.id});
+            newArray.push({ ...docSnap.data(), id: docSnap.id });
           });
           setNotes(newArray);
         } else {
@@ -48,27 +53,33 @@ const Wishlist = () => {
     <View style={commonStyles.container}>
       <View>
         {/* a flatlist to show all the notes */}
-      <FlatList 
-        contentContainerStyle={styles.container}
-        data={notes}
-        renderItem={({ item }) => {
-        return (
-          <View style={styles.card}>
-            <Note note={item} pressHandler={notePressHandler}/>
-          </View>
-        );
-      }}
-      />
-    </View>
+        <FlatList
+          contentContainerStyle={styles.container}
+          data={notes}
+          renderItem={({ item }) => {
+            return (
+              <View style={styles.card}>
+                <Note note={item} pressHandler={notePressHandler} />
+              </View>
+            );
+          }}
+        />
+      </View>
       <View style={styles.adding}>
-        <AddButton 
-          onPress={() => navigation.navigate("WishNote")} 
-          iconComponent={<MaterialCommunityIcons name="map-marker-plus" size={24} color="white" />}
-          />
+        <AddButton
+          onPress={() => navigation.navigate("WishNote")}
+          iconComponent={
+            <MaterialCommunityIcons
+              name="map-marker-plus"
+              size={24}
+              color="white"
+            />
+          }
+        />
       </View>
     </View>
-  )
-}
+  );
+};
 
 export default Wishlist;
 
@@ -81,9 +92,9 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 24,
-    flexDirection: 'column',
+    flexDirection: "column",
   },
   card: {
     margin: 3,
-  }
+  },
 });

@@ -5,8 +5,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { FlatList } from "react-native-gesture-handler";
 import { colors } from "../styles/Colors";
 import * as ImagePicker from "expo-image-picker";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { storage } from "../firebase/firebaseSetup";
+import { downloadURL, uploadImageToStorage } from "../firebase/firestoreHelper";
 
 const ImageSection = ({ passImageUri, images, onCheckStorage }) => {
   const buttons = [
@@ -35,33 +34,13 @@ const ImageSection = ({ passImageUri, images, onCheckStorage }) => {
     if (status.granted) {
       return true;
     }
-    const response = await requestPermission();
-    return response.granted;
+    try {
+      const response = await requestPermission();
+      return response.granted;
+    } catch (err) {
+      console.log("image permission", err);
+    }
   };
-
-  async function uploadImageToStorage(uri) {
-    try {
-      const response = await fetch(uri);
-      const imageBlob = await response.blob();
-      const imageName = uri.substring(uri.lastIndexOf("/") + 1);
-      const imageRef = ref(storage, `images/${imageName}`);
-      const uploadResult = await uploadBytesResumable(imageRef, imageBlob);
-      return uploadResult.metadata.fullPath;
-    } catch (err) {
-      console.log("upload image error:", err);
-    }
-  }
-
-  async function downloadURL(image) {
-    try {
-      const imageUriRef = ref(storage, image);
-      const url = await getDownloadURL(imageUriRef);
-
-      return url;
-    } catch (err) {
-      console.log("download url:", err);
-    }
-  }
 
   // process images
   const imageHandler = async (image) => {
@@ -105,8 +84,10 @@ const ImageSection = ({ passImageUri, images, onCheckStorage }) => {
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
       });
-      const image = result.assets[0].uri;
-      imageHandler(image);
+      if (!result.canceled) {
+        const image = result.assets[0].uri;
+        imageHandler(image);
+      }
     } catch (err) {
       console.log("take image error ", err);
     }
@@ -163,7 +144,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   imageBox: {
-    backgroundColor: colors.backgroundGreen,
+    backgroundColor: colors.lightGreen,
     width: 130,
     height: 130,
     marginVertical: 10,

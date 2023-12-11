@@ -75,30 +75,35 @@ const Map = ({ navigation }) => {
 
   // read all the lists from database for selected list display
   useEffect(() => {
-    let q = query(collection(database, "lists"), where("user", "==", auth.currentUser.uid));
-    let unsubscribe = onSnapshot(q, (querySnapshot) => {
-      if (!querySnapshot.empty) {
-        let newArray = [];
-        querySnapshot.forEach((docSnap) => {
-          newArray.push({ ...docSnap.data(), id: docSnap.id });
-        });
-        setLists(newArray);
-      } else {
-        setLists([]);
+    let q = query(
+      collection(database, "lists"),
+      where("user", "==", auth.currentUser.uid)
+    );
+    let unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
+        if (!querySnapshot.empty) {
+          let newArray = [];
+          querySnapshot.forEach((docSnap) => {
+            newArray.push({ ...docSnap.data(), id: docSnap.id });
+          });
+          setLists(newArray);
+        } else {
+          setLists([]);
+        }
+      },
+      (err) => {
+        console.log(err);
+        if (err.code === "permission-denied") {
+          Alert.alert(
+            "You don't have permission or there is an error in your querys"
+          );
+        }
       }
-    },
-    (err) => {
-      console.log(err);
-      if (err.code === "permission-denied") {
-        Alert.alert(
-          "You don't have permission or there is an error in your querys"
-        );
-      }
-    }
-  );
-  return () => {
-    unsubscribe();
-  };
+    );
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   // read all the wishLists of the selected lists from database based on the list id
@@ -106,20 +111,23 @@ const Map = ({ navigation }) => {
     if (displayList && displayList.length > 0) {
       let q = query(
         collection(database, "notes"),
-        where("list.id", "in", displayList), 
+        where("list.id", "in", displayList),
         where("user", "==", auth.currentUser.uid)
       );
-      let unsubscribe = onSnapshot(q, (querySnapshot) => {
-        if (!querySnapshot.empty) {
-          let newArray = [];
-          querySnapshot.forEach((docSnap) => {
-            newArray.push({ ...docSnap.data(), id: docSnap.id });
-          });
-          setDisplayListMarker(newArray);
-          console.log("Note To Display:", newArray);
-        } else {
-          setDisplayListMarker([]);
-        }},
+      let unsubscribe = onSnapshot(
+        q,
+        (querySnapshot) => {
+          if (!querySnapshot.empty) {
+            let newArray = [];
+            querySnapshot.forEach((docSnap) => {
+              newArray.push({ ...docSnap.data(), id: docSnap.id });
+            });
+            setDisplayListMarker(newArray);
+            console.log("Note To Display:", newArray);
+          } else {
+            setDisplayListMarker([]);
+          }
+        },
         (err) => {
           console.log(err);
           if (err.code === "permission-denied") {
@@ -142,8 +150,12 @@ const Map = ({ navigation }) => {
     if (status && status.granted) {
       return true;
     }
-    const response = await requestPermission();
-    return response && response.granted;
+    try {
+      const response = await requestPermission();
+      return response && response.granted;
+    } catch (err) {
+      console.log("location permission", err);
+    }
   };
 
   // get the user's current location to show on map
@@ -358,7 +370,9 @@ const Map = ({ navigation }) => {
         <PressableButton
           defaultStyle={[
             styles.submit,
-            route.params?.currentJournal || !selectedLocation ? styles.submitDisabled : {},
+            route.params?.currentJournal || !selectedLocation
+              ? styles.submitDisabled
+              : {},
           ]}
           pressedStyle={styles.pressed}
           disabled={route.params?.currentJournal || !selectedLocation}

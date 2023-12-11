@@ -31,12 +31,15 @@ const VisitedNote = ({ navigation, route }) => {
   const [id, setId] = useState();
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState();
   const [visibility, setVisibility] = useState(1);
   const [visitDate, setVisitDate] = useState(new Date());
   const [journal, setJournal] = useState(null);
   const [journalImages, setJournalImages] = useState([]);
   const [isUploaded, setIsUploaded] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
+  const [weather, setWeather] = useState("");
 
   // edit pages
   useEffect(() => {
@@ -44,45 +47,36 @@ const VisitedNote = ({ navigation, route }) => {
       const fetchedJournal = route.params.journal;
       console.log(fetchedJournal);
       setJournal(fetchedJournal);
-      if (fetchedJournal.data) {
+
+      if (fetchedJournal.visitDate) {
+        const date = new Date(fetchedJournal.visitDate);
+        setDate(date);
+      } else if (fetchedJournal.date) {
         const date = new Date(
           fetchedJournal.date.seconds * 1000 +
             fetchedJournal.date.nanoseconds / 1e6
         );
-        setVisitDate(date);
+        setDate(date);
       }
 
-      if (fetchedJournal.visitDate) {
-        const date = new Date(fetchedJournal.visitDate);
-        setVisitDate(date);
-      }
+      setLocation(fetchedJournal.location);
 
-      if (typeof fetchedJournal.location === "object") {
-        setLocation(fetchedJournal.location.address);
-      } else {
-        setLocation(fetchedJournal.location);
-      }
       setId(fetchedJournal.id);
       setTitle(fetchedJournal.title);
       setNote(fetchedJournal.note);
       setVisibility(fetchedJournal.visibility);
       setJournalImages(fetchedJournal.images);
+      setWeather(fetchedJournal.weather);
     }
   }, [route.params]);
+
+  console.log(visitDate, location, weather);
 
   // set images
   const setTakenImages = (uri, image) => {
     setJournalImages([...journalImages, uri]);
   };
 
-  // useEffect(() => {
-  //   console.log(journalImages, tempImages);
-  //   if (journalImages.length < tempImages.length) {
-  //     setIsUploaded(false);
-  //   } else {
-  //     setIsUploaded(true);
-  //   }
-  // }, [journalImages, tempImages]);
   const checkUploading = (res) => {
     setIsUploaded(res);
   };
@@ -96,18 +90,19 @@ const VisitedNote = ({ navigation, route }) => {
       );
       return;
     }
+    const currentJournal = {
+      title,
+      note,
+      visibility,
+      visitDate: visitDate.toISOString(),
+      images: journalImages,
+    };
     if (journal) {
+      const curJournal = { ...currentJournal, id: journal.id };
       navigation.navigate("Map", {
-        currentJournal: journal,
+        currentJournal: curJournal,
       });
     } else {
-      const currentJournal = {
-        title,
-        note,
-        visibility,
-        visitDate: visitDate.toISOString(),
-        images: journalImages,
-      };
       navigation.navigate("Map", {
         currentJournal,
       });
@@ -139,22 +134,64 @@ const VisitedNote = ({ navigation, route }) => {
   };
 
   // change date
-  const [date, setDate] = useState(new Date());
-  const [show, setShow] = useState(false);
-
-  const onChange = (selectedDate) => {
+  const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
-    setShow(false);
+    setIsDatePickerVisible(false);
     setDate(currentDate);
   };
 
   const changeDate = () => {
-    setShow(true);
+    setIsDatePickerVisible(true);
   };
 
   useEffect(() => {
     setVisitDate(date);
   }, [date]);
+
+  // get weather after setting location and visit date
+  useEffect(() => {
+    const fetchWeatherData = async () => {
+      try {
+        const diff =
+          Math.ceil((new Date() - visitDate) / (1000 * 60 * 60 * 24)) - 1;
+        const newVisitDate = visitDate.toLocaleDateString().split("/");
+        let day = newVisitDate[1];
+        let number = parseInt(day, 10);
+        if (!isNaN(number) && number >= 0 && number < 10) {
+          // If it's a single-digit number, add a leading zero
+          day = "0" + day;
+        }
+        const newVisit = newVisitDate[2] + "-" + newVisitDate[0] + "-" + day;
+        console.log(newVisitDate, newVisit);
+        if (diff > 7) {
+          const response = await fetch(
+            `https://archive-api.open-meteo.com/v1/archive?latitude=${location.latitude}&longitude=${location.longitude}&start_date=${newVisit}&end_date=${newVisit}&daily=weather_code,temperature_2m_mean`
+          );
+          const result = await response.json();
+          const weather = {
+            code: result.daily.temperature_2m_mean[0],
+            temp: result.daily.weather_code[0],
+          };
+          setWeather(weather);
+        } else {
+          const response = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&daily=weather_code,temperature_2m_max,temperature_2m_min&past_days=${diff}`
+          );
+          const result = await response.json();
+          const weather = {
+            code: result.daily.weather_code[0],
+            temp: result.daily.temperature_2m_max[0],
+          };
+          setWeather(weather);
+        }
+      } catch (error) {
+        console.error("Error fetching weather:", error);
+      }
+    };
+    if (location && visitDate) {
+      fetchWeatherData();
+    }
+  }, [location, visitDate]);
 
   // cancel and submit
   const handleCancel = () => {
@@ -172,6 +209,7 @@ const VisitedNote = ({ navigation, route }) => {
           date: visitDate,
           editTime: new Date(),
           images: journalImages,
+          weather: weather,
         };
         writeJournalToDB(newJournal);
       } else {
@@ -193,6 +231,9 @@ const VisitedNote = ({ navigation, route }) => {
         updateJournalToDB(journal.id, {
           images: journalImages,
         });
+        updateJournalToDB(journal.id, {
+          weather: weather,
+        });
       }
     } catch (err) {
       console.log("write to db error:", err);
@@ -210,6 +251,12 @@ const VisitedNote = ({ navigation, route }) => {
       Alert.alert(
         "The photos are uploading, please wait some seconds and try again"
       );
+      return;
+    }
+    const today = new Date();
+    console.log(visitDate, today);
+    if (visitDate > today) {
+      Alert.alert("Please don't set future days as your visit date");
       return;
     }
     console.log(journal);
@@ -262,7 +309,7 @@ const VisitedNote = ({ navigation, route }) => {
                   </View>
                   <Text>Location</Text>
                 </View>
-                <Text style={styles.locationText}>{location}</Text>
+                <Text style={styles.locationText}>{location?.address}</Text>
               </View>
               <AntDesign name="right" size={14} color={colors.black} />
             </View>
@@ -298,10 +345,7 @@ const VisitedNote = ({ navigation, route }) => {
                 <Text>Visit Date</Text>
               </View>
               <View style={styles.optionLabel}>
-                <Text>
-                  {visitDate.getFullYear()}-{visitDate.getMonth() + 1}-
-                  {visitDate.getDate()}
-                </Text>
+                <Text>{visitDate && visitDate.toLocaleDateString()}</Text>
                 <AntDesign name="right" size={14} color={colors.black} />
               </View>
             </View>
@@ -309,7 +353,7 @@ const VisitedNote = ({ navigation, route }) => {
         </View>
       </View>
 
-      {show && (
+      {isDatePickerVisible && (
         <DateTimePicker
           testID="dateTimePicker"
           value={date}
@@ -444,7 +488,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   input: {
-    backgroundColor: colors.backgroundGreen,
+    backgroundColor: colors.lightGreen,
     borderRadius: 5,
     height: 30,
     marginTop: 5,
