@@ -7,6 +7,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Note from "./Note";
 import { collection, onSnapshot } from "firebase/firestore";
 import { database } from "../firebase/firebaseSetup";
+import { auth } from "../firebase/firebaseSetup";
 
 const Wishlist = () => {
   const navigation = useNavigation();

@@ -12,6 +12,8 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import PressableButton from "../components/PressableButton";
 import * as ImagePicker from "expo-image-picker";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase/firebaseSetup";
 
 const Profile = () => {
   const [avatar, setAvatar] = useState(
@@ -20,26 +22,16 @@ const Profile = () => {
 
   const insets = useSafeAreaInsets();
   const container = getContainerStyles(insets);
-  console.log(avatar);
-  const pressAvatarHandler = async () => {
+  const pressAvatarHandler = () => {};
+  function handleSignOut() {
+    console.log("logout pressed");
     try {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-      if (!result.canceled) {
-        const image = result.assets[0].uri;
-        setAvatar(image);
-        const relativeUri = await uploadImageToStorage(image);
-        const imageUri = await downloadURL(relativeUri);
-        setAvatar(imageUri);
-      }
+      signOut(auth);
     } catch (err) {
-      console.log("add error:", err);
+      console.log("sighout err", err);
     }
-  };
+  }
+
   return (
     <View style={[container, commonStyles.container, styles.container]}>
       <View style={styles.header}>
@@ -77,6 +69,9 @@ const Profile = () => {
           <Text style={styles.subtitle}>8(temp)</Text>
         </View>
       </View>
+      <PressableButton onPressFunction={handleSignOut}>
+        <Text>Sign Out</Text>
+      </PressableButton>
     </View>
   );
 };

@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   imageBox: {
-    backgroundColor: colors.backgroundGreen,
+    backgroundColor: colors.lightGreen,
     width: 130,
     height: 130,
     marginVertical: 10,

@@ -18,10 +18,23 @@ import WishNote from "./components/WishNote";
 import JournalDetail from "./components/JournalDetail";
 import AddToList from "./components/AddToList";
 import CustomList from "./components/CustomList";
+import Login from "./screens/Login";
+import Signup from "./screens/Signup";
+import Welcome from "./screens/Welcome";
+import React, { useState, useEffect } from "react";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "./firebase/firebaseSetup";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
+const AuthStack = (
+  <>
+    <Stack.Screen name="Welcome" component={Welcome} />
+    <Stack.Screen name="Login" component={Login} />
+    <Stack.Screen name="Signup" component={Signup} />
+  </>
+);
 const MainStack = () => (
   <Tab.Navigator
     screenOptions={{

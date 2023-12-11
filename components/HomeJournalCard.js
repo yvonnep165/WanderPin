@@ -2,6 +2,9 @@ import { StyleSheet, Text, View, Image } from "react-native";
 import React, { useState, useEffect } from "react";
 import { colors } from "../styles/Colors";
 import PressableButton from "./PressableButton";
+import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { weatherIcons } from "../styles/WeatherIcons";
 
 const HomeJournalCard = ({ journal, pressCardHandler }) => {
   console.log(journal);
@@ -33,10 +36,15 @@ const HomeJournalCard = ({ journal, pressCardHandler }) => {
             {journal.title.length > 30 ? "..." : ""}
           </Text>
           <View style={styles.subtitle}>
-            <Text>
-              {journal.location.slice(0, 20)}
-              {journal.location.length > 20 ? "..." : ""}
-            </Text>
+            <View style={styles.leftSubtitle}>
+              <Ionicons name="location" size={15} color={colors.darkYellow} />
+              <Text>
+                {journal.location.address.slice(0, 20)}
+                {journal.location.address.length > 20 ? "..." : ""}
+              </Text>
+              {weatherIcons[journal.weather.code]}
+              <Text>{journal.weather.temp}°C</Text>
+            </View>
             <Text>{updateTime}</Text>
           </View>
         </View>
@@ -69,5 +77,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingTop: 5,
+  },
+  leftSubtitle: {
+    flexDirection: "row",
+    gap: 5,
+    alignItems: "center",
   },
 });

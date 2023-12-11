@@ -21,7 +21,6 @@ import {
   updateJournalToDB,
 } from "../firebase/firestoreHelper";
 import ImageSection from "./ImageSection";
-import { WEATHER_API_KEY } from "@env";
 
 const VisitedNote = ({ navigation, route }) => {
   // safe area
@@ -67,10 +66,11 @@ const VisitedNote = ({ navigation, route }) => {
       setNote(fetchedJournal.note);
       setVisibility(fetchedJournal.visibility);
       setJournalImages(fetchedJournal.images);
+      setWeather(fetchedJournal.weather);
     }
   }, [route.params]);
 
-  console.log(visitDate);
+  console.log(visitDate, location, weather);
 
   // set images
   const setTakenImages = (uri, image) => {
@@ -149,24 +149,49 @@ const VisitedNote = ({ navigation, route }) => {
   }, [date]);
 
   // get weather after setting location and visit date
-  // useEffect(() => {
-  //   const fetchWeatherData = async () => {
-  //     try {
-  //       const response = await fetch(
-  //         `http://api.weatherstack.com/historical ? access_key = ${WEATHER_API_KEY} & query = ${}`
-  //       );
-  //       const result = await response.json();
-
-  //       // setData(result);
-  //     } catch (error) {
-  //       console.error("Error fetching data:", error);
-  //     } finally {
-  //       // setIsLoading(false);
-  //     }
-  //   };
-
-  //   fetchWeatherData();
-  // }, [location, visitDate]);
+  useEffect(() => {
+    const fetchWeatherData = async () => {
+      try {
+        const diff =
+          Math.ceil((new Date() - visitDate) / (1000 * 60 * 60 * 24)) - 1;
+        const newVisitDate = visitDate.toLocaleDateString().split("/");
+        let day = newVisitDate[1];
+        let number = parseInt(day, 10);
+        if (!isNaN(number) && number >= 0 && number < 10) {
+          // If it's a single-digit number, add a leading zero
+          day = "0" + day;
+        }
+        const newVisit = newVisitDate[2] + "-" + newVisitDate[0] + "-" + day;
+        console.log(newVisitDate, newVisit);
+        if (diff > 7) {
+          const response = await fetch(
+            `https://archive-api.open-meteo.com/v1/archive?latitude=${location.latitude}&longitude=${location.longitude}&start_date=${newVisit}&end_date=${newVisit}&daily=weather_code,temperature_2m_mean`
+          );
+          const result = await response.json();
+          const weather = {
+            code: result.daily.temperature_2m_mean[0],
+            temp: result.daily.weather_code[0],
+          };
+          setWeather(weather);
+        } else {
+          const response = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&daily=weather_code,temperature_2m_max,temperature_2m_min&past_days=${diff}`
+          );
+          const result = await response.json();
+          const weather = {
+            code: result.daily.weather_code[0],
+            temp: result.daily.temperature_2m_max[0],
+          };
+          setWeather(weather);
+        }
+      } catch (error) {
+        console.error("Error fetching weather:", error);
+      }
+    };
+    if (location && visitDate) {
+      fetchWeatherData();
+    }
+  }, [location, visitDate]);
 
   // cancel and submit
   const handleCancel = () => {
@@ -184,6 +209,7 @@ const VisitedNote = ({ navigation, route }) => {
           date: visitDate,
           editTime: new Date(),
           images: journalImages,
+          weather: weather,
         };
         writeJournalToDB(newJournal);
       } else {
@@ -204,6 +230,9 @@ const VisitedNote = ({ navigation, route }) => {
         }
         updateJournalToDB(journal.id, {
           images: journalImages,
+        });
+        updateJournalToDB(journal.id, {
+          weather: weather,
         });
       }
     } catch (err) {
@@ -459,7 +488,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   input: {
-    backgroundColor: colors.backgroundGreen,
+    backgroundColor: colors.lightGreen,
     borderRadius: 5,
     height: 30,
     marginTop: 5,

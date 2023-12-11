@@ -1,8 +1,8 @@
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, Keyboard, } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { colors } from "../styles/Colors";
 
-export default function InputField({changedHandler, value, placeholder, height}) {
+export default function InputField({changedHandler, value, placeholder, height, fontSize}) {
     const [text, setText] = useState("");
 
     useEffect(() => {
@@ -17,12 +17,13 @@ export default function InputField({changedHandler, value, placeholder, height})
     return (
     <View>
       <TextInput
-        style={[styles.input, height && { height }]}
+        style={[styles.input, height && { height }, fontSize && {fontSize}]}
         onChangeText={changeTextHandler}
         value={text}
         placeholder={placeholder}
         placeholderTextColor={colors.placeholder}
         multiline={true}
+        onBlur={Keyboard.dismiss}
       />
     </View>
   )
