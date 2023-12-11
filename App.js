@@ -82,41 +82,68 @@ const MainStack = () => (
   </Tab.Navigator>
 );
 
+const AppStack = (
+  <>
+    <Stack.Screen
+      name="Main"
+      component={MainStack}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="VisitedNote"
+      component={VisitedNote}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="WishNote"
+      component={WishNote}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="JournalDetail"
+      component={JournalDetail}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="AddToList"
+      component={AddToList}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="CustomList"
+      component={CustomList}
+      options={{ headerShown: false }}
+    />
+  </>
+);
+
 export default function App() {
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      console.log(user);
+      if (user) {
+        // a valid user is logged in
+        setIsUserLoggedIn(true);
+      } else {
+        //before authentication or after logout
+        setIsUserLoggedIn(false);
+      }
+    });
+  }, []);
+
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ cardStyle: commonStyles.container }}>
-          <Stack.Screen
-            name="Main"
-            component={MainStack}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="VisitedNote"
-            component={VisitedNote}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="WishNote"
-            component={WishNote}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="JournalDetail"
-            component={JournalDetail}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="AddToList"
-            component={AddToList}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="CustomList"
-            component={CustomList}
-            options={{ headerShown: false }}
-          />
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            cardStyle: commonStyles.container,
+          }}
+          initialRouteName="Welcome"
+        >
+          {isUserLoggedIn ? AppStack : AuthStack}
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
