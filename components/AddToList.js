@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../styles/Colors";
 import { AntDesign } from "@expo/vector-icons";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { database } from "../firebase/firebaseSetup";
+import { database, auth } from "../firebase/firebaseSetup";
 import List from './List';
 
 export default function AddToList({ navigation }) {
@@ -38,8 +38,8 @@ export default function AddToList({ navigation }) {
 
     // read all the lists from database
     useEffect(()=>{
-      let q = collection(database, "lists");
-        onSnapshot(q, (querySnapshot) => {
+      let q = query(collection(database, "lists"), where("user", "==", auth.currentUser.uid));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
           if (!querySnapshot.empty) {
             let newArray = []
             querySnapshot.forEach((docSnap) => {
@@ -49,7 +49,19 @@ export default function AddToList({ navigation }) {
           } else {
             setLists([]);
           }
-      })
+        },
+        (err) => {
+          console.log(err);
+          if (err.code === "permission-denied") {
+            Alert.alert(
+              "You don't have permission or there is an error in your querys"
+            );
+          }
+        }
+      );
+      return () => {
+        unsubscribe();
+      };
     }, []);
 
     function listPressHandler(pressedList) {

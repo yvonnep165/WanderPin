@@ -13,6 +13,9 @@ export const colors = {
     lightGray: "#BDBDBD",
     darkGary: "#696969",
     shadowColor: '#000',
+    headerColor: '#434247',
+    loginButton: '#fcba03',
+    signupButton: '#44947f',
     colorOption:[
         '#b8304f',
         '#fa3741',
