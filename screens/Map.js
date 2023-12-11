@@ -10,7 +10,7 @@ import { MAPS_API_KEY } from "@env";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { colors } from "../styles/Colors";
 import Geocoder from "react-native-geocoding";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useIsFocused } from "@react-navigation/native";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { database, auth } from "../firebase/firebaseSetup";
 import ShowMapList from "../components/ShowMapLists";
@@ -23,6 +23,8 @@ const Map = ({ navigation }) => {
   const route = useRoute();
   const insets = useSafeAreaInsets();
   const container = getContainerStyles(insets);
+  const isFocused = useIsFocused();
+
   const [selectedLocation, setSelectedLocation] = useState(
     route.params?.currentWishNote?.wishlistLocation || null
   );
@@ -145,6 +147,13 @@ const Map = ({ navigation }) => {
     }
   }, [displayList]);
 
+  // Reset route params when the we navigated away to other components via bottom tab
+  useEffect(() => {
+    if (!isFocused) {
+      navigation.setParams({ currentWishNote: null, currentJournal: null });
+    }
+  }, [isFocused, navigation]);
+
   // verify user's permission to locate the user
   const verifyPermission = async () => {
     if (status && status.granted) {
@@ -189,8 +198,8 @@ const Map = ({ navigation }) => {
     };
     console.log(locationData);
     const visitJournal = route.params?.currentJournal;
-    const journal = { ...visitJournal, location: locationData };
     if (visitJournal) {
+      const journal = { ...visitJournal, location: locationData };
       navigation.navigate("VisitedNote", {
         journal,
       });
