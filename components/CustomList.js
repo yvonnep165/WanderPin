@@ -109,15 +109,16 @@ export default function CustomList({ navigation }) {
       )}
       <View style={styles.info}>
         <Text style={styles.title}>Title</Text>
-        <InputField placeholder="Write List Title" changedHandler={changeTitle} value={title}/>
+        <InputField changedHandler={changeTitle} value={title} fontSize={18}/>
       </View>
       {/* icon options for selection */}
       <View style={styles.iconSelect}>
-        <Text style={styles.title}>Select the Icon</Text>
+        <Text style={[styles.title, styles.iconPickerTitle]}>Select the Icon</Text>
         <IconSelect onValueChange={changeIcon} updateValue={route.params? route.params.pressedList.icon : null}/>
       </View>
+      <View style={styles.iconColorSelector}>
       {/* color options for selection */}
-      <Text style={styles.title}>Select Icon Color</Text>
+      <Text style={[styles.title, styles.iconPickerTitle]}>Select Icon Color</Text>
       <View style={styles.colorGroup}>
         {colorChoice.map((item, index) => {
           const isActive = iconColor === index;
@@ -140,6 +141,7 @@ export default function CustomList({ navigation }) {
             </View>
           );
         })}
+      </View>
       </View>
       {/* show the final icon with the select shape and color */}
       <View style={[styles.icon, { backgroundColor: colorChoice[iconColor] }]}>
@@ -205,7 +207,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.deepYellow,
     width: "75%",
     height: 40,
-    borderRadius: 20,
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -215,6 +217,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     marginBottom: 12,
     marginTop: 10,
+    marginHorizontal: 20,
   },
   circle: {
     width: CIRCLE_SIZE + CIRCLE_RING_SIZE * 4,
@@ -236,8 +239,8 @@ const styles = StyleSheet.create({
   },
   icon: {
     alignSelf: 'center',
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 9999,
@@ -254,6 +257,7 @@ const styles = StyleSheet.create({
   iconSelect: {
     height: 90,
     zIndex: 9999,
+    marginTop: 10,
   },
   delete: {
     backgroundColor: colors.deepYellow,
@@ -263,4 +267,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  iconColorSelector: {
+    marginVertical: 15,
+  },
+  iconPickerTitle: {
+    marginLeft: 20,
+  }
 });
