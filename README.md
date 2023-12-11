@@ -1,30 +1,34 @@
-# Team Member  
-Yaqi Lyu, Shiqing Pan  
+# Team Member
 
-# Data Model and Collections  
+Yaqi Lyu, Shiqing Pan
+
+# Data Model and Collections
+
 Top level collections  
-collection 1: Journals  
+collection 1: Journals (Need to make an index in firebase database)  
 collection 2: Notes  
 collection 3: Lists  
-collection 4: Users  
+collection 4: Users
 
 # Current State of the application
+
 screenshot:
-https://ibb.co/qDJtwc1  
+https://ibb.co/qDJtwc1
 
 # Individual Contribution
+
 Iteration #1:
 Shiqing Pan:  
 completed the Wishlist, WishNote, AddToList and CustomList screens with CRUD operations  
 completed layouts for these screens  
 implemented navigation for these screens  
-created other reusable components  
-    
+created other reusable components
+
 Yaqi Lyu:  
 completed the Visited, Visited Journal, Explore screens with CRUD operations  
 completed the Profile screen  
 completed basic layouts for these screens  
-implemented navigation for home and these screens  
+implemented navigation for home and these screens
 
 Iteration #2:
 Shiqing Pan:
@@ -32,9 +36,8 @@ Completed functionalities for the Map screen to get user location and allow user
 Allowed transformation between address and coordinates
 Allowed list selection to show on the map further
 Allowed location information passed to wishnote and journalnote
-   
-Yaqi Lyu:   
+
+Yaqi Lyu:  
 Completed functions using cameras in the visited notes  
 Allowed users to add photos or take photos using their cameras  
-Set the first photo of the note as the thumbnail of note  
-
+Set the first photo of the note as the thumbnail of note

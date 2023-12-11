@@ -4,6 +4,8 @@ import { colors } from "../styles/Colors";
 import PressableButton from "./PressableButton";
 
 const HomeJournalCard = ({ journal, pressCardHandler }) => {
+  console.log(journal);
+
   const firebaseUpdateTime = new Date(
     journal.date.seconds * 1000 + journal.date.nanoseconds / 1e6
   );
@@ -16,7 +18,7 @@ const HomeJournalCard = ({ journal, pressCardHandler }) => {
   return (
     <PressableButton onPressFunction={pressHandler}>
       <View style={styles.cardContainer}>
-        {journal.images.length != 0 && (
+        <View style={styles.imgContainer}>
           <Image
             style={styles.img}
             resizeMode="cover"
@@ -24,11 +26,17 @@ const HomeJournalCard = ({ journal, pressCardHandler }) => {
               uri: journal.images[0],
             }}
           />
-        )}
+        </View>
         <View style={styles.info}>
-          <Text style={styles.title}>{journal.title}</Text>
+          <Text style={styles.title}>
+            {journal.title.slice(0, 30)}
+            {journal.title.length > 30 ? "..." : ""}
+          </Text>
           <View style={styles.subtitle}>
-            <Text>{journal.location}</Text>
+            <Text>
+              {journal.location.slice(0, 20)}
+              {journal.location.length > 20 ? "..." : ""}
+            </Text>
             <Text>{updateTime}</Text>
           </View>
         </View>
@@ -41,15 +49,17 @@ export default HomeJournalCard;
 
 const styles = StyleSheet.create({
   cardContainer: {
-    borderWidth: 0.3,
-    color: colors.lightWhite,
     borderRadius: 15,
+    backgroundColor: colors.lightGreen,
+  },
+  imgContainer: {
+    padding: 10,
+    paddingBottom: 0,
   },
   img: {
     width: "100%",
     height: 100,
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
+    borderRadius: 15,
   },
   info: { padding: 10, color: colors.white },
   title: {

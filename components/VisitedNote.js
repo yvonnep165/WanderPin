@@ -21,6 +21,7 @@ import {
   updateJournalToDB,
 } from "../firebase/firestoreHelper";
 import ImageSection from "./ImageSection";
+import { WEATHER_API_KEY } from "@env";
 
 const VisitedNote = ({ navigation, route }) => {
   // safe area
@@ -31,7 +32,7 @@ const VisitedNote = ({ navigation, route }) => {
   const [id, setId] = useState();
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState();
   const [visibility, setVisibility] = useState(1);
   const [visitDate, setVisitDate] = useState(new Date());
   const [journal, setJournal] = useState(null);
@@ -39,6 +40,7 @@ const VisitedNote = ({ navigation, route }) => {
   const [isUploaded, setIsUploaded] = useState(false);
   const [date, setDate] = useState(new Date());
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
+  const [weather, setWeather] = useState("");
 
   // edit pages
   useEffect(() => {
@@ -58,11 +60,8 @@ const VisitedNote = ({ navigation, route }) => {
         setDate(date);
       }
 
-      if (typeof fetchedJournal.location === "object") {
-        setLocation(fetchedJournal.location.address);
-      } else {
-        setLocation(fetchedJournal.location);
-      }
+      setLocation(fetchedJournal.location);
+
       setId(fetchedJournal.id);
       setTitle(fetchedJournal.title);
       setNote(fetchedJournal.note);
@@ -149,6 +148,26 @@ const VisitedNote = ({ navigation, route }) => {
     setVisitDate(date);
   }, [date]);
 
+  // get weather after setting location and visit date
+  // useEffect(() => {
+  //   const fetchWeatherData = async () => {
+  //     try {
+  //       const response = await fetch(
+  //         `http://api.weatherstack.com/historical ? access_key = ${WEATHER_API_KEY} & query = ${}`
+  //       );
+  //       const result = await response.json();
+
+  //       // setData(result);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //     } finally {
+  //       // setIsLoading(false);
+  //     }
+  //   };
+
+  //   fetchWeatherData();
+  // }, [location, visitDate]);
+
   // cancel and submit
   const handleCancel = () => {
     navigation.navigate("Home");
@@ -205,6 +224,12 @@ const VisitedNote = ({ navigation, route }) => {
       );
       return;
     }
+    const today = new Date();
+    console.log(visitDate, today);
+    if (visitDate > today) {
+      Alert.alert("Please don't set future days as your visit date");
+      return;
+    }
     console.log(journal);
     writeToDB();
     navigation.navigate("Home");
@@ -255,7 +280,7 @@ const VisitedNote = ({ navigation, route }) => {
                   </View>
                   <Text>Location</Text>
                 </View>
-                <Text style={styles.locationText}>{location}</Text>
+                <Text style={styles.locationText}>{location?.address}</Text>
               </View>
               <AntDesign name="right" size={14} color={colors.black} />
             </View>
