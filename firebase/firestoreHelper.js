@@ -14,9 +14,9 @@ import { auth } from "./firebaseSetup";
 export async function writeJournalToDB(journal) {
   // Add a new document with a generated id.
   try {
-    // console.log(auth.currentUser.uid)
     const docRef = await addDoc(collection(database, "journals"), {
       ...journal,
+      user: auth.currentUser.uid,
     });
     console.log("Document written with ID: ", docRef.id);
   } catch (err) {
@@ -47,20 +47,6 @@ export async function downloadURL(image) {
     console.log("download url:", err);
   }
 }
-
-// export async function downloadURL(images) {
-//   try {
-//     const displayImages = [];
-//     for (const image of images) {
-//       const imageUriRef = ref(storage, image);
-//       const url = await getDownloadURL(imageUriRef);
-//       displayImages.push(url);
-//     }
-//     return displayImages;
-//   } catch (err) {
-//     console.log(err);
-//   }
-// }
 
 // add a new list to the lists collection
 export async function writeListToDB(list) {

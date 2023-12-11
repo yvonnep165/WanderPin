@@ -1,16 +1,27 @@
-import { View, Text, StyleSheet, TouchableWithoutFeedback, Alert } from 'react-native';
-import React, { useState, useEffect } from 'react';
-import PressableButton from './PressableButton';
-import IconSelect from './IconSelect';
-import InputField from './InputField';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Alert,
+} from "react-native";
+import React, { useState, useEffect } from "react";
+import PressableButton from "./PressableButton";
+import IconSelect from "./IconSelect";
+import InputField from "./InputField";
 import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../styles/Colors";
-import { icons } from '../styles/Icons';
-import { deleteListFromDB, writeListToDB, updateList, deleteNoteFromDB } from "../firebase/firestoreHelper";
+import { icons } from "../styles/Icons";
+import {
+  deleteListFromDB,
+  writeListToDB,
+  updateList,
+  deleteNoteFromDB,
+} from "../firebase/firestoreHelper";
 import { database } from "../firebase/firebaseSetup";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { useRoute } from '@react-navigation/native';
+import { useRoute } from "@react-navigation/native";
 
 const colorChoice = colors.colorOption;
 const CIRCLE_SIZE = 30;
@@ -19,7 +30,9 @@ const CIRCLE_RING_SIZE = 1;
 export default function CustomList({ navigation }) {
   const route = useRoute();
 
-  const [iconColor, setIconColor] = useState(route.params?.pressedList?.color || 0);
+  const [iconColor, setIconColor] = useState(
+    route.params?.pressedList?.color || 0
+  );
   const [icon, setIcon] = useState(route.params?.pressedList?.icon || "");
   const [showIcon, setShowIcon] = useState(null);
   const [title, setTitle] = useState(route.params?.pressedList?.title || "");
@@ -40,12 +53,12 @@ export default function CustomList({ navigation }) {
       hasError = true;
     }
     if (hasError) {
-      Alert.alert('Please name the list and select icon');
+      Alert.alert("Please name the list and select icon");
     } else {
       // update the value
       if (route.params) {
         const pressedList = route.params.pressedList;
-        updateList(pressedList.id, title, iconColor, icon)
+        updateList(pressedList.id, title, iconColor, icon);
       } else {
         // write value to database
         const newList = { title: title, color: iconColor, icon: icon };
@@ -81,7 +94,10 @@ export default function CustomList({ navigation }) {
       try {
         const pressedList = route.params.pressedList;
         // need to delete all notes with the list
-        const notesQuery = query(collection(database, "notes"), where("list", "==", pressedList));
+        const notesQuery = query(
+          collection(database, "notes"),
+          where("list", "==", pressedList)
+        );
         const notesSnapshot = await getDocs(notesQuery);
         notesSnapshot.forEach(async (doc) => {
           await deleteNoteFromDB(doc.id);
@@ -109,39 +125,45 @@ export default function CustomList({ navigation }) {
       )}
       <View style={styles.info}>
         <Text style={styles.title}>Title</Text>
-        <InputField changedHandler={changeTitle} value={title} fontSize={18}/>
+        <InputField changedHandler={changeTitle} value={title} fontSize={18} />
       </View>
       {/* icon options for selection */}
       <View style={styles.iconSelect}>
-        <Text style={[styles.title, styles.iconPickerTitle]}>Select the Icon</Text>
-        <IconSelect onValueChange={changeIcon} updateValue={route.params? route.params.pressedList.icon : null}/>
+        <Text style={[styles.title, styles.iconPickerTitle]}>
+          Select the Icon
+        </Text>
+        <IconSelect
+          onValueChange={changeIcon}
+          updateValue={route.params ? route.params.pressedList.icon : null}
+        />
       </View>
       <View style={styles.iconColorSelector}>
-      {/* color options for selection */}
-      <Text style={[styles.title, styles.iconPickerTitle]}>Select Icon Color</Text>
-      <View style={styles.colorGroup}>
-        {colorChoice.map((item, index) => {
-          const isActive = iconColor === index;
-          return (
-            <View key={item}>
-              <TouchableWithoutFeedback
-                onPress={() => {
-                  setIconColor(index);
-                }}>
-                <View
-                  style={[
-                    styles.circle,
-                    isActive && { borderColor: item },
-                  ]}>
+        {/* color options for selection */}
+        <Text style={[styles.title, styles.iconPickerTitle]}>
+          Select Icon Color
+        </Text>
+        <View style={styles.colorGroup}>
+          {colorChoice.map((item, index) => {
+            const isActive = iconColor === index;
+            return (
+              <View key={item}>
+                <TouchableWithoutFeedback
+                  onPress={() => {
+                    setIconColor(index);
+                  }}
+                >
                   <View
-                    style={[styles.circleInside, { backgroundColor: item }]}
-                  />
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-          );
-        })}
-      </View>
+                    style={[styles.circle, isActive && { borderColor: item }]}
+                  >
+                    <View
+                      style={[styles.circleInside, { backgroundColor: item }]}
+                    />
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            );
+          })}
+        </View>
       </View>
       {/* show the final icon with the select shape and color */}
       <View style={[styles.icon, { backgroundColor: colorChoice[iconColor] }]}>
@@ -164,7 +186,7 @@ export default function CustomList({ navigation }) {
         </PressableButton>
       </View>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -175,13 +197,13 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   title: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 18,
     marginBottom: 8,
     color: colors.black,
   },
   info: {
-    marginBottom: 10, 
+    marginBottom: 10,
     marginTop: 5,
     marginLeft: 20,
     marginRight: 20,
@@ -212,9 +234,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   colorGroup: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    justifyContent: "center",
+    flexWrap: "wrap",
     marginBottom: 12,
     marginTop: 10,
     marginHorizontal: 20,
@@ -223,9 +245,9 @@ const styles = StyleSheet.create({
     width: CIRCLE_SIZE + CIRCLE_RING_SIZE * 4,
     height: CIRCLE_SIZE + CIRCLE_RING_SIZE * 4,
     borderRadius: 9999,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderWidth: CIRCLE_RING_SIZE,
-    borderColor: 'transparent',
+    borderColor: "transparent",
     marginRight: 8,
     marginBottom: 12,
   },
@@ -233,16 +255,16 @@ const styles = StyleSheet.create({
     width: CIRCLE_SIZE,
     height: CIRCLE_SIZE,
     borderRadius: 9999,
-    position: 'absolute',
+    position: "absolute",
     top: CIRCLE_RING_SIZE,
     left: CIRCLE_RING_SIZE,
   },
   icon: {
-    alignSelf: 'center',
+    alignSelf: "center",
     width: 50,
     height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 9999,
     marginBottom: 24,
     shadowColor: colors.shadowColor,
@@ -272,5 +294,5 @@ const styles = StyleSheet.create({
   },
   iconPickerTitle: {
     marginLeft: 20,
-  }
+  },
 });

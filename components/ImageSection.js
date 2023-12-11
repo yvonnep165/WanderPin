@@ -34,8 +34,12 @@ const ImageSection = ({ passImageUri, images, onCheckStorage }) => {
     if (status.granted) {
       return true;
     }
-    const response = await requestPermission();
-    return response.granted;
+    try {
+      const response = await requestPermission();
+      return response.granted;
+    } catch (err) {
+      console.log("image permission", err);
+    }
   };
 
   // process images

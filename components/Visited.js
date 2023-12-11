@@ -29,7 +29,6 @@ const Visited = ({ navigation }) => {
       where("user", "==", auth.currentUser.uid),
       orderBy("date", "desc")
     );
-    // where("user", "==", auth.currentUser.uid)
     const unsubscribe = onSnapshot(
       q,
       (querySnapshot) => {
@@ -42,7 +41,7 @@ const Visited = ({ navigation }) => {
         setJournals(newArray);
       },
       (err) => {
-        console.log(err);
+        console.log("visited notes:", err);
         if (err.code === "permission-denied") {
           Alert.alert(
             "You don't have permission or there is an error in your querys"

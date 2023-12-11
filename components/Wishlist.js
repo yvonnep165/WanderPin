@@ -5,9 +5,8 @@ import { commonStyles } from "../styles/CommonStyles";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Note from "./Note";
-import { collection, onSnapshot } from "firebase/firestore";
-import { database } from "../firebase/firebaseSetup";
-import { auth } from "../firebase/firebaseSetup";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { database, auth } from "../firebase/firebaseSetup";
 
 const Wishlist = () => {
   const navigation = useNavigation();
@@ -19,18 +18,35 @@ const Wishlist = () => {
 
   // read all the notes from database
   useEffect(() => {
-    let q = collection(database, "notes");
-    onSnapshot(q, (querySnapshot) => {
-      if (!querySnapshot.empty) {
-        let newArray = [];
-        querySnapshot.forEach((docSnap) => {
-          newArray.push({ ...docSnap.data(), id: docSnap.id });
-        });
-        setNotes(newArray);
-      } else {
-        setNotes([]);
+    let q = query(
+      collection(database, "notes"),
+      where("user", "==", auth.currentUser.uid)
+    );
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
+        if (!querySnapshot.empty) {
+          let newArray = [];
+          querySnapshot.forEach((docSnap) => {
+            newArray.push({ ...docSnap.data(), id: docSnap.id });
+          });
+          setNotes(newArray);
+        } else {
+          setNotes([]);
+        }
+      },
+      (err) => {
+        console.log(err);
+        if (err.code === "permission-denied") {
+          Alert.alert(
+            "You don't have permission or there is an error in your querys"
+          );
+        }
       }
-    });
+    );
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   return (
@@ -70,7 +86,7 @@ export default Wishlist;
 const styles = StyleSheet.create({
   adding: {
     position: "absolute",
-    bottom: 25,
+    bottom: 5,
     right: 25,
     zIndex: 9999,
   },
