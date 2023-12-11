@@ -67,6 +67,9 @@ const VisitedNote = ({ navigation, route }) => {
       setJournalImages(fetchedJournal.images);
       setWeather(fetchedJournal.weather);
     }
+    if (route.params && route.params.locationData) {
+      setLocation(route.params.locationData);
+    }
   }, [route.params]);
 
   console.log(visitDate, location, weather);
