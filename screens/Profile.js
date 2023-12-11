@@ -5,10 +5,22 @@ import { getContainerStyles } from "../components/SafeArea";
 import { commonStyles } from "../styles/CommonStyles";
 import { colors } from "../styles/Colors";
 import { getJournalNumbersByUser } from "../firebase/firestoreHelper";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase/firebaseSetup";
+import PressableButton from "../components/PressableButton";
 
 const Profile = () => {
   const insets = useSafeAreaInsets();
   const container = getContainerStyles(insets);
+
+  function handleSignOut() {
+    console.log("logout pressed");
+    try {
+      signOut(auth);
+    } catch (err) {
+      console.log("sighout err", err);
+    }
+  }
 
   return (
     <View style={[container, commonStyles.container,styles.container]}>
@@ -37,6 +49,10 @@ const Profile = () => {
           <Text style={styles.subtitle}>8(temp)</Text>
         </View>
       </View>
+      <PressableButton 
+          onPressFunction={handleSignOut}>
+          <Text>Sign Out</Text>
+      </PressableButton>
     </View>
   );
 };

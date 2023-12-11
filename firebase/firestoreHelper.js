@@ -9,6 +9,7 @@ import {
 import { database } from "./firebaseSetup";
 import { getDownloadURL, ref } from "firebase/storage";
 import { storage } from "../firebase/firebaseSetup";
+import { auth } from "./firebaseSetup";
 
 export async function writeJournalToDB(journal) {
   // Add a new document with a generated id.
@@ -40,7 +41,10 @@ export async function writeJournalToDB(journal) {
 // add a new list to the lists collection
 export async function writeListToDB(list) {
   try {
-    const docRef = await addDoc(collection(database, "lists"), list);
+    const docRef = await addDoc(collection(database, "lists"), {
+      ...list,
+      user: auth.currentUser.uid,
+    });
   } catch (err) {
     console.log(err);
   }
@@ -54,6 +58,7 @@ export async function updateList(id, title, color, icon) {
       title: title,
       color: color,
       icon: icon,
+      user: auth.currentUser.uid,
     });
   } catch (err) {
     console.log(err);
@@ -72,7 +77,10 @@ export async function deleteListFromDB(id) {
 // add a new note to the notes collection
 export async function writeNoteToDB(note) {
   try {
-    const docRef = await addDoc(collection(database, "notes"), note);
+    const docRef = await addDoc(collection(database, "notes"), {
+      ...note,
+      user: auth.currentUser.uid,
+    });
   } catch (err) {
     console.log(err);
   }
@@ -88,6 +96,7 @@ export async function updateNote(updateWishNote) {
       note: updateWishNote.note,
       list: updateWishNote.list,
       reminder: updateWishNote.reminder,
+      user: auth.currentUser.uid,
     });
   } catch (err) {
     console.log(err);
