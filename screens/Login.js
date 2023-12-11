@@ -50,11 +50,15 @@ export default function Login({ navigation }) {
       <View style={styles.form}>
         <View style={styles.input}> 
           <Text style={styles.inputLabel}>Email</Text>
-          <InputField changedHandler={(email) => setEmail(email)} value={email} height={40} fontSize={20}/>
+          <InputField changedHandler={(email) => setEmail(email)} value={email}/>
         </View>
         <View style={styles.input}> 
           <Text style={styles.inputLabel}>Password</Text>
-          <InputField changedHandler={(password) => setPassword(password)} value={password} height={40} fontSize={20}/>
+          <InputField 
+            changedHandler={(password) => setPassword(password)} 
+            value={password} 
+            multiline={false}
+            secureTextEntry={true}/>
         </View>
       </View>
       <View style={styles.buttonContainer}>

@@ -12,7 +12,7 @@ import { colors } from "../styles/Colors";
 import Geocoder from "react-native-geocoding";
 import { useRoute } from "@react-navigation/native";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { database } from "../firebase/firebaseSetup";
+import { database, auth } from "../firebase/firebaseSetup";
 import ShowMapList from "../components/ShowMapLists";
 import CustomMarker from "../components/CustomMarker";
 
@@ -75,8 +75,8 @@ const Map = ({ navigation }) => {
 
   // read all the lists from database for selected list display
   useEffect(() => {
-    let q = collection(database, "lists");
-    onSnapshot(q, (querySnapshot) => {
+    let q = query(collection(database, "lists"), where("user", "==", auth.currentUser.uid));
+    let unsubscribe = onSnapshot(q, (querySnapshot) => {
       if (!querySnapshot.empty) {
         let newArray = [];
         querySnapshot.forEach((docSnap) => {
@@ -86,7 +86,19 @@ const Map = ({ navigation }) => {
       } else {
         setLists([]);
       }
-    });
+    },
+    (err) => {
+      console.log(err);
+      if (err.code === "permission-denied") {
+        Alert.alert(
+          "You don't have permission or there is an error in your querys"
+        );
+      }
+    }
+  );
+  return () => {
+    unsubscribe();
+  };
   }, []);
 
   // read all the wishLists of the selected lists from database based on the list id
@@ -94,9 +106,10 @@ const Map = ({ navigation }) => {
     if (displayList && displayList.length > 0) {
       let q = query(
         collection(database, "notes"),
-        where("list.id", "in", displayList)
+        where("list.id", "in", displayList), 
+        where("user", "==", auth.currentUser.uid)
       );
-      onSnapshot(q, (querySnapshot) => {
+      let unsubscribe = onSnapshot(q, (querySnapshot) => {
         if (!querySnapshot.empty) {
           let newArray = [];
           querySnapshot.forEach((docSnap) => {
@@ -106,8 +119,19 @@ const Map = ({ navigation }) => {
           console.log("Note To Display:", newArray);
         } else {
           setDisplayListMarker([]);
+        }},
+        (err) => {
+          console.log(err);
+          if (err.code === "permission-denied") {
+            Alert.alert(
+              "You don't have permission or there is an error in your querys"
+            );
+          }
         }
-      });
+      );
+      return () => {
+        unsubscribe();
+      };
     } else {
       setDisplayListMarker([]);
     }
@@ -366,7 +390,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.deepYellow,
     width: "40%",
     height: 40,
-    borderRadius: 20,
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
   },

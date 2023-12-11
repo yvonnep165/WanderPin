@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, Image } from "react-native";
 import React, { useState, useEffect } from "react";
-import { database } from "../firebase/firebaseSetup";
+import { database, auth } from "../firebase/firebaseSetup";
 import {
   collection,
   query,
@@ -24,7 +24,11 @@ const Visited = ({ navigation }) => {
   const [journals, setJournals] = useState([]);
 
   useEffect(() => {
-    const q = query(collection(database, "journals"), orderBy("date", "desc"));
+    const q = query(
+      collection(database, "journals"),
+      where("user", "==", auth.currentUser.uid),
+      orderBy("date", "desc")
+    );
     // where("user", "==", auth.currentUser.uid)
     const unsubscribe = onSnapshot(
       q,
@@ -39,6 +43,11 @@ const Visited = ({ navigation }) => {
       },
       (err) => {
         console.log(err);
+        if (err.code === "permission-denied") {
+          Alert.alert(
+            "You don't have permission or there is an error in your querys"
+          );
+        }
       }
     );
     return () => {
