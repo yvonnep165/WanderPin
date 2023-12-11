@@ -109,7 +109,7 @@ export default function WishNote( { navigation } ) {
       )}
       <View style={styles.info}>
         <Text style={styles.title}>Title</Text>
-        <InputField placeholder="Write the title" changedHandler={changeTitle} value={title}/>
+        <InputField changedHandler={changeTitle} value={title} fontSize={18}/>
       </View>
       <PressableButton 
           pressedStyle={styles.pressed}
@@ -126,7 +126,7 @@ export default function WishNote( { navigation } ) {
       </PressableButton>
       <View style={styles.info}>
         <Text style={styles.title}>Note</Text>
-        <InputField placeholder="Write your important note (optional)" height={200} changedHandler={changeNote} value={note}/>
+        <InputField placeholder="(optional)" height={200} changedHandler={changeNote} value={note} fontSize={18}/>
       </View>
       {/* navigate to select the list to add */}
       <PressableButton 
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.deepYellow,
     width: "75%",
     height: 40,
-    borderRadius: 20,
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
   },

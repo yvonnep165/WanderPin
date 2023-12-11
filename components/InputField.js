@@ -2,7 +2,7 @@ import { View, TextInput, StyleSheet, Keyboard, } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { colors } from "../styles/Colors";
 
-export default function InputField({changedHandler, value, placeholder, height, fontSize}) {
+export default function InputField({changedHandler, value, placeholder, height, fontSize, multiline, secureTextEntry }) {
     const [text, setText] = useState("");
 
     useEffect(() => {
@@ -22,8 +22,9 @@ export default function InputField({changedHandler, value, placeholder, height, 
         value={text}
         placeholder={placeholder}
         placeholderTextColor={colors.placeholder}
-        multiline={true}
+        multiline={multiline? multiline : true}
         onBlur={Keyboard.dismiss}
+        secureTextEntry={secureTextEntry? secureTextEntry: false}
       />
     </View>
   )
@@ -36,5 +37,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.lightGreen,
         borderRadius: 5,
         width: '100%',
+        height: 40,
+        fontSize: 20,
     },
   });
