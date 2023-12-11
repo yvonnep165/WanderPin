@@ -7,6 +7,7 @@ import { colors } from "../styles/Colors";
 import {
   downloadURL,
   getJournalNumbersByUser,
+  saveUserInfo,
   uploadImageToStorage,
 } from "../firebase/firestoreHelper";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -22,7 +23,28 @@ const Profile = () => {
 
   const insets = useSafeAreaInsets();
   const container = getContainerStyles(insets);
-  const pressAvatarHandler = () => {};
+  const pressAvatarHandler = async () => {
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      if (!result.canceled) {
+        const image = result.assets[0].uri;
+        setAvatar(image);
+        const relativeUri = await uploadImageToStorage(image);
+        const imageUri = await downloadURL(relativeUri);
+        saveUserInfo({ avatar: imageUri });
+      }
+    } catch (err) {
+      console.log("add error:", err);
+    }
+  };
+
+  // useEffect(() => {}, [avatar]);
+
   function handleSignOut() {
     console.log("logout pressed");
     try {
