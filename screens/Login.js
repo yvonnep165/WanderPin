@@ -4,8 +4,8 @@ import InputField from '../components/InputField';
 import { colors } from "../styles/Colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getContainerStyles } from "../components/SafeArea";
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { View, Text, StyleSheet, Alert } from "react-native";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/firebaseSetup";
 import { commonStyles } from "../styles/CommonStyles";
 
@@ -16,12 +16,28 @@ export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  function handleLogin(){
-    console.log("Login");
+  async function handleLogin(){
+    if (!email) {
+      Alert.alert("Email should not be empty");
+      return;
+    }
+    if (!password) {
+      Alert.alert("Password should not be empty");
+      return;
+    }
+    try {
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      console.log(userCred);
+    } catch (err) {
+      console.log(err);
+      if (err.code === "auth/invalid-login-credentials") {
+        Alert.alert("Failed to Login. Please check your email and password again");
+      }
+    }
   }
 
   function handleSignUp(){
-    navigation.navigate("Signup");
+    navigation.replace("Signup");
   }
 
   return (

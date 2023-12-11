@@ -21,7 +21,9 @@ import CustomList from "./components/CustomList"
 import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 import Welcome from "./screens/Welcome";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "./firebase/firebaseSetup";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -99,17 +101,18 @@ const AppStack = (
 export default function App() {
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
 
-  // useEffect(() => {
-  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
-  //     console.log(user);
-  //     if (user) {
-  //       // a valid user is logged in
-  //       setIsUserLoggedIn(true);
-  //     } else {
-  //       //before authentication or after logout
-  //       setIsUserLoggedIn(false);
-  //     }
-  //   })});
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      console.log(user);
+      if (user) {
+        // a valid user is logged in
+        setIsUserLoggedIn(true);
+      } else {
+        //before authentication or after logout
+        setIsUserLoggedIn(false);
+      }
+    });
+  }, []);
 
   return (
     <SafeAreaProvider>

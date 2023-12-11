@@ -4,8 +4,8 @@ import InputField from '../components/InputField';
 import { colors } from "../styles/Colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getContainerStyles } from "../components/SafeArea";
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { View, Text, StyleSheet, Alert } from "react-native";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../firebase/firebaseSetup";
 import { commonStyles } from "../styles/CommonStyles";
 
@@ -19,11 +19,51 @@ export default function Signup({ navigation }) {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   function handleLogin(){
-    navigation.navigate("Login");
+    navigation.replace("Login");
   }
 
-  function handleSignUp(){
-    console.log("sign up");
+  async function handleSignUp(){
+    // check input fields validation
+    if (!username) {
+      Alert.alert("Username should not be empty");
+      return;
+    }
+    if (!email) {
+      Alert.alert("Email should not be empty");
+      return;
+    }
+    if (!password) {
+      Alert.alert("Password should not be empty");
+      return;
+    }
+    if (!confirmPassword) {
+      Alert.alert("Confirm password should not be empty");
+      return;
+    }
+    if (confirmPassword !== password) {
+      Alert.alert("Password and Confirm Password don't match, please check");
+      return;
+    }
+    // create user account with email and password
+    try {
+      const userCred = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      // Add the username to the user's data
+      await updateProfile(userCred.user, { displayName: username });
+      console.log(userCred);
+    } catch (err) {
+      console.log("sign up error ", err.code);
+      if (err.code === "auth/invalid-email") {
+        Alert.alert("Email is invalid");
+      } else if (err.code === "auth/weak-password") {
+        Alert.alert("Password should be minimum 6 characters");
+      } else {
+        Alert.alert(`Sign Up failed with error code ${err.code}. Please try again with different information`);
+      }
+    }
   }
 
   return (
