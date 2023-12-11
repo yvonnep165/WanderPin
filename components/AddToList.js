@@ -74,7 +74,7 @@ export default function AddToList({ navigation }) {
 
   return (
     <View style={[styles.container, container]}>
-      <View>
+      <View style={styles.listContainer}>
       <FlatList 
         contentContainerStyle={{alignItems: 'center'}}
         data={lists}
@@ -98,8 +98,8 @@ export default function AddToList({ navigation }) {
           pressedStyle={styles.pressed}
           onPressFunction={handleAddNewList}>
         <View style={[styles.info, styles.label]}>
-          <Text>Add a New List</Text>
-          <AntDesign name="right" size={14} color={colors.black} />
+          <Text style={styles.newListText}>Add a New List</Text>
+          <AntDesign name="right" size={18} color={colors.black} />
         </View>
       </PressableButton>
       {/* cancel and save button */}
@@ -150,6 +150,7 @@ const styles = StyleSheet.create({
       alignItems: "center",
       gap: 10,
       justifyContent: "center",
+      marginTop: 20,
     },
     pressed: {
       opacity: 0.7,
@@ -183,5 +184,11 @@ const styles = StyleSheet.create({
     borderColor: colors.darkGreen,
     marginRight: 10,
     marginLeft: 10,
+  },
+  listContainer: {
+    marginVertical: 20,
+  },
+  newListText: {
+    fontSize: 18,
   },
   });

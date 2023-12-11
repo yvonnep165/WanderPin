@@ -44,13 +44,19 @@ export default function WishNote( { navigation } ) {
 
   // save the data to notes collection
   const handleSubmit = () => {
-    let hasError = false;
-    if (!title || !wishlistLocation || !list) {
-      hasError = true;
+    if (!title) {
+      Alert.alert('Please enter a title');
+      return
     }
-    if (hasError) {
-      Alert.alert('invalid field');
-    } else {
+    else if(!wishlistLocation){
+      Alert.alert('Please set a location');
+      return
+    }
+    else if(!list){
+      Alert.alert('Please select a list to add');
+      return
+    }
+    else {
       // update the value
       if (noteId) {
         const updateWishNote = { id: noteId, title, location: wishlistLocation, note, list, reminder};
@@ -98,15 +104,17 @@ export default function WishNote( { navigation } ) {
   return (
     <View style={[styles.container, container]}>
       {/* show a delete button when it's in edit mode */}
-      {noteId && (
-        <PressableButton
-          defaultStyle={styles.delete}
-          pressedStyle={styles.pressed}
-          onPressFunction={handleDelete}
-        >
-          <Text style={styles.submitText}>Delete</Text>
-        </PressableButton>
-      )}
+      <View style={styles.header}>
+        {noteId && (
+          <PressableButton
+            defaultStyle={styles.delete}
+            pressedStyle={styles.pressed}
+            onPressFunction={handleDelete}
+          >
+            <Text style={styles.deleteButton}>Delete</Text>
+          </PressableButton>
+        )}
+      </View>
       <View style={styles.info}>
         <Text style={styles.title}>Title</Text>
         <InputField changedHandler={changeTitle} value={title} fontSize={18}/>
@@ -117,24 +125,30 @@ export default function WishNote( { navigation } ) {
         <View style={[styles.info, styles.label]}>
         <Ionicons
           name="location"
-          size={20}
+          size={25}
           color={colors.deepYellow}
         />
-          <Text>{wishlistLocation? wishlistLocation.address : `Set Location`}</Text>
-          <AntDesign name="right" size={14} color={colors.black} />
+          <Text style={styles.description}>{wishlistLocation? wishlistLocation.address : `Set Location`}</Text>
+          <AntDesign name="right" size={20} color={colors.black}/>
         </View>
       </PressableButton>
       <View style={styles.info}>
         <Text style={styles.title}>Note</Text>
-        <InputField placeholder="(optional)" height={200} changedHandler={changeNote} value={note} fontSize={18}/>
+        <InputField 
+        placeholder="(optional)" 
+        height={200} 
+        changedHandler={changeNote} 
+        value={note} 
+        fontSize={18} 
+        multiline={true}/>
       </View>
       {/* navigate to select the list to add */}
       <PressableButton 
           pressedStyle={styles.pressed}
           onPressFunction={handleAddToList}>
         <View style={[styles.info, styles.label]}>
-          <MaterialIcons name="add-location-alt" size={20} color={colors.deepYellow} />
-          <Text>Add To List</Text>
+          <MaterialIcons name="add-location-alt" size={25} color={colors.deepYellow} />
+          <Text style={styles.description}>Add To List</Text>
           {/* show the selected list title and icon */}
           { list && <View style={styles.listContent}>
             <View style={[styles.icon, { backgroundColor: colors.colorOption[list.color] }]}>
@@ -142,16 +156,16 @@ export default function WishNote( { navigation } ) {
             </View>
             <Text style={styles.title}>{list.title}</Text>
           </View>}
-          <AntDesign name="right" size={14} color={colors.black} />
+          <AntDesign name="right" size={20} color={colors.black} />
         </View>
       </PressableButton>
       <View style={[styles.info, styles.label]}>
         <Ionicons
           name="calendar"
-          size={20}
+          size={25}
           color={colors.deepYellow}
         />
-        <Text>Set Date Reminder</Text>
+        <Text style={styles.description}>Set Date Reminder</Text>
         { /* add a switch to turn on date reminder */ }
         <Switch
           value={reminder}
@@ -218,6 +232,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     justifyContent: "center",
+    marginTop: 10,
   },
   pressed: {
     opacity: 0.7,
@@ -252,15 +267,24 @@ const styles = StyleSheet.create({
   icon: iconStyle,
   listContent: {
     flexDirection: "row",
-    marginLeft: 10,
-    marginRight: 10,
+    marginLeft: 15,
+    marginRight: 15,
   },
   delete: {
-    backgroundColor: colors.deepYellow,
     width: "25%",
     height: 40,
-    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
   },
+  description: {
+    fontSize: 15, 
+  },
+  deleteButton: {
+    color: colors.deepGreen,
+    fontWeight: "bold",
+    fontSize: 18,
+  },
+  header: {
+    flexDirection: "row-reverse",
+  }
 });
