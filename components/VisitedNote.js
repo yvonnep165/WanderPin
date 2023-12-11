@@ -60,7 +60,6 @@ const VisitedNote = ({ navigation, route }) => {
       }
 
       setLocation(fetchedJournal.location);
-
       setId(fetchedJournal.id);
       setTitle(fetchedJournal.title);
       setNote(fetchedJournal.note);
