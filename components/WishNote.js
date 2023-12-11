@@ -8,12 +8,12 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from "../styles/Colors";
 import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Switch } from '@rneui/themed';
 import InputField from './InputField';
 import { useRoute } from '@react-navigation/native';
 import { icons } from '../styles/Icons';
 import { iconStyle } from '../styles/CommonStyles';
 import { deleteNoteFromDB, updateNote, writeNoteToDB } from '../firebase/firestoreHelper';
+import NotificationManager from './NotificationManager';
 
 export default function WishNote( { navigation } ) {
   const route = useRoute();
@@ -22,8 +22,6 @@ export default function WishNote( { navigation } ) {
   const [note, setNote] = useState(route.params?.pressedWishlist?.note || route.params?.newWishNote?.note || "")
   const [noteId, setNoteId] = useState(route.params?.pressedWishlist?.id || route.params?.newWishNote?.noteId || null)
   const [wishlistLocation, setWishlistLocation] = useState(route.params?.locationData || route.params?.pressedWishlist?.location || route.params?.newWishNote?.wishlistLocation || null)
-
-  // update reminder setting later
   const [reminder, setReminder] = useState(false);
 
   // Update the state with the selected list
@@ -128,7 +126,7 @@ export default function WishNote( { navigation } ) {
           size={25}
           color={colors.deepYellow}
         />
-          <Text style={styles.description}>{wishlistLocation? wishlistLocation.address : `Set Location`}</Text>
+          <Text style={[styles.description, styles.locationDescription]}>{wishlistLocation? wishlistLocation.address : `Set Location`}</Text>
           <AntDesign name="right" size={20} color={colors.black}/>
         </View>
       </PressableButton>
@@ -154,7 +152,7 @@ export default function WishNote( { navigation } ) {
             <View style={[styles.icon, { backgroundColor: colors.colorOption[list.color] }]}>
               {foundIcon?.label}
             </View>
-            <Text style={styles.title}>{list.title}</Text>
+            <Text style={styles.listTitle}>{list.title}</Text>
           </View>}
           <AntDesign name="right" size={20} color={colors.black} />
         </View>
@@ -167,11 +165,7 @@ export default function WishNote( { navigation } ) {
         />
         <Text style={styles.description}>Set Date Reminder</Text>
         { /* add a switch to turn on date reminder */ }
-        <Switch
-          value={reminder}
-          onValueChange={(value) => setReminder(value)}
-          color={colors.deepGreen}
-        />
+        <NotificationManager changedHandler={(value)=>setReminder(value)} value={reminder}/>  
       </View>
       <View style={styles.reminder}>
       { /* date reminder notification setting will replace */ }
@@ -269,6 +263,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginLeft: 15,
     marginRight: 15,
+    alignItems: "center",
+    width: 180,
   },
   delete: {
     width: "25%",
@@ -278,6 +274,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 15, 
+    marginHorizontal: 10,
   },
   deleteButton: {
     color: colors.deepGreen,
@@ -286,5 +283,13 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row-reverse",
-  }
+  },
+  listTitle: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    color: colors.black,
+  },
+  locationDescription: {
+    width: 290,
+  },
 });

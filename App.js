@@ -22,11 +22,23 @@ import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 import Welcome from "./screens/Welcome";
 import React, { useState, useEffect } from "react";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/firebaseSetup";
+import * as Notifications from "expo-notifications";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+
+// handle local notification
+Notifications.setNotificationHandler({
+  handleNotification: async function (notification) {
+    return {
+      shouldShowAlert: true,
+      shouldPlaySound: false,
+      shouldSetBadge: true,
+    };
+  },
+});
 
 const AuthStack = (
   <>
