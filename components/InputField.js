@@ -22,9 +22,9 @@ export default function InputField({changedHandler, value, placeholder, height, 
         value={text}
         placeholder={placeholder}
         placeholderTextColor={colors.placeholder}
-        multiline={multiline? multiline : true}
+        multiline={multiline}
         onBlur={Keyboard.dismiss}
-        secureTextEntry={secureTextEntry? secureTextEntry: false}
+        secureTextEntry={secureTextEntry}
       />
     </View>
   )
