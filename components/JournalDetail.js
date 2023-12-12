@@ -16,12 +16,14 @@ import { auth, database } from "../firebase/firebaseSetup";
 import {
   deleteJournalFromDB,
   getUserInfoById,
+  updateJournalToDB,
 } from "../firebase/firestoreHelper";
 import { colors } from "../styles/Colors";
 import { downloadURL } from "../firebase/firestoreHelper";
 import Carousel from "react-native-reanimated-carousel";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
+import { weatherIcons } from "../styles/WeatherIcons";
 
 const JournalDetail = ({ route, navigation }) => {
   // safe area
@@ -29,11 +31,11 @@ const JournalDetail = ({ route, navigation }) => {
   const safeAreaContainer = getContainerStyles(insets);
 
   // initial constants
-  const originalKudos = 0;
   const [journal, setJournal] = useState(route.params.pressedCard);
   const [user, setUser] = useState();
   const [isLiked, setIsLiked] = useState(false);
-  const [kudos, setKudos] = useState(originalKudos);
+  const [originalKudos, setOriginalKudos] = useState(0);
+  const [kudos, setKudos] = useState(0);
   const [canEdit, setCanEdit] = useState(true);
   const width = Dimensions.get("window").width * 0.95;
 
@@ -47,6 +49,7 @@ const JournalDetail = ({ route, navigation }) => {
         );
         if (foundJournal) {
           setJournal({ ...foundJournal.data(), id: foundJournal.id });
+          setOriginalKudos(foundJournal.data().kudos);
         }
       },
       (err) => {
@@ -93,14 +96,22 @@ const JournalDetail = ({ route, navigation }) => {
     navigation.goBack();
   };
 
-  const onPressHeart = () => {
-    setIsLiked(!isLiked);
-  };
+  // const onPressHeart = () => {
+  //   setIsLiked(!isLiked);
+  // };
 
-  useEffect(() => {
-    let like = isLiked ? 1 : 0;
-    setKudos(originalKudos + like);
-  }, [isLiked]);
+  // useEffect(() => {
+  //   let like = isLiked ? 1 : 0;
+  //   setKudos((prev) => originalKudos + like);
+  //   const updateKudos = async () => {
+  //     try {
+  //       updateJournalToDB(journal.id, { kudos: kudos });
+  //     } catch (err) {
+  //       console.log("update kudos error", err);
+  //     }
+  //   };
+  //   updateKudos();
+  // }, [isLiked]);
 
   const onPressEdit = () => {
     navigation.navigate("VisitedNote", {
@@ -114,7 +125,6 @@ const JournalDetail = ({ route, navigation }) => {
     navigation.navigate("Visited");
   };
 
-  //   https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png
   return (
     <View style={[safeAreaContainer, commonStyles.container]}>
       <View style={styles.containter}>
@@ -177,15 +187,21 @@ const JournalDetail = ({ route, navigation }) => {
 
           <View style={styles.info}>
             <Text style={styles.title}>{journal.title}</Text>
+            <View style={styles.leftSubtitle}>
+              <Ionicons name="location" size={15} color={colors.darkYellow} />
+              <Text numberOfLines={2}>{journal.location.address}</Text>
+            </View>
             <View style={styles.subTitleBadge}>
               <Text style={styles.subTitle}>Visit Date: {date}</Text>
+              {weatherIcons[journal.weather.code]}
+              <Text>{journal.weather.temp}°C</Text>
             </View>
             <Text>{journal.note}</Text>
-            <Text style={styles.extraInfo}>{updateTime}</Text>
+            <Text style={styles.extraInfo}>Edit Date: {updateTime}</Text>
           </View>
         </ScrollView>
 
-        <View style={styles.bottomContainer}>
+        {/* <View style={styles.bottomContainer}>
           <PressableButton onPressFunction={onPressHeart}>
             {isLiked ? (
               <Ionicons
@@ -202,7 +218,7 @@ const JournalDetail = ({ route, navigation }) => {
             )}
           </PressableButton>
           {kudos ? <Text>{kudos}</Text> : <Text>Like</Text>}
-        </View>
+        </View> */}
       </View>
     </View>
   );
@@ -259,6 +275,9 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 10,
     marginBottom: 15,
+    flexDirection: "row",
+    gap: 5,
+    alignItems: "center",
   },
   subTitle: {
     fontSize: 16,
@@ -277,5 +296,12 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     borderTopWidth: 0.5,
     borderColor: colors.lightGray,
+    marginBottom: 10,
+  },
+  leftSubtitle: {
+    flexDirection: "row",
+    gap: 5,
+    alignItems: "center",
+    paddingBottom: 15,
   },
 });

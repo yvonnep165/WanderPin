@@ -124,11 +124,12 @@ export async function deleteNoteFromDB(id) {
   }
 }
 
+// update a journal to database
 export async function updateJournalToDB(journal, updateField) {
   try {
     await updateDoc(doc(database, "journals", journal), updateField);
   } catch (err) {
-    console.log(err);
+    console.log("update journal", err);
   }
 }
 
