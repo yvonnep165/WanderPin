@@ -11,7 +11,7 @@ import {
 import AddButton from "./AddButton";
 import { colors } from "../styles/Colors";
 import { commonStyles } from "../styles/CommonStyles";
-import { useNavigation } from "@react-navigation/native";
+
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { FlatList } from "react-native-gesture-handler";
 import HomeJournalCard from "./HomeJournalCard";

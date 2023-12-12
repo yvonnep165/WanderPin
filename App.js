@@ -51,7 +51,7 @@ const MainStack = () => (
   <Tab.Navigator
     screenOptions={{
       headerShown: false,
-      tabBarStyle: { backgroundColor: colors.lightGreen, paddingTop: 10 },
+      tabBarStyle: { backgroundColor: colors.lightGreen, paddingVertical: 10 },
       tabBarActiveTintColor: colors.deepGreen,
     }}
   >

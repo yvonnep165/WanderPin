@@ -5,6 +5,8 @@ import {
   doc,
   deleteDoc,
   getDocs,
+  getDoc,
+  setDoc,
 } from "firebase/firestore";
 import { database } from "./firebaseSetup";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
@@ -135,5 +137,35 @@ export async function deleteJournalFromDB(id) {
     await deleteDoc(doc(database, "journals", id));
   } catch (err) {
     console.log(err);
+  }
+}
+
+// save user to database
+export async function saveUserInfo(info) {
+  try {
+    console.log(auth.currentUser.uid);
+    await setDoc(doc(database, "users", auth.currentUser.uid), info, {
+      merge: true,
+    });
+    console.log("User saved");
+  } catch (err) {
+    console.log("save user info", err);
+  }
+}
+
+// get user info from db
+export async function getUserInfoById(id) {
+  try {
+    console.log(id);
+    const docSnap = await getDoc(doc(database, "users", id));
+    if (docSnap.exists()) {
+      const userData = docSnap.data();
+      return userData;
+    } else {
+      console.log("Document does not exist");
+      return null;
+    }
+  } catch (err) {
+    console.log("get user info by id", err);
   }
 }

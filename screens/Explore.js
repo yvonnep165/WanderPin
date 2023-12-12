@@ -3,19 +3,28 @@ import React, { useEffect, useInsertionEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getContainerStyles } from "../components/SafeArea";
 import { commonStyles } from "../styles/CommonStyles";
-import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  orderBy,
+} from "firebase/firestore";
 import { database } from "../firebase/firebaseSetup";
 import ExploreCard from "../components/ExploreCard";
 
-const Explore = ({navigation}) => {
+const Explore = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const container = getContainerStyles(insets);
 
   const [journals, setJournals] = useState([]);
 
   useEffect(() => {
-    const q = query(collection(database, "journals"), orderBy("date", "desc"), where("visibility", "==", 1));
-    // where("user", "==", auth.currentUser.uid)
+    const q = query(
+      collection(database, "journals"),
+      orderBy("date", "desc"),
+      where("visibility", "==", 1)
+    );
     const unsubscribe = onSnapshot(
       q,
       (querySnapshot) => {
@@ -37,7 +46,7 @@ const Explore = ({navigation}) => {
   }, []);
 
   const pressCardHandler = (journal) => {
-    navigation.navigate("JournalDetail", {pressedCard: journal});
+    navigation.navigate("JournalDetail", { pressedCard: journal });
   };
 
   return (

@@ -12,8 +12,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { commonStyles } from "../styles/CommonStyles";
 import PressableButton from "./PressableButton";
 import { onSnapshot, collection } from "firebase/firestore";
-import { database } from "../firebase/firebaseSetup";
-import { deleteJournalFromDB } from "../firebase/firestoreHelper";
+import { auth, database } from "../firebase/firebaseSetup";
+import {
+  deleteJournalFromDB,
+  getUserInfoById,
+} from "../firebase/firestoreHelper";
 import { colors } from "../styles/Colors";
 import { downloadURL } from "../firebase/firestoreHelper";
 import Carousel from "react-native-reanimated-carousel";
@@ -28,6 +31,7 @@ const JournalDetail = ({ route, navigation }) => {
   // initial constants
   const originalKudos = 0;
   const [journal, setJournal] = useState(route.params.pressedCard);
+  const [user, setUser] = useState();
   const [isLiked, setIsLiked] = useState(false);
   const [kudos, setKudos] = useState(originalKudos);
   const [canEdit, setCanEdit] = useState(true);
@@ -53,6 +57,26 @@ const JournalDetail = ({ route, navigation }) => {
       unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const userInfo = await getUserInfoById(journal.user);
+        setUser(userInfo);
+      } catch (err) {
+        console.log("get user info", err);
+      }
+    };
+    fetchUserInfo();
+  }, [journal]);
+
+  useEffect(() => {
+    if (journal && journal.user != auth.currentUser.uid) {
+      setCanEdit(false);
+    } else {
+      setCanEdit(true);
+    }
+  }, [journal]);
 
   const firebaseUpdateTime = new Date(
     journal.editTime.seconds * 1000 + journal.editTime.nanoseconds / 1e6
@@ -103,13 +127,17 @@ const JournalDetail = ({ route, navigation }) => {
                 color={colors.black}
               />
             </PressableButton>
-            <Image
-              source={{
-                uri: "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
-              }}
-              style={styles.avatar}
-            />
-            <Text>Username</Text>
+            {user && user.avatar ? (
+              <Image source={{ uri: user.avatar }} style={styles.avatar} />
+            ) : (
+              <Image
+                source={{
+                  uri: "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=",
+                }}
+                style={styles.avatar}
+              />
+            )}
+            {user && <Text>{user.username}</Text>}
           </View>
           {canEdit && (
             <View style={styles.rightHeader}>
