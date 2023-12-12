@@ -224,9 +224,7 @@ const VisitedNote = ({ navigation, route }) => {
         if (note != journal.content) {
           updateJournalToDB(journal.id, { note: note });
         }
-        if (location != journal.location) {
-          updateJournalToDB(journal.id, { location: location });
-        }
+        updateJournalToDB(journal.id, { location: location });
         if (visibility != journal.visibility) {
           updateJournalToDB(journal.id, { visibility: visibility });
         }
