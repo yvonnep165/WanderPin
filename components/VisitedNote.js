@@ -216,6 +216,7 @@ const VisitedNote = ({ navigation, route }) => {
           weather: weather,
         };
         writeJournalToDB(newJournal);
+        saveUserInfo({ username: auth.currentUser.displayName });
       } else {
         if (title != journal.title) {
           updateJournalToDB(journal.id, { title: title });
@@ -244,7 +245,7 @@ const VisitedNote = ({ navigation, route }) => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title || !visitDate || !journalImages || !location) {
       Alert.alert(
         "Please fill out the title, location, visit date and add at least one photo"
@@ -263,9 +264,12 @@ const VisitedNote = ({ navigation, route }) => {
       Alert.alert("Please don't set future days as your visit date");
       return;
     }
-    console.log(journal);
-    writeToDB();
-    saveUserInfo({ username: auth.currentUser.displayName });
+    console.log("ready to write to db", journal);
+    try {
+      const res = await writeToDB();
+    } catch (err) {
+      console.log("wtbd", err);
+    }
     navigation.navigate("Home");
   };
 
