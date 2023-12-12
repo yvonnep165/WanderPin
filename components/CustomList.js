@@ -64,7 +64,7 @@ export default function CustomList({ navigation }) {
         const newList = { title: title, color: iconColor, icon: icon };
         writeListToDB(newList);
       }
-      navigation.navigate("AddToList");
+      navigation.goBack();
     }
   };
 
