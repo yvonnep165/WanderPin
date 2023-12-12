@@ -50,13 +50,15 @@ const ExploreCard = ({ journal, pressCardHandler }) => {
   return (
     <View style={styles.cardContainer}>
       <PressableButton onPressFunction={pressHandler}>
-        <Image
-          style={styles.img}
-          resizeMode="cover"
-          source={{
-            uri: journal.images[0],
-          }}
-        />
+        <View style={styles.imgContainer}>
+          <Image
+            style={styles.img}
+            resizeMode="cover"
+            source={{
+              uri: journal.images[0],
+            }}
+          />
+        </View>
         <View style={styles.info}>
           <Text style={styles.title}>{journal.title}</Text>
           <View style={styles.subtitle}>
@@ -90,8 +92,7 @@ export default ExploreCard;
 
 const styles = StyleSheet.create({
   cardContainer: {
-    borderWidth: 0.5,
-    color: colors.lightWhite,
+    backgroundColor: colors.lightGreen,
     borderRadius: 15,
     width: "45%",
     margin: 10,
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
   },
-  info: { padding: 10, color: colors.white },
+  info: { padding: 10 },
   title: { fontWeight: "700" },
   subtitle: {
     flexDirection: "row",
