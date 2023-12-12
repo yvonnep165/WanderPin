@@ -13,7 +13,8 @@ import { useRoute } from '@react-navigation/native';
 import { icons } from '../styles/Icons';
 import { iconStyle } from '../styles/CommonStyles';
 import { deleteNoteFromDB, updateNote, writeNoteToDB } from '../firebase/firestoreHelper';
-import NotificationManager from './NotificationManager';
+import * as Notifications from "expo-notifications";
+import { Switch } from '@rneui/themed';
 
 export default function WishNote( { navigation } ) {
   const route = useRoute();
@@ -64,8 +65,43 @@ export default function WishNote( { navigation } ) {
         const newWishlist = { title, location: wishlistLocation, note, list, reminder};
         writeNoteToDB(newWishlist);
       }
+      if (reminder) {
+        scheduleNotificationHandler();
+      }
       navigation.navigate("Wishlist");
     }
+  };
+
+  // ask the user for notification permission
+  const verifyPermission = async () => {
+  const status = await Notifications.getPermissionsAsync();
+  if (status.granted) {
+    return true;
+  }
+  const response = await Notifications.requestPermissionsAsync({
+    ios: { allowBadge: true, allowAlert: true },
+  });
+  return response.granted;
+};
+
+  // set the notification when the user clicked the button to submit
+  const scheduleNotificationHandler = async () => {
+  try {
+    const hasPermission = await verifyPermission();
+    if (!hasPermission) {
+      Alert.alert("You need to give permission to send notification");
+      return;
+    }
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: "testing title",
+        body: "this is a notification",
+      },
+      trigger: { seconds: 5 },
+    });
+  } catch (err) {
+    console.log("schedule notification error ", err);
+  }
   };
 
   // navigate to AddToList
@@ -165,7 +201,11 @@ export default function WishNote( { navigation } ) {
         />
         <Text style={styles.description}>Set Date Reminder</Text>
         { /* add a switch to turn on date reminder */ }
-        <NotificationManager changedHandler={(value)=>setReminder(value)} value={reminder}/>  
+        <Switch
+          value={reminder}
+          onValueChange={(value)=>setReminder(value)}
+          color={colors.deepGreen}
+        />
       </View>
       <View style={styles.reminder}>
       { /* date reminder notification setting will replace */ }
