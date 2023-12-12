@@ -41,26 +41,27 @@ export default function List({ list, pressHandler }) {
 }
 
 const styles = StyleSheet.create({
-  listContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 15,
-    alignItems: "center",
-  },
-  title: {
-    fontWeight: "bold",
-    marginLeft: 10,
-  },
-  default: {
-    backgroundColor: colors.lightGreen,
-    width: 220,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "flex-start",
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  icon: iconStyle,
-});
+    listContent: {
+      flexDirection: 'row',
+      justifyContent: 'space-between', 
+      paddingHorizontal: 15,
+      alignItems: 'center',
+    },
+    title: {
+      fontWeight: 'bold',
+      marginLeft: 10,
+      width: 155,
+    },
+    default: {
+        backgroundColor: colors.lightGreen,
+        width: 220,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: "center",
+        alignItems: "flex-start",  
+    },
+    pressed: {
+        opacity: 0.7,
+    },
+    icon: iconStyle,
+  });

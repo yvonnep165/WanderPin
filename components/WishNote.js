@@ -8,12 +8,14 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from "../styles/Colors";
 import { getContainerStyles } from "../components/SafeArea";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Switch } from '@rneui/themed';
 import InputField from './InputField';
 import { useRoute } from '@react-navigation/native';
 import { icons } from '../styles/Icons';
 import { iconStyle } from '../styles/CommonStyles';
 import { deleteNoteFromDB, updateNote, writeNoteToDB } from '../firebase/firestoreHelper';
+import * as Notifications from "expo-notifications";
+import { Switch } from '@rneui/themed';
+import DateTimeSelect from './DateTimeSelect';
 
 export default function WishNote( { navigation } ) {
   const route = useRoute();
@@ -22,9 +24,8 @@ export default function WishNote( { navigation } ) {
   const [note, setNote] = useState(route.params?.pressedWishlist?.note || route.params?.newWishNote?.note || "")
   const [noteId, setNoteId] = useState(route.params?.pressedWishlist?.id || route.params?.newWishNote?.noteId || null)
   const [wishlistLocation, setWishlistLocation] = useState(route.params?.locationData || route.params?.pressedWishlist?.location || route.params?.newWishNote?.wishlistLocation || null)
-
-  // update reminder setting later
-  const [reminder, setReminder] = useState(false);
+  const [reminder, setReminder] = useState(route.params?.pressedWishlist?.reminder || route.params?.newWishNote?.reminder ||false);
+  const [triggerTime, setTriggerTime] = useState(0)
 
   // Update the state with the selected list
   useFocusEffect(
@@ -44,13 +45,19 @@ export default function WishNote( { navigation } ) {
 
   // save the data to notes collection
   const handleSubmit = () => {
-    let hasError = false;
-    if (!title || !wishlistLocation || !list) {
-      hasError = true;
+    if (!title) {
+      Alert.alert('Please enter a title');
+      return
     }
-    if (hasError) {
-      Alert.alert('invalid field');
-    } else {
+    else if(!wishlistLocation){
+      Alert.alert('Please set a location');
+      return
+    }
+    else if(!list){
+      Alert.alert('Please select a list to add');
+      return
+    }
+    else {
       // update the value
       if (noteId) {
         const updateWishNote = { id: noteId, title, location: wishlistLocation, note, list, reminder};
@@ -60,8 +67,47 @@ export default function WishNote( { navigation } ) {
         const newWishlist = { title, location: wishlistLocation, note, list, reminder};
         writeNoteToDB(newWishlist);
       }
+      if (reminder) {
+        scheduleNotificationHandler(title, wishlistLocation.address, note);
+      }
       navigation.navigate("Wishlist");
     }
+  };
+
+  // ask the user for notification permission
+  const verifyPermission = async () => {
+  const status = await Notifications.getPermissionsAsync();
+  if (status.granted) {
+    return true;
+  }
+  const response = await Notifications.requestPermissionsAsync({
+    ios: { allowBadge: true, allowAlert: true },
+  });
+  return response.granted;
+};
+
+  // set the notification when the user clicked the button to submit
+  const scheduleNotificationHandler = async (title, location, note) => {
+  try {
+    const hasPermission = await verifyPermission();
+    if (!hasPermission) {
+      Alert.alert("You need to give permission to send notification");
+      return;
+    }
+    console.log("Trigger Time", triggerTime)
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: title,
+        body: `You have set a reminder for ${title}. Click to view details.`,
+        data: {
+          fullBody: `A reminder has been set at ${location} ${note? `with note: ${note}` : ""}`,
+        },
+      },
+      trigger: { seconds: triggerTime },
+    });
+  } catch (err) {
+    console.log("schedule notification error ", err);
+  }
   };
 
   // navigate to AddToList
@@ -98,15 +144,17 @@ export default function WishNote( { navigation } ) {
   return (
     <View style={[styles.container, container]}>
       {/* show a delete button when it's in edit mode */}
-      {noteId && (
-        <PressableButton
-          defaultStyle={styles.delete}
-          pressedStyle={styles.pressed}
-          onPressFunction={handleDelete}
-        >
-          <Text style={styles.submitText}>Delete</Text>
-        </PressableButton>
-      )}
+      <View style={styles.header}>
+        {noteId && (
+          <PressableButton
+            defaultStyle={styles.delete}
+            pressedStyle={styles.pressed}
+            onPressFunction={handleDelete}
+          >
+            <Text style={styles.deleteButton}>Delete</Text>
+          </PressableButton>
+        )}
+      </View>
       <View style={styles.info}>
         <Text style={styles.title}>Title</Text>
         <InputField changedHandler={changeTitle} value={title} fontSize={18}/>
@@ -117,45 +165,51 @@ export default function WishNote( { navigation } ) {
         <View style={[styles.info, styles.label]}>
         <Ionicons
           name="location"
-          size={20}
+          size={25}
           color={colors.deepYellow}
         />
-          <Text>{wishlistLocation? wishlistLocation.address : `Set Location`}</Text>
-          <AntDesign name="right" size={14} color={colors.black} />
+          <Text style={[styles.description, wishlistLocation && styles.locationDescription]}>{wishlistLocation? wishlistLocation.address : `Set Location`}</Text>
+          <AntDesign name="right" size={20} color={colors.black}/>
         </View>
       </PressableButton>
       <View style={styles.info}>
         <Text style={styles.title}>Note</Text>
-        <InputField placeholder="(optional)" height={200} changedHandler={changeNote} value={note} fontSize={18}/>
+        <InputField 
+        placeholder="(optional)" 
+        height={200} 
+        changedHandler={changeNote} 
+        value={note} 
+        fontSize={18} 
+        multiline={true}/>
       </View>
       {/* navigate to select the list to add */}
       <PressableButton 
           pressedStyle={styles.pressed}
           onPressFunction={handleAddToList}>
         <View style={[styles.info, styles.label]}>
-          <MaterialIcons name="add-location-alt" size={20} color={colors.deepYellow} />
-          <Text>Add To List</Text>
+          <MaterialIcons name="add-location-alt" size={25} color={colors.deepYellow} />
+          <Text style={styles.description}>Add To List</Text>
           {/* show the selected list title and icon */}
           { list && <View style={styles.listContent}>
             <View style={[styles.icon, { backgroundColor: colors.colorOption[list.color] }]}>
               {foundIcon?.label}
             </View>
-            <Text style={styles.title}>{list.title}</Text>
+            <Text style={styles.listTitle}>{list.title}</Text>
           </View>}
-          <AntDesign name="right" size={14} color={colors.black} />
+          <AntDesign name="right" size={20} color={colors.black} />
         </View>
       </PressableButton>
       <View style={[styles.info, styles.label]}>
         <Ionicons
           name="calendar"
-          size={20}
+          size={25}
           color={colors.deepYellow}
         />
-        <Text>Set Date Reminder</Text>
+        <Text style={styles.description}>Set Date Reminder</Text>
         { /* add a switch to turn on date reminder */ }
         <Switch
           value={reminder}
-          onValueChange={(value) => setReminder(value)}
+          onValueChange={(value)=>setReminder(value)}
           color={colors.deepGreen}
         />
       </View>
@@ -163,7 +217,7 @@ export default function WishNote( { navigation } ) {
       { /* date reminder notification setting will replace */ }
       {reminder && (
       <View style={styles.dateReminderContainer}>
-        <Text style={styles.dateReminderText}>Date Reminder</Text>
+        <DateTimeSelect onTimeChange={(seconds)=> setTriggerTime(seconds)}/>
       </View>
       )}
       </View>
@@ -218,6 +272,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     justifyContent: "center",
+    marginTop: 10,
   },
   pressed: {
     opacity: 0.7,
@@ -240,27 +295,44 @@ const styles = StyleSheet.create({
   },
   dateReminderContainer: {
     backgroundColor: colors.deepGreen,
-    borderRadius: 20,
-    padding: 10,
-    marginBottom: 10,
-    width: "90%",
-  },
-  dateReminderText: {
-    color: colors.white,
-    fontWeight: "bold",
+    borderRadius: 10,
+    padding: 5,
+    marginBottom: 8,
+    width: "70%",
   },
   icon: iconStyle,
   listContent: {
     flexDirection: "row",
-    marginLeft: 10,
-    marginRight: 10,
+    marginLeft: 15,
+    marginRight: 15,
+    alignItems: "center",
+    width: 170,
   },
   delete: {
-    backgroundColor: colors.deepYellow,
     width: "25%",
     height: 40,
-    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
+  },
+  description: {
+    fontSize: 15, 
+    marginHorizontal: 10,
+  },
+  deleteButton: {
+    color: colors.deepGreen,
+    fontWeight: "bold",
+    fontSize: 18,
+  },
+  header: {
+    flexDirection: "row-reverse",
+  },
+  listTitle: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    color: colors.black,
+    paddingRight: 12,
+  },
+  locationDescription: {
+    width: 280,
   },
 });

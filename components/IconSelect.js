@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Keyboard } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker';
 import React, {useState} from 'react';
 import { colors } from "../styles/Colors";
@@ -27,6 +27,7 @@ export default function IconSelect({onValueChange, updateValue}) {
         style={{
           backgroundColor: colors.lightGreen,
         }}
+        onBlur={Keyboard.dismiss}
       />
     </View>
   )

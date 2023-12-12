@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Alert } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -22,11 +22,23 @@ import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 import Welcome from "./screens/Welcome";
 import React, { useState, useEffect } from "react";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/firebaseSetup";
+import * as Notifications from "expo-notifications";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+
+// handle local notification
+Notifications.setNotificationHandler({
+  handleNotification: async function (notification) {
+    return {
+      shouldShowAlert: true,
+      shouldPlaySound: false,
+      shouldSetBadge: true,
+    };
+  },
+});
 
 const AuthStack = (
   <>
@@ -131,6 +143,18 @@ export default function App() {
         setIsUserLoggedIn(false);
       }
     });
+  }, []);
+
+  // let the user to view the notification details in an alert window by clicking on the notification
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+          Alert.alert('Reminder Details', response.notification.request.content.data.fullBody);
+      }
+    );
+    return () => {
+      subscription.remove();
+    };
   }, []);
 
   return (
