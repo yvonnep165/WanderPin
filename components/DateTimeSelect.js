@@ -27,14 +27,14 @@ export default function DateTimeSelect({ onTimeChange }) {
                 mode={"date"}
                 is24Hour={true}
                 onChange={onChange}
-                style={styles.dateTimePicker}
+                minimumDate={new Date()}
             />
             <DateTimePicker
                 value={date}
                 mode={"time"}
                 is24Hour={true}
                 onChange={onChange}
-                style={styles.dateTimePicker}
+                minimumDate={new Date()}
             />
       </View>
       <Text style={styles.text}>{date.toLocaleString()}</Text>
