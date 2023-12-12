@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
       },
       cardIcon: {
         width: 48,
-        height: 48,
+        height: 95,
         alignItems: 'center',
         justifyContent: 'center',
       },
@@ -137,6 +137,8 @@ const styles = StyleSheet.create({
       },
       listTitle: {
         fontSize: 12,
+        width: 60,
+        textAlign: 'center',
       },
       title: {
         fontWeight: 'bold',

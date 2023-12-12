@@ -17,7 +17,7 @@ export const verifyPermission = async () => {
 };
 
 export default function NotificationManager({changedHandler, value}) {
-    const [reminder, setReminder] = useState(false);
+    const [reminder, setReminder] = useState(value || false);
 
     useEffect(() => {
         setReminder(value);
@@ -27,7 +27,12 @@ export default function NotificationManager({changedHandler, value}) {
         setReminder(value)
         changedHandler(value)
         console.log(value);
-        // scheduleNotificationHandler()
+        if(value) {
+            scheduleNotificationHandler()
+        } 
+        // else {
+        //     cancelNotificationHandler();
+        // }
     }
 
   const scheduleNotificationHandler = async () => {

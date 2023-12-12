@@ -22,7 +22,7 @@ export default function WishNote( { navigation } ) {
   const [note, setNote] = useState(route.params?.pressedWishlist?.note || route.params?.newWishNote?.note || "")
   const [noteId, setNoteId] = useState(route.params?.pressedWishlist?.id || route.params?.newWishNote?.noteId || null)
   const [wishlistLocation, setWishlistLocation] = useState(route.params?.locationData || route.params?.pressedWishlist?.location || route.params?.newWishNote?.wishlistLocation || null)
-  const [reminder, setReminder] = useState(false);
+  const [reminder, setReminder] = useState(route.params?.pressedWishlist?.reminder || route.params?.newWishNote?.reminder ||false);
 
   // Update the state with the selected list
   useFocusEffect(
@@ -126,7 +126,7 @@ export default function WishNote( { navigation } ) {
           size={25}
           color={colors.deepYellow}
         />
-          <Text style={[styles.description, styles.locationDescription]}>{wishlistLocation? wishlistLocation.address : `Set Location`}</Text>
+          <Text style={[styles.description, wishlistLocation && styles.locationDescription]}>{wishlistLocation? wishlistLocation.address : `Set Location`}</Text>
           <AntDesign name="right" size={20} color={colors.black}/>
         </View>
       </PressableButton>
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   },
   dateReminderContainer: {
     backgroundColor: colors.deepGreen,
-    borderRadius: 20,
+    borderRadius: 10,
     padding: 10,
     marginBottom: 10,
     width: "90%",
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     marginRight: 15,
     alignItems: "center",
-    width: 180,
+    width: 170,
   },
   delete: {
     width: "25%",
@@ -288,8 +288,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 15,
     color: colors.black,
+    paddingRight: 12,
   },
   locationDescription: {
-    width: 290,
+    width: 280,
   },
 });
