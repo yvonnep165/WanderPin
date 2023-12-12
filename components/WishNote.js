@@ -15,6 +15,7 @@ import { iconStyle } from '../styles/CommonStyles';
 import { deleteNoteFromDB, updateNote, writeNoteToDB } from '../firebase/firestoreHelper';
 import * as Notifications from "expo-notifications";
 import { Switch } from '@rneui/themed';
+import DateTimeSelect from './DateTimeSelect';
 
 export default function WishNote( { navigation } ) {
   const route = useRoute();
@@ -24,6 +25,7 @@ export default function WishNote( { navigation } ) {
   const [noteId, setNoteId] = useState(route.params?.pressedWishlist?.id || route.params?.newWishNote?.noteId || null)
   const [wishlistLocation, setWishlistLocation] = useState(route.params?.locationData || route.params?.pressedWishlist?.location || route.params?.newWishNote?.wishlistLocation || null)
   const [reminder, setReminder] = useState(route.params?.pressedWishlist?.reminder || route.params?.newWishNote?.reminder ||false);
+  const [triggerTime, setTriggerTime] = useState(0)
 
   // Update the state with the selected list
   useFocusEffect(
@@ -92,6 +94,7 @@ export default function WishNote( { navigation } ) {
       Alert.alert("You need to give permission to send notification");
       return;
     }
+    console.log("Trigger Time", triggerTime)
     Notifications.scheduleNotificationAsync({
       content: {
         title: title,
@@ -100,7 +103,7 @@ export default function WishNote( { navigation } ) {
           fullBody: `A reminder has been set at ${location} ${note? `with note: ${note}` : ""}`,
         },
       },
-      trigger: { seconds: 5 },
+      trigger: { seconds: triggerTime },
     });
   } catch (err) {
     console.log("schedule notification error ", err);
@@ -214,7 +217,7 @@ export default function WishNote( { navigation } ) {
       { /* date reminder notification setting will replace */ }
       {reminder && (
       <View style={styles.dateReminderContainer}>
-        <Text style={styles.dateReminderText}>Date Reminder</Text>
+        <DateTimeSelect onTimeChange={(seconds)=> setTriggerTime(seconds)}/>
       </View>
       )}
       </View>
@@ -293,13 +296,9 @@ const styles = StyleSheet.create({
   dateReminderContainer: {
     backgroundColor: colors.deepGreen,
     borderRadius: 10,
-    padding: 10,
-    marginBottom: 10,
-    width: "90%",
-  },
-  dateReminderText: {
-    color: colors.white,
-    fontWeight: "bold",
+    padding: 5,
+    marginBottom: 8,
+    width: "70%",
   },
   icon: iconStyle,
   listContent: {

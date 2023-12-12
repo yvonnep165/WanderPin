@@ -145,6 +145,7 @@ export default function App() {
     });
   }, []);
 
+  // let the user to view the notification details in an alert window by clicking on the notification
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener(
       (response) => {
