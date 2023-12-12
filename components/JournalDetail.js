@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { commonStyles } from "../styles/CommonStyles";
 import PressableButton from "./PressableButton";
 import { onSnapshot, collection } from "firebase/firestore";
-import { database } from "../firebase/firebaseSetup";
+import { auth, database } from "../firebase/firebaseSetup";
 import {
   deleteJournalFromDB,
   getUserInfoById,
@@ -68,6 +68,14 @@ const JournalDetail = ({ route, navigation }) => {
       }
     };
     fetchUserInfo();
+  }, [journal]);
+
+  useEffect(() => {
+    if (journal && journal.user != auth.currentUser.uid) {
+      setCanEdit(false);
+    } else {
+      setCanEdit(true);
+    }
   }, [journal]);
 
   const firebaseUpdateTime = new Date(
