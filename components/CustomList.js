@@ -48,12 +48,13 @@ export default function CustomList({ navigation }) {
 
   // save the data to lists collection
   const handleSubmit = () => {
-    let hasError = false;
-    if (!title || !icon) {
-      hasError = true;
+    if (!title) {
+      Alert.alert("Please name the list");
+      return
     }
-    if (hasError) {
-      Alert.alert("Please name the list and select icon");
+    else if (!icon) {
+      Alert.alert("Please select an icon");
+      return
     } else {
       // update the value
       if (route.params) {
@@ -114,15 +115,17 @@ export default function CustomList({ navigation }) {
   return (
     <View style={[styles.container, container]}>
       {/* show a delete button when it's in edit mode */}
-      {route.params && (
-        <PressableButton
-          defaultStyle={styles.delete}
-          pressedStyle={styles.pressed}
-          onPressFunction={handleDelete}
-        >
-          <Text style={styles.submitText}>Delete</Text>
-        </PressableButton>
-      )}
+      <View style={styles.header}>
+        {route.params && (
+          <PressableButton
+            defaultStyle={styles.delete}
+            pressedStyle={styles.pressed}
+            onPressFunction={handleDelete}
+          >
+            <Text style={styles.deleteButton}>Delete</Text>
+          </PressableButton>
+        )}
+      </View>
       <View style={styles.info}>
         <Text style={styles.title}>Title</Text>
         <InputField changedHandler={changeTitle} value={title} fontSize={18} />
@@ -281,18 +284,24 @@ const styles = StyleSheet.create({
     zIndex: 9999,
     marginTop: 10,
   },
-  delete: {
-    backgroundColor: colors.deepYellow,
-    width: "25%",
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   iconColorSelector: {
     marginVertical: 15,
   },
   iconPickerTitle: {
     marginLeft: 20,
   },
+  delete: {
+    width: "25%",
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deleteButton: {
+    color: colors.deepGreen,
+    fontWeight: "bold",
+    fontSize: 18,
+  },
+  header: {
+    flexDirection: "row-reverse",
+  }
 });
