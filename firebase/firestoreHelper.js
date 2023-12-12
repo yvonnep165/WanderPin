@@ -154,10 +154,18 @@ export async function saveUserInfo(info) {
 }
 
 // get user info from db
-export async function getUserInfo() {
+export async function getUserInfoById(id) {
   try {
-    const docSnap = await getDoc(doc(database, "users", auth.currentUser.uid));
+    console.log(id);
+    const docSnap = await getDoc(doc(database, "users", id));
+    if (docSnap.exists()) {
+      const userData = docSnap.data();
+      return userData;
+    } else {
+      console.log("Document does not exist");
+      return null;
+    }
   } catch (err) {
-    console.log(err);
+    console.log("get user info by id", err);
   }
 }

@@ -2,10 +2,16 @@ import { StyleSheet, Text, View, Image } from "react-native";
 import React, { useState, useEffect } from "react";
 import PressableButton from "./PressableButton";
 import { colors } from "../styles/Colors";
-import { downloadURL } from "../firebase/firestoreHelper";
+import {
+  downloadURL,
+  getUserInfo,
+  getUserInfoById,
+} from "../firebase/firestoreHelper";
 import { Ionicons } from "@expo/vector-icons";
+import { auth } from "../firebase/firebaseSetup";
 
 const ExploreCard = ({ journal, pressCardHandler }) => {
+  const [user, setUser] = useState();
   const [isLiked, setIsLiked] = useState(false);
   const [originalKudos, setOriginalKudos] = useState(0);
   const [kudos, setKudos] = useState(0);
@@ -28,6 +34,19 @@ const ExploreCard = ({ journal, pressCardHandler }) => {
     setKudos(originalKudos + liked);
   }, [isLiked]);
 
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const userInfo = await getUserInfoById(journal.user);
+        console.log(userInfo);
+        setUser(userInfo);
+      } catch (err) {
+        console.log("get user info", err);
+      }
+    };
+    fetchUserInfo();
+  }, [journal]);
+
   return (
     <View style={styles.cardContainer}>
       <PressableButton onPressFunction={pressHandler}>
@@ -41,7 +60,7 @@ const ExploreCard = ({ journal, pressCardHandler }) => {
         <View style={styles.info}>
           <Text style={styles.title}>{journal.title}</Text>
           <View style={styles.subtitle}>
-            <Text>username</Text>
+            {user && <Text>{user.username}</Text>}
             {/* <View style={styles.kudos}>
               <PressableButton onPressFunction={onPressHeart}>
                 {isLiked ? (

@@ -19,8 +19,10 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import {
   writeJournalToDB,
   updateJournalToDB,
+  saveUserInfo,
 } from "../firebase/firestoreHelper";
 import ImageSection from "./ImageSection";
+import { auth } from "../firebase/firebaseSetup";
 
 const VisitedNote = ({ navigation, route }) => {
   // safe area
@@ -263,6 +265,7 @@ const VisitedNote = ({ navigation, route }) => {
     }
     console.log(journal);
     writeToDB();
+    saveUserInfo({ username: auth.currentUser.displayName });
     navigation.navigate("Home");
   };
 
