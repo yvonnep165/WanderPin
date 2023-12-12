@@ -66,7 +66,7 @@ export default function WishNote( { navigation } ) {
         writeNoteToDB(newWishlist);
       }
       if (reminder) {
-        scheduleNotificationHandler();
+        scheduleNotificationHandler(title, wishlistLocation.address, note);
       }
       navigation.navigate("Wishlist");
     }
@@ -85,7 +85,7 @@ export default function WishNote( { navigation } ) {
 };
 
   // set the notification when the user clicked the button to submit
-  const scheduleNotificationHandler = async () => {
+  const scheduleNotificationHandler = async (title, location, note) => {
   try {
     const hasPermission = await verifyPermission();
     if (!hasPermission) {
@@ -94,8 +94,11 @@ export default function WishNote( { navigation } ) {
     }
     Notifications.scheduleNotificationAsync({
       content: {
-        title: "testing title",
-        body: "this is a notification",
+        title: title,
+        body: `You have set a reminder for ${title}. Click to view details.`,
+        data: {
+          fullBody: `A reminder has been set at ${location} ${note? `with note: ${note}` : ""}`,
+        },
       },
       trigger: { seconds: 5 },
     });

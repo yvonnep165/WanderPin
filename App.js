@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Alert } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -143,6 +143,17 @@ export default function App() {
         setIsUserLoggedIn(false);
       }
     });
+  }, []);
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+          Alert.alert('Reminder Details', response.notification.request.content.data.fullBody);
+      }
+    );
+    return () => {
+      subscription.remove();
+    };
   }, []);
 
   return (
