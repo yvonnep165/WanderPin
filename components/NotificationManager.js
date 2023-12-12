@@ -30,9 +30,6 @@ export default function NotificationManager({changedHandler, value}) {
         if(value) {
             scheduleNotificationHandler()
         } 
-        // else {
-        //     cancelNotificationHandler();
-        // }
     }
 
   const scheduleNotificationHandler = async () => {
