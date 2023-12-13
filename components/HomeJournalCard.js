@@ -7,8 +7,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { weatherIcons } from "../styles/WeatherIcons";
 
 const HomeJournalCard = ({ journal, pressCardHandler }) => {
-  console.log(journal);
-
   const firebaseUpdateTime = new Date(
     journal.date.seconds * 1000 + journal.date.nanoseconds / 1e6
   );

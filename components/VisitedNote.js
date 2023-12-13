@@ -47,8 +47,7 @@ const VisitedNote = ({ navigation, route }) => {
   useEffect(() => {
     if (route.params && route.params.journal) {
       const fetchedJournal = route.params.journal;
-      console.log(fetchedJournal);
-      setJournal(fetchedJournal);
+      // console.log(fetchedJournal);
 
       if (fetchedJournal.visitDate) {
         const date = new Date(fetchedJournal.visitDate);
@@ -74,12 +73,12 @@ const VisitedNote = ({ navigation, route }) => {
     }
   }, [route.params]);
 
-  console.log(
-    "current visit date, location, weather",
-    visitDate,
-    location,
-    weather
-  );
+  // console.log(
+  //   "current visit date, location, weather",
+  //   visitDate,
+  //   location,
+  //   weather
+  // );
 
   // set images
   const setTakenImages = (uri, image) => {
