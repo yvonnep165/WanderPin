@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, Text, View, Image, Alert } from "react-native";
 import React, { useState, useEffect } from "react";
 import { database, auth } from "../firebase/firebaseSetup";
 import {
