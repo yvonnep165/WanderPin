@@ -47,6 +47,7 @@ const VisitedNote = ({ navigation, route }) => {
   useEffect(() => {
     if (route.params && route.params.journal) {
       const fetchedJournal = route.params.journal;
+      setJournal(route.params.journal);
       // console.log(fetchedJournal);
 
       if (fetchedJournal.visitDate) {
