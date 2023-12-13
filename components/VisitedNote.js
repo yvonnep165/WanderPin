@@ -169,7 +169,7 @@ const VisitedNote = ({ navigation, route }) => {
           // If it's a single-digit number, add a leading zero
           day = "0" + day;
         }
-        const newVisit = newVisitDate[0] + "-" + newVisitDate[1] + "-" + day;
+        const newVisit = newVisitDate[2] + "-" + newVisitDate[0] + "-" + day;
         console.log("new visit date, format", newVisitDate, newVisit);
         if (diff > 7) {
           const response = await fetch(
