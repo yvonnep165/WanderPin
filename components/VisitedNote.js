@@ -172,21 +172,25 @@ const VisitedNote = ({ navigation, route }) => {
             `https://archive-api.open-meteo.com/v1/archive?latitude=${location.latitude}&longitude=${location.longitude}&start_date=${newVisit}&end_date=${newVisit}&daily=weather_code,temperature_2m_mean`
           );
           const result = await response.json();
-          const weather = {
-            code: result.daily.temperature_2m_mean[0],
-            temp: result.daily.weather_code[0],
-          };
-          setWeather(weather);
+          if (weather) {
+            const weather = {
+              code: result.daily.temperature_2m_mean[0],
+              temp: result.daily.weather_code[0],
+            };
+            setWeather(weather);
+          }
         } else {
           const response = await fetch(
             `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&daily=weather_code,temperature_2m_max,temperature_2m_min&past_days=${diff}`
           );
           const result = await response.json();
-          const weather = {
-            code: result.daily.weather_code[0],
-            temp: result.daily.temperature_2m_max[0],
-          };
-          setWeather(weather);
+          if (result) {
+            const weather = {
+              code: result.daily.weather_code[0],
+              temp: result.daily.temperature_2m_max[0],
+            };
+            setWeather(weather);
+          }
         }
       } catch (error) {
         console.error("Error fetching weather:", error);

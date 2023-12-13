@@ -23,7 +23,7 @@ collection 4: Users
 2.google api  
 need enable Geocoding api and Places api in Google maps
 
-# Current State of the application
+# Current State of the application·
 
 screenshot:
 https://ibb.co/f2dWgzq
