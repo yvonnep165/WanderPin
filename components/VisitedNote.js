@@ -163,7 +163,7 @@ const VisitedNote = ({ navigation, route }) => {
         const diff =
           Math.ceil((new Date() - visitDate) / (1000 * 60 * 60 * 24)) - 1;
         const newVisitDate = visitDate.toLocaleDateString().split("/");
-        let day = newVisitDate[2];
+        let day = newVisitDate[1];
         let number = parseInt(day, 10);
         if (!isNaN(number) && number >= 0 && number < 10) {
           // If it's a single-digit number, add a leading zero
