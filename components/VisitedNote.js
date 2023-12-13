@@ -74,7 +74,12 @@ const VisitedNote = ({ navigation, route }) => {
     }
   }, [route.params]);
 
-  console.log(visitDate, location, weather);
+  console.log(
+    "current visit date, location, weather",
+    visitDate,
+    location,
+    weather
+  );
 
   // set images
   const setTakenImages = (uri, image) => {
@@ -159,34 +164,38 @@ const VisitedNote = ({ navigation, route }) => {
         const diff =
           Math.ceil((new Date() - visitDate) / (1000 * 60 * 60 * 24)) - 1;
         const newVisitDate = visitDate.toLocaleDateString().split("/");
-        let day = newVisitDate[1];
+        let day = newVisitDate[2];
         let number = parseInt(day, 10);
         if (!isNaN(number) && number >= 0 && number < 10) {
           // If it's a single-digit number, add a leading zero
           day = "0" + day;
         }
-        const newVisit = newVisitDate[2] + "-" + newVisitDate[0] + "-" + day;
-        console.log(newVisitDate, newVisit);
+        const newVisit = newVisitDate[0] + "-" + newVisitDate[1] + "-" + day;
+        console.log("new visit date, format", newVisitDate, newVisit);
         if (diff > 7) {
           const response = await fetch(
             `https://archive-api.open-meteo.com/v1/archive?latitude=${location.latitude}&longitude=${location.longitude}&start_date=${newVisit}&end_date=${newVisit}&daily=weather_code,temperature_2m_mean`
           );
           const result = await response.json();
-          const weather = {
-            code: result.daily.temperature_2m_mean[0],
-            temp: result.daily.weather_code[0],
-          };
-          setWeather(weather);
+          if (result) {
+            const weather = {
+              code: result.daily.weather_code[0],
+              temp: result.daily.temperature_2m_mean[0],
+            };
+            setWeather(weather);
+          }
         } else {
           const response = await fetch(
             `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&daily=weather_code,temperature_2m_max,temperature_2m_min&past_days=${diff}`
           );
           const result = await response.json();
-          const weather = {
-            code: result.daily.weather_code[0],
-            temp: result.daily.temperature_2m_max[0],
-          };
-          setWeather(weather);
+          if (result) {
+            const weather = {
+              code: result.daily.weather_code[0],
+              temp: result.daily.temperature_2m_max[0],
+            };
+            setWeather(weather);
+          }
         }
       } catch (error) {
         console.error("Error fetching weather:", error);
