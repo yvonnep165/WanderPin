@@ -17,10 +17,10 @@ collection 4: Users
    (1)Collection id: journals; Fields indexed: visibility ascending, date descending, **name** descending; query scope: Collection
    (2)Collection id: journals; Fields indexed: user ascending, date descending, **name** descending; query scope: Collection
 
-   Note: We've tried to make the index first in the firebase database, but it didn't work.  
-    The current effective method for us is to run the program first and wait for the Firebase index error to occur. Upon encountering the error, click the URL provided in the error message, and it will automatically generate the required index. This program requires two indexes.
+   Note: We've tried to manully make the index first in the firebase database, but it didn't work.  
+    The current effective method for us is to run the program first and wait for the Firebase index error to occur. Upon encountering the error, click the URL provided in the error message, and it will automatically generate the required index. Just the save the generated index. This program requires two indexes.
 
-2.google api  
+2. google api  
 need enable Geocoding api and Places api in Google maps
 
 # Current State of the application·
@@ -57,6 +57,10 @@ Set the first photo of the note as the thumbnail of note
 
 Iteration #3:  
 Shiqing Pan:
+Completed the functionalities for authentication and notification
+Updated the rules in firebase and adjusted the firebase helper functions
+Updated styling for wishNote, Add to List and CustomList
+Designed and add a welcome page for the app
 
 Yaqi Lyu:  
 Updated the features for the Profile Screen  
