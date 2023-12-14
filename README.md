@@ -67,3 +67,6 @@ Updated the features for the Profile Screen
 Updated styling for navigation, Visited Journal and Explore cards  
 Implemented the process of fetching data from the weather API, saving, updating and displaying weather information  
 Updated all user-related features, providing distinct actions based on different user roles
+
+# Link to the Demo Video:  
+https://youtu.be/bkJYNCjTLV4
