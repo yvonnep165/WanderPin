@@ -30,7 +30,7 @@ https://ibb.co/f2dWgzq
 
 # Individual Contribution
 
-Iteration #1:
+Iteration #1:  
 Shiqing Pan:  
 completed the Wishlist, WishNote, AddToList and CustomList screens with CRUD operations  
 completed layouts for these screens  
@@ -45,10 +45,10 @@ implemented navigation for home and these screens
 
 Iteration #2:  
 Shiqing Pan:  
-Completed functionalities for the Map screen to get user location and allow user select location on the map
-Allowed transformation between address and coordinates
-Allowed list selection to show on the map further
-Allowed location information passed to wishnote and journalnote
+Completed functionalities for the Map screen to get user location and allow user select location on the map  
+Allowed transformation between address and coordinates  
+Allowed list selection to show on the map further  
+Allowed location information passed to wishnote and journalnote  
 
 Yaqi Lyu:  
 Completed functions using cameras in the visited notes  
@@ -56,11 +56,11 @@ Allowed users to add photos or take photos using their cameras
 Set the first photo of the note as the thumbnail of note
 
 Iteration #3:  
-Shiqing Pan:
-Completed the functionalities for authentication and notification
-Updated the rules in firebase and adjusted the firebase helper functions
-Updated styling for wishNote, Add to List and CustomList
-Designed and add a welcome page for the app
+Shiqing Pan:  
+Completed the functionalities for authentication and notification  
+Updated the rules in firebase and adjusted the firebase helper functions  
+Updated styling for wishNote, Add to List and CustomList  
+Designed and add a welcome page for the app  
 
 Yaqi Lyu:  
 Updated the features for the Profile Screen  
