@@ -45,15 +45,19 @@ const ImageSection = ({ passImageUri, images, onCheckStorage }) => {
   // process images
   const imageHandler = async (image) => {
     try {
-      setTempPhotos([...tempPhotos, image]);
+      setTempPhotos((prev) => [...prev, image]);
       const relativeUri = await uploadImageToStorage(image);
       const imageUri = await downloadURL(relativeUri);
-      setPhotos([...photos, imageUri]);
+      setPhotos((prev) => [...prev, imageUri]);
       passImageUri(imageUri, image);
     } catch (err) {
       console.log("imageHandler error:", err);
     }
   };
+
+  useEffect(() => {
+    console.log("temp", tempPhotos, "photo:", photos);
+  }, [photos, tempPhotos]);
 
   // add photos
   const addImageHandler = async () => {
@@ -66,7 +70,7 @@ const ImageSection = ({ passImageUri, images, onCheckStorage }) => {
       });
       if (!result.canceled) {
         const image = result.assets[0].uri;
-        imageHandler(image);
+        await imageHandler(image);
       }
     } catch (err) {
       console.log("add error:", err);
@@ -86,7 +90,7 @@ const ImageSection = ({ passImageUri, images, onCheckStorage }) => {
       });
       if (!result.canceled) {
         const image = result.assets[0].uri;
-        imageHandler(image);
+        await imageHandler(image);
       }
     } catch (err) {
       console.log("take image error ", err);
